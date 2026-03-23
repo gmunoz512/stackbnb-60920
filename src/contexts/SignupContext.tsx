@@ -104,7 +104,7 @@ export const SignupProvider = ({ children }: { children: ReactNode }) => {
   });
 
   // Debounced persistence to sessionStorage (500ms delay for mobile performance)
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (debounceRef.current) {
