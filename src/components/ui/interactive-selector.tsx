@@ -73,7 +73,7 @@ const InteractiveSelector = ({ photos, titles, icons }: InteractiveSelectorProps
    };
  
   useEffect(() => {
-    const timers: NodeJS.Timeout[] = [];
+    const timers: ReturnType<typeof setTimeout>[] = [];
     
     options.forEach((_, i) => {
       const timer = setTimeout(() => {
