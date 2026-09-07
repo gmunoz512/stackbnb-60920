@@ -290,7 +290,7 @@ const Explore = () => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="border-0 bg-transparent text-sm h-6 shadow-none focus-visible:ring-0 px-0 placeholder:text-muted-foreground flex-1 min-w-0"
                   />
-                  <button className="bg-gradient-to-r from-orange-500 to-purple-600 text-white rounded-full p-1.5 flex-shrink-0">
+                  <button aria-label="Search" className="bg-gradient-to-r from-orange-500 to-purple-600 text-white rounded-full p-1.5 flex-shrink-0">
                     <Search className="h-3 w-3" />
                   </button>
                 </div>

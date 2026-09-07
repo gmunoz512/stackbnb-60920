@@ -96,7 +96,7 @@ const AllExperiences = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">
-          <button onClick={handleBack} className="p-2 -ml-2 hover:bg-accent rounded-full">
+          <button aria-label="Go back" onClick={handleBack} className="p-2 -ml-2 hover:bg-accent rounded-full">
             <ArrowLeft className="h-5 w-5" />
           </button>
           <Link to="/appview" className="flex items-center gap-2">

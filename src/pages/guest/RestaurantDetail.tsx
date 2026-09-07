@@ -260,17 +260,17 @@ const RestaurantDetail = () => {
         {/* Floating header bar */}
         <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
           <div className="px-4 py-3 flex items-center justify-between">
-            <button
+            <button aria-label="Go back"
               onClick={handleBack}
               className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
             <div className="flex items-center gap-1">
-              <button onClick={handleShare} className="p-2 rounded-full hover:bg-muted transition-colors">
+              <button aria-label="Share this restaurant" onClick={handleShare} className="p-2 rounded-full hover:bg-muted transition-colors">
                 <Share className="h-5 w-5" />
               </button>
-              <button
+              <button aria-label="Toggle favorite"
                 onClick={toggleFavorite}
                 className="p-2 rounded-full hover:bg-muted transition-colors"
               >
