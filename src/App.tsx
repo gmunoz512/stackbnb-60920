@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +10,7 @@ import { ProfileProvider } from "./contexts/ProfileContext";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -20,107 +21,99 @@ const queryClient = new QueryClient({
   },
 });
 
-// Guest pages
-import {
-  Explore,
-  ExperienceDetailsPage,
-  BookingForm,
-  PaymentPage,
-  BookingConfirmation,
-  Storefront,
-  Booking,
-  Confirmation,
-  AppView,
-  Profile,
-  TripPlannerChat,
-  RestaurantDetail,
-  Wishlists,
-  AllRestaurants,
-  AllExperiences,
-  GuestGuide,
-  MyBookings,
-  Conversation,
-  RequestRefund,
-  Itinerary,
-  SharedItinerary,
-  TripItinerary,
-  PaymentSuccess,
-} from "./pages/guest";
+// Landing page is eager so the first paint is instant
+import SplashPage from "./pages/marketing/SplashPage";
 
-// Host pages
-import {
-  HostDashboard,
-  HostVendors,
-  AddVendor,
-  HostProfile,
-  HostAuth,
-  EditHostProfile,
-  PaymentSettings,
-  PayoutHistory,
-  HostBookings,
-  HostActiveVendors,
-  HostEarnings,
-  HostRatings,
-  HostStorefront,
-  HostVendorManagement,
-} from "./pages/host";
+// Guest pages (lazy)
+const Explore = lazy(() => import("./pages/guest/Explore"));
+const ExperienceDetailsPage = lazy(() => import("./pages/guest/ExperienceDetailsPage"));
+const BookingForm = lazy(() => import("./pages/guest/BookingForm"));
+const PaymentPage = lazy(() => import("./pages/guest/PaymentPage"));
+const BookingConfirmation = lazy(() => import("./pages/guest/BookingConfirmation"));
+const AppView = lazy(() => import("./pages/guest/AppView"));
+const Profile = lazy(() => import("./pages/guest/Profile"));
+const TripPlannerChat = lazy(() => import("./pages/guest/TripPlannerChat"));
+const RestaurantDetail = lazy(() => import("./pages/guest/RestaurantDetail"));
+const Wishlists = lazy(() => import("./pages/guest/Wishlists"));
+const AllRestaurants = lazy(() => import("./pages/guest/AllRestaurants"));
+const AllExperiences = lazy(() => import("./pages/guest/AllExperiences"));
+const GuestGuide = lazy(() => import("./pages/guest/GuestGuide"));
+const MyBookings = lazy(() => import("./pages/guest/MyBookings"));
+const Conversation = lazy(() => import("./pages/guest/Conversation"));
+const RequestRefund = lazy(() => import("./pages/guest/RequestRefund"));
+const Itinerary = lazy(() => import("./pages/guest/Itinerary"));
+const SharedItinerary = lazy(() => import("./pages/guest/SharedItinerary"));
+const TripItinerary = lazy(() => import("./pages/guest/TripItinerary"));
+const PaymentSuccess = lazy(() => import("./pages/guest/PaymentSuccess"));
 
-// Vendor pages
-import {
-  VendorDashboard,
-  AddService,
-  VendorProfile,
-  VendorSettings,
-  VendorPaymentSettings,
-  VendorPayoutHistory,
-  AllBookings,
-  ActiveHosts,
-  RevenueBreakdown,
-  VendorRatings,
-  CreateVendorProfile,
-  VendorProfilePreview,
-  VendorPublicProfile,
-  VendorBookingForm,
-  TestInstagramScrape,
-} from "./pages/vendor";
+// Host pages (lazy)
+const HostDashboard = lazy(() => import("./pages/host/Dashboard"));
+const HostVendors = lazy(() => import("./pages/host/Vendors"));
+const AddVendor = lazy(() => import("./pages/host/AddVendor"));
+const HostProfile = lazy(() => import("./pages/host/Profile"));
+const HostAuth = lazy(() => import("./pages/host/Auth"));
+const EditHostProfile = lazy(() => import("./pages/host/EditProfile"));
+const PaymentSettings = lazy(() => import("./pages/host/PaymentSettings"));
+const PayoutHistory = lazy(() => import("./pages/host/PayoutHistory"));
+const HostBookings = lazy(() => import("./pages/host/Bookings"));
+const HostActiveVendors = lazy(() => import("./pages/host/ActiveVendors"));
+const HostEarnings = lazy(() => import("./pages/host/Earnings"));
+const HostRatings = lazy(() => import("./pages/host/Ratings"));
+const HostStorefront = lazy(() => import("./pages/host/Storefront"));
+const HostVendorManagement = lazy(() => import("./pages/host/VendorManagement"));
 
-// Auth pages
-import {
-  Auth,
-  ResetPassword,
-  ChangePassword,
-  SignIn,
-  SignOut,
-} from "./pages/auth";
+// Vendor pages (lazy)
+const VendorDashboard = lazy(() => import("./pages/vendor/Dashboard"));
+const AddService = lazy(() => import("./pages/vendor/AddService"));
+const VendorProfile = lazy(() => import("./pages/vendor/Profile"));
+const VendorSettings = lazy(() => import("./pages/vendor/Settings"));
+const VendorPaymentSettings = lazy(() => import("./pages/vendor/PaymentSettings"));
+const VendorPayoutHistory = lazy(() => import("./pages/vendor/PayoutHistory"));
+const AllBookings = lazy(() => import("./pages/vendor/AllBookings"));
+const ActiveHosts = lazy(() => import("./pages/vendor/ActiveHosts"));
+const RevenueBreakdown = lazy(() => import("./pages/vendor/RevenueBreakdown"));
+const VendorRatings = lazy(() => import("./pages/vendor/Ratings"));
+const CreateVendorProfile = lazy(() => import("./pages/vendor/CreateProfile"));
+const VendorProfilePreview = lazy(() => import("./pages/vendor/ProfilePreview"));
+const VendorPublicProfile = lazy(() => import("./pages/vendor/PublicProfile"));
+const VendorBookingForm = lazy(() => import("./pages/vendor/BookingForm"));
+const TestInstagramScrape = lazy(() => import("./pages/vendor/UploadPhotos"));
 
-// Marketing pages
-import {
-  ForHosts,
-  ForVendors,
-  SplashPage,
-} from "./pages/marketing";
+// Auth pages (lazy)
+const Auth = lazy(() => import("./pages/auth/Auth"));
+const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
+const ChangePassword = lazy(() => import("./pages/auth/ChangePassword"));
+const SignIn = lazy(() => import("./pages/auth/SignIn"));
+const SignOut = lazy(() => import("./pages/auth/SignOut"));
 
-// Legal pages
-import {
-  PrivacyPolicy,
-  TermsOfService,
-  HelpSupport,
-} from "./pages/legal";
+// Marketing pages (lazy)
+const ForHosts = lazy(() => import("./pages/marketing/ForHosts"));
+const ForVendors = lazy(() => import("./pages/marketing/ForVendors"));
 
-// Admin pages
-import {
-  PlatformSettings,
-  AdminPromoCodes,
-  VendorApprovals,
-  HostVerifications,
-  MessageModeration,
-  FraudAlerts,
-  RefundRequests,
-  TrustScoreMonitoring,
-} from "./pages/admin";
+// Legal pages (lazy)
+const PrivacyPolicy = lazy(() => import("./pages/legal/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/legal/TermsOfService"));
+const HelpSupport = lazy(() => import("./pages/legal/HelpSupport"));
+
+// Admin pages (lazy)
+const PlatformSettings = lazy(() => import("./pages/admin/PlatformSettings"));
+const AdminPromoCodes = lazy(() => import("./pages/admin/PromoCodes"));
+const VendorApprovals = lazy(() => import("./pages/admin/VendorApprovals"));
+const HostVerifications = lazy(() => import("./pages/admin/HostVerifications"));
+const MessageModeration = lazy(() => import("./pages/admin/MessageModeration"));
+const FraudAlerts = lazy(() => import("./pages/admin/FraudAlerts"));
+const RefundRequests = lazy(() => import("./pages/admin/RefundRequests"));
+const TrustScoreMonitoring = lazy(() => import("./pages/admin/TrustScoreMonitoring"));
 
 // Standalone pages
-import NotFound from "./pages/NotFound";
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen bg-background">
+    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+  </div>
+);
+
 
 // Protected route component for admins - checks user_roles table for admin role via DB
 const ProtectedAdminRoute = ({ children }: { children: React.ReactNode }) => {
