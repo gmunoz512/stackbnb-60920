@@ -197,6 +197,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AppRoutes = () => (
+  <Suspense fallback={<PageLoader />}>
   <Routes>
     <Route path="/" element={<SplashPage />} />
     {/* Legacy route - redirect to unified auth */}
@@ -392,6 +393,7 @@ const AppRoutes = () => (
     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
     <Route path="*" element={<NotFound />} />
   </Routes>
+  </Suspense>
 );
 
 const App = () => {
