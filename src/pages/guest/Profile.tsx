@@ -125,6 +125,19 @@ const Profile = () => {
     navigate("/");
   };
 
+  if (authLoading) {
+    return <div className="min-h-screen bg-background" />;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <SignInPrompt
+        title="Sign in to view your profile"
+        description="Your details, saved places and bookings live here."
+      />
+    );
+  }
+
   return (
     <PageTransition className="min-h-screen bg-background pb-24">
       <div className="max-w-[375px] mx-auto px-4 py-6 space-y-6">
