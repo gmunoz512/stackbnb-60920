@@ -173,7 +173,7 @@ const Conversation = () => {
       <div className="max-w-[375px] mx-auto w-full flex flex-col h-screen">
         {/* Header */}
         <div className="px-4 py-3 border-b flex items-center gap-3">
-          <button onClick={goBack} className="p-1">
+          <button aria-label="Go back" onClick={goBack} className="p-1">
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div className="flex-1">

@@ -131,7 +131,7 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
               alt={restaurant.name}
               className="group-hover:scale-105 transition-transform duration-500"
             />
-            <button
+            <button aria-label="Toggle favorite"
               onClick={toggleFavorite}
               className="absolute top-1.5 right-1.5 p-1 rounded-full hover:scale-110 active:scale-95 transition-transform"
             >
@@ -211,7 +211,7 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
           
           {/* Add to guide button (for hosts) - Top Left */}
           {showAddButton ? (
-            <button
+            <button aria-label="Add restaurant to guide"
               onClick={handleAddToGuide}
               disabled={isAdding}
               className={`absolute top-2 left-2 z-20 p-2 rounded-full shadow-lg transition-all duration-200 ${

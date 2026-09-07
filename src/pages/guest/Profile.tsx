@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, User, LogOut } from "lucide-react";
 import { profileSchema, type ProfileFormData } from "@/lib/validations";
 import { PageTransition } from "@/components/PageTransition";
+import { SignInPrompt } from "@/components/SignInPrompt";
+import { useAuthContext } from "@/contexts/AuthContext";
 import {
   Form,
   FormControl,
@@ -22,7 +24,9 @@ import {
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isAuthenticated, isLoading: authLoading } = useAuthContext();
   const [loading, setLoading] = useState(false);
+
 
   const handleBack = () => {
     if (window.history.length > 1) {
@@ -44,16 +48,9 @@ const Profile = () => {
   });
 
   useEffect(() => {
-    checkAuth();
     loadProfile();
   }, []);
 
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate("/auth");
-    }
-  };
 
   const loadProfile = async () => {
     try {
@@ -127,6 +124,19 @@ const Profile = () => {
     await supabase.auth.signOut();
     navigate("/");
   };
+
+  if (authLoading) {
+    return <div className="min-h-screen bg-background" />;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <SignInPrompt
+        title="Sign in to view your profile"
+        description="Your details, saved places and bookings live here."
+      />
+    );
+  }
 
   return (
     <PageTransition className="min-h-screen bg-background pb-24">

@@ -159,7 +159,7 @@ export const ExperienceCard = ({ experience, showAddButton = false, index = 0 }:
           
           {/* Add Button for Hosts - Top Left (replaces emoji badge) */}
           {shouldShowButton ? (
-            <button
+            <button aria-label="Add experience to guide"
               onClick={handleAddClick}
               disabled={isLoading}
               className={`absolute top-2 left-2 z-20 p-2 rounded-full shadow-lg transition-all duration-200 ${

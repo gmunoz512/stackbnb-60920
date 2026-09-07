@@ -142,25 +142,13 @@ END:VCALENDAR`;
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background pb-8">
-        <div className="max-w-[375px] mx-auto px-4 py-6 space-y-6">
-          <button 
-            onClick={goBack}
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors active:scale-95"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </button>
-          <div className="text-center space-y-4 py-12">
-            <h1 className="text-xl font-bold">Sign in to view your bookings</h1>
-            <Button onClick={() => navigate('/auth')} variant="gradient">
-              Sign In
-            </Button>
-          </div>
-        </div>
-      </div>
+      <SignInPrompt
+        title="Sign in to view your bookings"
+        description="Track upcoming trips, message hosts and request refunds."
+      />
     );
   }
+
 
   return (
     <PageTransition className="min-h-screen bg-background pb-8">

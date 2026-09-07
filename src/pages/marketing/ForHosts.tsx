@@ -445,7 +445,7 @@ const ForHosts = () => {
       <div className="page-content">
         {/* Header */}
         <header className="minimal-header">
-          <button onClick={handleBack} className="back-btn">
+          <button aria-label="Go back" onClick={handleBack} className="back-btn">
             <ArrowLeft className="h-5 w-5" />
           </button>
           <Link to="/" className="brand-link">
