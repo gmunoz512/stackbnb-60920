@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { PasswordResetOTPDialog } from "@/components/PasswordResetOTPDialog";
 
 const HostAuth = () => {
   const navigate = useNavigate();
@@ -13,7 +14,8 @@ const HostAuth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [showOTPDialog, setShowOTPDialog] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,7 +82,7 @@ const HostAuth = () => {
     }
   };
 
-  const handleForgotPassword = async () => {
+  const handleForgotPassword = () => {
     const trimmedEmail = email.trim();
 
     if (!trimmedEmail) {
@@ -88,30 +90,17 @@ const HostAuth = () => {
       return;
     }
 
-    setIsResettingPassword(true);
-    try {
-      // Use edge function to generate direct reset link (dev mode)
-      const { data, error } = await supabase.functions.invoke('generate-reset-link', {
-        body: { email: trimmedEmail }
-      });
-
-      if (error) throw error;
-
-      if (data?.link) {
-        // Open the reset link directly
-        window.open(data.link, '_blank');
-        toast.success("Reset link opened in new tab!");
-      } else {
-        toast.error("Could not generate reset link");
-      }
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to generate reset link");
-    } finally {
-      setIsResettingPassword(false);
-    }
+    setResetEmail(trimmedEmail);
+    setShowOTPDialog(true);
   };
 
   return (
+    <>
+      <PasswordResetOTPDialog
+        open={showOTPDialog}
+        onOpenChange={setShowOTPDialog}
+        email={resetEmail}
+      />
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8 space-y-6">
         <div className="space-y-2 text-center">
@@ -156,10 +145,10 @@ const HostAuth = () => {
               <button
                 type="button"
                 onClick={handleForgotPassword}
-                disabled={loading || isResettingPassword}
+                disabled={loading}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                {isResettingPassword ? "Sending reset email..." : "Forgot password?"}
+                Forgot password?
               </button>
             </div>
           )}
@@ -175,6 +164,7 @@ const HostAuth = () => {
         </div>
       </Card>
     </div>
+    </>
   );
 };
 
