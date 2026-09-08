@@ -9,37 +9,7 @@ interface GoogleReviewsPreviewProps {
 }
 
 export function GoogleReviewsPreview({ googlePlaceId, className }: GoogleReviewsPreviewProps) {
-  const [data, setData] = useState<GoogleReviewsData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (!googlePlaceId) {
-      setIsLoading(false);
-      return;
-    }
-    fetchReviews();
-  }, [googlePlaceId]);
-
-  const fetchReviews = async () => {
-    try {
-      const { data: result, error } = await supabase.functions.invoke("google-reviews", {
-        body: { placeId: googlePlaceId },
-      });
-
-      if (error) {
-        console.error("Error fetching Google reviews:", error);
-        return;
-      }
-
-      if (result?.reviews && result.reviews.length > 0) {
-        setData(result as GoogleReviewsData);
-      }
-    } catch (err) {
-      console.error("Error fetching Google reviews:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { data, isLoading } = useGoogleReviews({ placeId: googlePlaceId });
 
   const renderStars = (rating: number) => (
     <div className="flex gap-0.5">
