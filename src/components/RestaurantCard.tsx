@@ -8,7 +8,7 @@ import { formatDistance } from "@/services/googleMapsService";
 import { useProfile } from "@/contexts/ProfileContext";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { BlurImage } from "@/components/BlurImage";
-import { supabase } from "@/integrations/supabase/client";
+import { useGoogleReviews } from "@/hooks/useGoogleReviews";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
