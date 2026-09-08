@@ -19,41 +19,12 @@ export const RestaurantCardWithGoogleRating = ({
   onToggleFavorite,
   showFavoriteButton = false,
 }: RestaurantCardWithGoogleRatingProps) => {
-  const [googleData, setGoogleData] = useState<GoogleReviewsData | null>(() => 
-    getCachedData(restaurant.id)
-  );
-
-  useEffect(() => {
-    // If we have cached data, don't fetch
-    if (googleData) return;
-
-    const fetchGoogleRating = async () => {
-      try {
-        const searchQuery = `${restaurant.name} restaurant ${restaurant.address} ${restaurant.city}`;
-        const { data, error } = await supabase.functions.invoke('google-reviews', {
-          body: { 
-            searchQuery,
-            lat: restaurant.coordinates?.lat,
-            lng: restaurant.coordinates?.lng
-          }
-        });
-
-        if (!error && data?.rating) {
-          const reviewData: GoogleReviewsData = {
-            rating: data.rating,
-            totalReviews: data.totalReviews,
-            photos: data.photos
-          };
-          setGoogleData(reviewData);
-          setCachedData(restaurant.id, reviewData);
-        }
-      } catch (error) {
-        console.error('Error fetching Google rating:', error);
-      }
-    };
-
-    fetchGoogleRating();
-  }, [restaurant, googleData]);
+  const { data: googleData } = useGoogleReviews({
+    id: restaurant.id,
+    searchQuery: `${restaurant.name} restaurant ${restaurant.address} ${restaurant.city}`,
+    lat: restaurant.coordinates?.lat,
+    lng: restaurant.coordinates?.lng,
+  });
 
   const displayRating = googleData?.rating ?? restaurant.rating;
   const displayPhoto = googleData?.photos?.[0] ?? restaurant.photos[0];
