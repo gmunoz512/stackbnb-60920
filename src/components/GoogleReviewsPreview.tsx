@@ -67,7 +67,7 @@ export function GoogleReviewsPreview({ googlePlaceId, className }: GoogleReviews
 
       {/* Horizontal scrollable review cards */}
       <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
-        {data.reviews.slice(0, 5).map((review, index) => (
+        {reviews.slice(0, 5).map((review, index) => (
           <div
             key={index}
             className="flex-shrink-0 w-[260px] snap-start rounded-xl border border-border p-4 space-y-3"
