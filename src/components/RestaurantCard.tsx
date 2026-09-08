@@ -22,38 +22,16 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
   const [isAdding, setIsAdding] = useState(false);
   const isOpen = isRestaurantOpen(restaurant);
 
-  // Use cached Google photo as cover, or fetch it
-  const [coverPhoto, setCoverPhoto] = useState(restaurant.photos[0]);
-  
-  useEffect(() => {
-    const cacheKey = `google_reviews_detail_${restaurant.id}`;
-    try {
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        const data = JSON.parse(cached);
-        if (data.photos?.length > 0) {
-          setCoverPhoto(data.photos[0]);
-          return;
-        }
-      }
-    } catch {}
+  // Shared Google data (rating/photos) — one cache for the whole app
+  const { data: googleData } = useGoogleReviews({
+    id: restaurant.id,
+    searchQuery: `${restaurant.name} restaurant ${restaurant.address || ''} ${restaurant.city}`,
+    lat: restaurant.coordinates?.lat,
+    lng: restaurant.coordinates?.lng,
+    enabled: Boolean(restaurant.coordinates?.lat && restaurant.coordinates?.lng),
+  });
 
-    // Fetch Google photos if not cached and restaurant has coordinates
-    if (restaurant.coordinates?.lat && restaurant.coordinates?.lng) {
-      const searchQuery = `${restaurant.name} restaurant ${restaurant.address || ''} ${restaurant.city}`;
-      supabase.functions.invoke('google-reviews', {
-        body: { searchQuery, lat: restaurant.coordinates.lat, lng: restaurant.coordinates.lng }
-      }).then(({ data }) => {
-        if (data?.photos?.length > 0) {
-          setCoverPhoto(data.photos[0]);
-          // Cache for future use
-          try {
-            localStorage.setItem(cacheKey, JSON.stringify({ ...data, timestamp: Date.now() }));
-          } catch {}
-        }
-      }).catch(() => {});
-    }
-  }, [restaurant.id]);
+  const coverPhoto = googleData?.photos?.[0] ?? restaurant.photos[0];
 
   const isSmall = size === 'small';
   
