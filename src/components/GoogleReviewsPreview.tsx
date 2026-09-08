@@ -1,23 +1,7 @@
-import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/integrations/supabase/client";
+import { useGoogleReviews } from "@/hooks/useGoogleReviews";
 import { cn } from "@/lib/utils";
-
-interface GoogleReview {
-  author_name: string;
-  profile_photo_url?: string;
-  rating: number;
-  relative_time_description: string;
-  text: string;
-}
-
-interface GoogleReviewsData {
-  reviews: GoogleReview[];
-  rating: number;
-  totalReviews: number;
-  googleMapsUrl: string;
-}
 
 interface GoogleReviewsPreviewProps {
   googlePlaceId: string;
