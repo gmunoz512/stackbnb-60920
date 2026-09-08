@@ -48,7 +48,8 @@ export function GoogleReviewsPreview({ googlePlaceId, className }: GoogleReviews
     );
   }
 
-  if (!data || data.reviews.length === 0) return null;
+  const reviews = data?.reviews ?? [];
+  if (!data || reviews.length === 0) return null;
 
   return (
     <div className={cn("space-y-4", className)}>
