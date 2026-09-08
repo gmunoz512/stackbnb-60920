@@ -1,23 +1,7 @@
-import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/integrations/supabase/client";
+import { useGoogleReviews } from "@/hooks/useGoogleReviews";
 import { cn } from "@/lib/utils";
-
-interface GoogleReview {
-  author_name: string;
-  profile_photo_url?: string;
-  rating: number;
-  relative_time_description: string;
-  text: string;
-}
-
-interface GoogleReviewsData {
-  reviews: GoogleReview[];
-  rating: number;
-  totalReviews: number;
-  googleMapsUrl: string;
-}
 
 interface GoogleReviewsPreviewProps {
   googlePlaceId: string;
@@ -25,37 +9,7 @@ interface GoogleReviewsPreviewProps {
 }
 
 export function GoogleReviewsPreview({ googlePlaceId, className }: GoogleReviewsPreviewProps) {
-  const [data, setData] = useState<GoogleReviewsData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (!googlePlaceId) {
-      setIsLoading(false);
-      return;
-    }
-    fetchReviews();
-  }, [googlePlaceId]);
-
-  const fetchReviews = async () => {
-    try {
-      const { data: result, error } = await supabase.functions.invoke("google-reviews", {
-        body: { placeId: googlePlaceId },
-      });
-
-      if (error) {
-        console.error("Error fetching Google reviews:", error);
-        return;
-      }
-
-      if (result?.reviews && result.reviews.length > 0) {
-        setData(result as GoogleReviewsData);
-      }
-    } catch (err) {
-      console.error("Error fetching Google reviews:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const { data, isLoading } = useGoogleReviews({ placeId: googlePlaceId });
 
   const renderStars = (rating: number) => (
     <div className="flex gap-0.5">
@@ -94,7 +48,8 @@ export function GoogleReviewsPreview({ googlePlaceId, className }: GoogleReviews
     );
   }
 
-  if (!data || data.reviews.length === 0) return null;
+  const reviews = data?.reviews ?? [];
+  if (!data || reviews.length === 0) return null;
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -112,7 +67,7 @@ export function GoogleReviewsPreview({ googlePlaceId, className }: GoogleReviews
 
       {/* Horizontal scrollable review cards */}
       <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
-        {data.reviews.slice(0, 5).map((review, index) => (
+        {reviews.slice(0, 5).map((review, index) => (
           <div
             key={index}
             className="flex-shrink-0 w-[260px] snap-start rounded-xl border border-border p-4 space-y-3"
