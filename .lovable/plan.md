@@ -1,31 +1,41 @@
-# Production Security Cleanup: Remove `generate-reset-link`
+# Frontend fix: replace obsolete `generate-reset-link` with OTP flow
 
 ## Goal
-Remove only the obsolete `generate-reset-link` Edge Function from production, leaving all other functions, tables, RLS, auth, and frontend code untouched.
+Remove the application's last frontend use of the obsolete `generate-reset-link` Edge Function from the host forgot-password flow, and stop configuring that function in `supabase/config.toml`.
 
-## Verification Results
+## Files to change
+1. `src/pages/host/Auth.tsx`
+2. `supabase/config.toml`
 
-| # | Check | Result |
-|---|-------|--------|
-| 1 | No app code references `generate-reset-link` | **FAILED** |
-| 2 | `send-reset-otp` / `verify-reset-otp` exist and are the current reset mechanism | Confirmed |
-| 3 | Deleting `generate-reset-link` will not affect the OTP functions | Confirmed |
+## Changes
 
-## Details
+### `src/pages/host/Auth.tsx`
+- Add state for the OTP dialog:
+  - `const [showOTPDialog, setShowOTPDialog] = useState(false);`
+  - `const [resetEmail, setResetEmail] = useState("");`
+- Add import: `import { PasswordResetOTPDialog } from "@/components/PasswordResetOTPDialog";`
+- Replace the body of `handleForgotPassword`:
+  - Validate `email.trim()` is present (same toast behavior).
+  - `setResetEmail(email.trim());`
+  - `setShowOTPDialog(true);`
+  - Remove the `supabase.functions.invoke('generate-reset-link', ...)` call and the `window.open` / link-handling logic.
+- Render `<PasswordResetOTPDialog open={showOTPDialog} onOpenChange={setShowOTPDialog} email={resetEmail} />` in the JSX, matching `src/pages/auth/SignIn.tsx`.
 
-- `src/pages/host/Auth.tsx:94` still invokes `supabase.functions.invoke('generate-reset-link', …)` in the Host Forgot Password flow.
-- `supabase/config.toml:39` still declares `[functions.generate-reset-link]`, which is expected while the function exists.
-- `send-reset-otp` and `verify-reset-otp` both exist under `supabase/functions/` and are used by `src/pages/auth/SignIn.tsx` + `src/components/PasswordResetOTPDialog.tsx`.
-- Deleting `generate-reset-link` via the backend tools would target only that function name and would not touch `send-reset-otp` or `verify-reset-otp`.
+### `supabase/config.toml`
+- Remove the block:
+  ```toml
+  [functions.generate-reset-link]
+  verify_jwt = false
+  ```
 
-## Decision
+## Not in scope
+- Do not modify `send-reset-otp`, `verify-reset-otp`, or `PasswordResetOTPDialog`.
+- Do not delete or modify the deployed `generate-reset-link` Edge Function.
+- No database, RLS, auth, or secret changes.
+- No unrelated code changes.
 
-Because condition 1 is not satisfied, **do not remove `generate-reset-link`**. Removing it now would break the Host Forgot Password flow in the current deployed frontend.
-
-## Recommended Next Step
-
-Update `src/pages/host/Auth.tsx` to use the OTP flow (`send-reset-otp` / `verify-reset-otp`) instead of `generate-reset-link`. Once that frontend change is merged and deployed, re-run this cleanup.
-
-## No Changes Made
-
-No backend, frontend, database, RLS, auth, secret, or Edge Function changes were made.
+## Verification
+- Run type/build checks.
+- Confirm `rg "generate-reset-link"` returns only `supabase/config.toml` if any reference remains, or none after config removal.
+- Confirm `send-reset-otp` and `verify-reset-otp` files are untouched.
+- Confirm the deployed `generate-reset-link` function was not deleted or modified.
