@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import { PageTransition } from "@/components/PageTransition";
+import { SignInPrompt } from "@/components/SignInPrompt";
 
 interface Booking {
   id: string;
