@@ -36,9 +36,6 @@ verify_jwt = true
 [functions.create-stripe-login-link]
 verify_jwt = true
 
-[functions.generate-reset-link]
-verify_jwt = false
-
 [functions.send-reset-otp]
 verify_jwt = false
 
