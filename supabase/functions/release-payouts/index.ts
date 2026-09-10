@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 const logStep = (step: string, details?: any) => {
@@ -15,6 +15,17 @@ const logStep = (step: string, details?: any) => {
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Scheduler-only authorization: must present the shared cron secret.
+  const cronSecret = Deno.env.get("CRON_SECRET");
+  const providedSecret = req.headers.get("x-cron-secret");
+  if (!cronSecret || !providedSecret || providedSecret !== cronSecret) {
+    logStep("Unauthorized request - missing or invalid cron secret");
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   try {
@@ -88,6 +99,27 @@ serve(async (req) => {
           continue;
         }
 
+        // Atomically claim this booking: held -> processing.
+        // If another concurrent run already claimed it, zero rows come back and we skip.
+        const { data: claimed, error: claimError } = await supabaseAdmin
+          .from("bookings")
+          .update({ payout_status: "processing" })
+          .eq("id", booking.id)
+          .eq("payout_status", "held")
+          .select("id");
+
+        if (claimError) {
+          logStep("Claim error", { bookingId: booking.id, error: claimError.message });
+          errors++;
+          continue;
+        }
+
+        if (!claimed || claimed.length === 0) {
+          logStep("Skipping - already claimed by another run", { bookingId: booking.id });
+          skipped++;
+          continue;
+        }
+
         logStep("Processing payout release", { bookingId: booking.id, hoursSinceBooking: Math.round(hoursSinceBooking) });
 
         const vendorPayoutCents = Math.round((booking.vendor_payout_amount || 0) * 100);
@@ -108,6 +140,8 @@ serve(async (req) => {
               destination: vendorProfile.stripe_account_id,
               transfer_group: booking.stripe_session_id || booking.id,
               metadata: { booking_id: booking.id, type: "vendor_payout" },
+            }, {
+              idempotencyKey: `booking:${booking.id}:vendor-payout`,
             });
             logStep("Vendor transfer created", { transferId: transfer.id, amount: vendorPayoutCents });
           } else {
@@ -130,6 +164,8 @@ serve(async (req) => {
               destination: hostProfile.stripe_account_id,
               transfer_group: booking.stripe_session_id || booking.id,
               metadata: { booking_id: booking.id, type: "host_commission" },
+            }, {
+              idempotencyKey: `booking:${booking.id}:host-payout`,
             });
             logStep("Host transfer created", { transferId: transfer.id, amount: hostPayoutCents });
           } else {
