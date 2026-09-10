@@ -108,3 +108,18 @@ For Change B, restore the previous versions of the six handlers first. Leave
 the new quota table/RPC in place initially; they are inert without callers.
 Do not remove the RPC while the protected handlers still depend on it, since
 that correctly makes them fail closed. No legacy limiter rollback is needed.
+
+## Vendor review workflow repair
+
+Deploy `vendor-review` before releasing the two updated vendor review screens.
+The new function verifies the signed-in user, checks profile ownership for
+submissions and the database admin role for reviews. Existing RLS and the
+service-only email function are unchanged. Email recipients come from Auth,
+not caller input. Conditional status updates reject concurrent conflicts.
+Email failure is reported separately from a successfully saved review; no
+automatic email retry is provided. Suspension has no email template and sends
+no misleading changes-requested message.
+
+Run `node tests/security/vendor-review.mjs` for mocked authorization and workflow
+checks. Verify submission, approval/rejection, suspension, and email delivery
+in the deployed environment before calling the workflow production-verified.

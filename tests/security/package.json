@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node profile-guards.mjs && tsx paid-api-guard.test.ts && node endpoint-wiring.mjs"
+    "test": "node profile-guards.mjs && tsx paid-api-guard.test.ts && node endpoint-wiring.mjs && node vendor-review.mjs"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
