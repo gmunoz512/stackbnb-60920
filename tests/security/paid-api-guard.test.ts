@@ -14,7 +14,7 @@ globalThis.fetch = (async (url: string, options: RequestInit) => {
  return next;
 }) as typeof fetch;
 const json = (value: unknown,status=200)=>new Response(JSON.stringify(value),{status});
-const req = (token?:string,method='POST')=>new Request('https://app.invalid', {method,headers:token?{authorization:`Bearer ${token}`}:{}});
+const req = (token?:string,method='POST')=>new Request('https://app.invalid', {method,body:method==='POST'?'{}':undefined,headers:token?{authorization:`Bearer ${token}`}:{}});
 const headers = {'Access-Control-Allow-Origin':'*'};
 try {
  assert.equal((await guardPaidApi(req(),'scrape-airbnb-reviews',headers,true))?.status,401);
@@ -30,6 +30,17 @@ try {
  responses=[json({allowed:false,retry_after:32})];
  const limited=await guardPaidApi(req(),'price-comparison',headers);
  assert.equal(limited?.status,429); assert.equal(limited?.headers.get('Retry-After'),'32');
+ assert.ok(limited?.headers.get('Access-Control-Expose-Headers')?.includes('Retry-After'));
+ const beforeInvalid = calls.length;
+ for (const body of ['', '{', 'null', '[]', '42', '"hello"']) {
+  const invalid = new Request('https://app.invalid', {method:'POST',body});
+  assert.equal((await guardPaidApi(invalid,'google-places',headers))?.status,400);
+ }
+ assert.equal(calls.length,beforeInvalid, 'Invalid JSON must not consume quota');
+ const intact = new Request('https://app.invalid', {method:'POST',body:'{"query":"café"}'});
+ responses=[json({allowed:true})];
+ assert.equal(await guardPaidApi(intact,'google-places',headers),null);
+ assert.deepEqual(await intact.json(),{query:'café'}, 'Endpoint must still be able to read the original body');
  for (const bad of [json({},500),json({}),new Error('timeout')]) {
   responses=[bad]; assert.equal((await guardPaidApi(req(),'google-places',headers))?.status,503);
  }

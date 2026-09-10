@@ -7,7 +7,8 @@ export async function guardPaidApi(
 ): Promise<Response | null> {
   const reject = (status: number, error: string, extra = {}) => new Response(
     JSON.stringify({ success: false, error }),
-    { status, headers: { ...corsHeaders, 'Content-Type': 'application/json', ...extra } },
+    { status, headers: { ...corsHeaders, 'Content-Type': 'application/json',
+      'Access-Control-Expose-Headers': [corsHeaders['Access-Control-Expose-Headers'], 'Retry-After'].filter(Boolean).join(', '), ...extra } },
   );
   if (req.method !== 'POST') return reject(405, 'POST required', { Allow: 'POST, OPTIONS' });
   const url = Deno.env.get('SUPABASE_URL');
@@ -16,6 +17,8 @@ export async function guardPaidApi(
   try {
     // Bound paid prompt/request size even when Content-Length is absent or false.
     const reader = req.clone().body?.getReader();
+    const decoder = new TextDecoder();
+    let body = '';
     if (reader) {
       let bytes = 0;
       while (true) {
@@ -26,7 +29,19 @@ export async function guardPaidApi(
           void reader.cancel().catch(() => {});
           return reject(413, 'Request is too large');
         }
+        body += decoder.decode(chunk.value, { stream: true });
       }
+    }
+    body += decoder.decode();
+    // Reject malformed input before it consumes the shared quota. Leave the
+    // original request body available to the endpoint's field validation.
+    try {
+      const payload = JSON.parse(body);
+      if (payload === null || typeof payload !== 'object' || Array.isArray(payload)) {
+        return reject(400, 'A JSON object is required');
+      }
+    } catch {
+      return reject(400, 'A JSON object is required');
     }
     let subject: string | null = null;
     if (requireUser) {
