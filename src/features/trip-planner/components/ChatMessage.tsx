@@ -182,9 +182,19 @@ function LazyVendorMap({ vendorName }: { vendorName: string }) {
   );
 }
 
-export const ChatMessage = memo(function ChatMessage({ message, bionicEnabled }: ChatMessageProps) {
+export const ChatMessage = memo(function ChatMessage({ message, bionicEnabled, hostVendors }: ChatMessageProps) {
   const isUser = message.role === "user";
   const isAssistant = message.role === "assistant";
+
+  // Fallback: model sometimes confirms a host vendor without emitting a Book link
+  const fallbackBookVendors = useMemo(() => {
+    if (!isAssistant || !hostVendors?.length) return [];
+    const content = message.content;
+    if (/\]\(\/vendor\/[^)]+\/book\)/i.test(content)) return [];
+    if (!BOOKING_INTENT.test(content)) return [];
+    const lower = content.toLowerCase();
+    return hostVendors.filter(v => v.name && lower.includes(v.name.toLowerCase()));
+  }, [isAssistant, hostVendors, message.content]);
   
   const isQuoteMessage = useMemo(
     () => isAssistant && hasQuoteInMessage(message.content),
