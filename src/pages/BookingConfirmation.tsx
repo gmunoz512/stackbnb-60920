@@ -147,6 +147,7 @@ const BookingConfirmation = () => {
   };
 
   const generateGoogleCalendarUrl = () => {
+    if (!bookingData.date || !bookingData.time) return '';
     const startDate = formatDateForCalendar(bookingData.date, bookingData.time);
     const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000); // 2 hours duration
 
@@ -164,6 +165,7 @@ const BookingConfirmation = () => {
   };
 
   const generateICSContent = () => {
+    if (!bookingData.date || !bookingData.time) return '';
     const startDate = formatDateForCalendar(bookingData.date, bookingData.time);
     const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
 
@@ -186,6 +188,7 @@ END:VCALENDAR`;
 
   const downloadICS = () => {
     const icsContent = generateICSContent();
+    if (!icsContent) return;
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -198,7 +201,8 @@ END:VCALENDAR`;
   };
 
   const openGoogleCalendar = () => {
-    window.open(generateGoogleCalendarUrl(), '_blank');
+    const url = generateGoogleCalendarUrl();
+    if (url) window.open(url, '_blank');
   };
 
   // If booking was cancelled, show cancelled state
@@ -239,12 +243,28 @@ END:VCALENDAR`;
               variant="gradient" 
               className="w-full" 
               size="lg"
-              onClick={() => navigate('/explore')}
+              onClick={() => navigate('/appview')}
             >
               Back to Experiences
             </Button>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (!bookingData.experienceName) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <Card className="p-8 text-center max-w-sm space-y-4">
+          <h1 className="text-xl font-medium">No booking to confirm</h1>
+          <p className="text-sm text-muted-foreground">
+            Pick a vendor and complete the booking flow to see confirmation details.
+          </p>
+          <Button variant="gradient" onClick={() => navigate('/appview')}>
+            Back to Explore
+          </Button>
+        </Card>
       </div>
     );
   }
@@ -409,7 +429,7 @@ END:VCALENDAR`;
               variant="gradient" 
               className="w-full" 
               size="lg"
-              onClick={() => navigate('/explore')}
+              onClick={() => navigate('/appview')}
             >
               Back to Experiences
             </Button>

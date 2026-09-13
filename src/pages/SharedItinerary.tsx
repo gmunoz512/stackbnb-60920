@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { format, parseISO, differenceInDays } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { readLocalSharedItinerary } from "@/features/trip-planner/utils";
 import { PageTransition } from "@/components/PageTransition";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -451,6 +452,13 @@ export default function SharedItinerary() {
         .maybeSingle();
 
       if (sharedError || !sharedData) {
+        const local = readLocalSharedItinerary(token);
+        if (local && typeof local === "object") {
+          setItinerary(local as Itinerary);
+          setPermission("viewer");
+          setIsLoading(false);
+          return;
+        }
         console.error('Error fetching shared itinerary:', sharedError);
         setNotFound(true);
         setIsLoading(false);

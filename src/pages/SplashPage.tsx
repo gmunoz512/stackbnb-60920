@@ -56,6 +56,10 @@ const SplashPage = () => {
         mobileSize={220} 
       />
 
+      <p className="text-sm text-muted-foreground text-center max-w-xs mb-10">
+        Discover restaurants and experiences — then book in a few taps.
+      </p>
+
       {/* Buttons Container */}
       <div className="flex items-center gap-5">
         {/* Sign Up Button */}

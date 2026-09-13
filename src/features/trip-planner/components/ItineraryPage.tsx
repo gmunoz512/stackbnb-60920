@@ -108,6 +108,7 @@ export function ItineraryPage({ messages = [] }: ItineraryPageProps) {
     confirmItinerary,
     unconfirmItinerary,
     generateShareLink,
+    generationError,
   } = useItineraryContext();
 
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
@@ -203,13 +204,26 @@ export function ItineraryPage({ messages = [] }: ItineraryPageProps) {
         <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6">
           <Calendar className="h-16 w-16 text-muted-foreground/50 mb-4" />
           <h2 className="text-xl font-semibold mb-2">No itinerary yet</h2>
-          <p className="text-muted-foreground text-center mb-6">
-            Chat with the Trip Planner to create your personalized itinerary.
+          <p className="text-muted-foreground text-center mb-6 max-w-sm">
+            Chat with JC to plan a trip, or build a weekend sample from published vendors.
           </p>
-          <Button onClick={() => navigate("/trip-planner")}>
-            <Sparkles className="h-4 w-4 mr-2" />
-            Start Planning
-          </Button>
+          {generationError && (
+            <p className="text-sm text-destructive text-center mb-4 max-w-sm">
+              {generationError.message}
+            </p>
+          )}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button onClick={() => navigate("/trip-planner")}>
+              <Sparkles className="h-4 w-4 mr-2" />
+              Start Planning
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => generateItineraryFromChat(messages, "full")}
+            >
+              Build weekend sample
+            </Button>
+          </div>
         </div>
       </PageTransition>
     );

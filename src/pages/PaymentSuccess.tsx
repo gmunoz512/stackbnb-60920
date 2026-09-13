@@ -266,6 +266,23 @@ END:VCALENDAR`;
     );
   }
 
+  const hasBookingDetails = Boolean(bookingData.experienceName);
+  if (!hasBookingDetails && !sessionId) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <Card className="p-8 text-center max-w-sm space-y-4">
+          <h1 className="text-xl font-medium">No confirmation to show</h1>
+          <p className="text-sm text-muted-foreground">
+            Book an experience to see your confirmation here.
+          </p>
+          <Button variant="gradient" onClick={() => navigate('/appview')}>
+            Back to Explore
+          </Button>
+        </Card>
+      </div>
+    );
+  }
+
   // If booking was cancelled, show cancelled state
   if (isCancelled) {
     return (
@@ -334,9 +351,13 @@ END:VCALENDAR`;
               <CheckCircle className="h-12 w-12 text-white" />
             </div>
             <div className="space-y-2">
-              <h1 className="text-2xl font-medium">Payment Successful!</h1>
+              <h1 className="text-2xl font-medium">
+                {sessionId ? 'Payment Successful!' : 'Booking confirmed'}
+              </h1>
               <p className="text-muted-foreground">
-                Your booking has been confirmed
+                {sessionId
+                  ? 'Your booking has been confirmed'
+                  : 'Here is a preview of your booking details'}
               </p>
             </div>
           </div>
