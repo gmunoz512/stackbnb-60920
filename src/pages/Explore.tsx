@@ -50,12 +50,12 @@ const experienceCategories = [
 
 const restaurantCategories = [
   { id: "all", name: "All", icon: "✨" },
+  { id: "Private Chef", name: "Chef", icon: "👨‍🍳" },
+  { id: "Wine Tasting", name: "Wine", icon: "🍷" },
+  { id: "Cooking Class", name: "Cooking", icon: "👩‍🍳" },
   { id: "Seafood", name: "Seafood", icon: "🦞" },
   { id: "Italian", name: "Italian", icon: "🍝" },
   { id: "Mexican", name: "Mexican", icon: "🌮" },
-  { id: "Japanese", name: "Japanese", icon: "🍣" },
-  { id: "American", name: "American", icon: "🍔" },
-  { id: "Mediterranean", name: "Mediterranean", icon: "🥗" },
 ];
 
 const Explore = () => {
@@ -63,6 +63,7 @@ const Explore = () => {
   const [selectedRestaurantCategory, setSelectedRestaurantCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [vendorProfiles, setVendorProfiles] = useState<VendorProfile[]>([]);
+  const [isLoadingProfiles, setIsLoadingProfiles] = useState(true);
   const [loadingVendors, setLoadingVendors] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -79,6 +80,7 @@ const Explore = () => {
 
   const fetchVendorProfiles = async () => {
     try {
+      setIsLoadingProfiles(true);
       const { data, error } = await supabase
         .from('vendor_profiles')
         .select('id, name, category, description, photos, price_per_person, google_rating, is_published, listing_type, commission_percentage')
@@ -88,6 +90,9 @@ const Explore = () => {
       setVendorProfiles(data || []);
     } catch (error) {
       console.error('Error fetching vendor profiles:', error);
+      setVendorProfiles([]);
+    } finally {
+      setIsLoadingProfiles(false);
     }
   };
 
@@ -174,6 +179,16 @@ const Explore = () => {
     return matchesCategory && matchesSearch;
   });
 
+  const filteredVendorRestaurants = vendorRestaurants.filter((vendor) => {
+    const matchesCategory = selectedRestaurantCategory === "all" ||
+      vendor.category.toLowerCase().includes(selectedRestaurantCategory.toLowerCase());
+    const matchesSearch = searchQuery === "" ||
+      vendor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      vendor.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (vendor.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+    return matchesCategory && matchesSearch;
+  });
+
   const filteredRestaurants = mockRestaurants.filter((restaurant) => {
     const matchesCategory = selectedRestaurantCategory === "all" || 
       restaurant.cuisine.toLowerCase().includes(selectedRestaurantCategory.toLowerCase());
@@ -184,10 +199,13 @@ const Explore = () => {
     return matchesCategory && matchesSearch;
   });
 
+  const showMockExperiences = vendorExperiences.length === 0;
+  const showMockRestaurants = vendorRestaurants.length === 0;
+
   return (
     <div className="min-h-screen h-screen w-screen bg-background flex justify-center overflow-hidden">
       {/* Phone Container - Centered & Constrained */}
-      <div className="w-full max-w-[430px] h-full flex flex-col bg-background overflow-hidden relative">
+      <div className="shot-phone">
         
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20">
@@ -274,12 +292,12 @@ const Explore = () => {
 
             {/* Hero Content */}
             <div className="relative z-10 px-4 pb-4 pt-4 text-center">
-              <img src={stackdLogo} alt="stackd" className="h-40 w-40 mx-auto mb-3" />
-              <h1 className="text-xl font-bold text-foreground mb-1">
+              <img src={stackdLogo} alt="stackd" className="h-24 w-24 mx-auto mb-3 object-contain" />
+              <h1 className="text-2xl text-foreground mb-1">
                 {isHostMode ? "Explore Vendors" : "Discover Experiences"}
               </h1>
-              <p className="text-xs text-muted-foreground mb-3">
-                {isHostMode ? "Add vendors to your guest guide by tapping the +" : "Find amazing experiences nearby"}
+              <p className="text-sm text-muted-foreground mb-4">
+                {isHostMode ? "Add vendors to your guest guide by tapping the +" : "Find restaurants and experiences nearby"}
               </p>
 
               {/* Search Section - Single Bar */}
@@ -341,7 +359,11 @@ const Explore = () => {
                 ))}
               </div>
 
-              {/* Real Vendor Profiles - Show First */}
+              {isLoadingProfiles && (
+                <p className="text-xs text-muted-foreground">Loading published vendors…</p>
+              )}
+
+              {/* Published vendor experiences */}
               {filteredVendorExperiences.length > 0 && (
                 <div className="overflow-x-auto scrollbar-hide -mx-3 px-3">
                   <div className="flex gap-3 w-max pb-2">
@@ -349,21 +371,21 @@ const Explore = () => {
                       <Link
                         key={vendor.id}
                         to={`/vendor/${vendor.id}${isHostMode ? '?mode=host' : ''}`}
-                        className="flex-shrink-0 w-40 block"
+                        className="flex-shrink-0 w-40 block group"
                       >
-                        <div className="aspect-square rounded-xl overflow-hidden relative">
+                        <div className="listing-tile">
                           {vendor.photos && vendor.photos.length > 0 ? (
                             <img
                               src={vendor.photos[0]}
                               alt={vendor.name}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-orange-500/20 to-purple-600/20 flex items-center justify-center">
                               <Store className="h-8 w-8 text-muted-foreground" />
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                           
                           {/* Add Button for Hosts - Top Left */}
                           {isHostMode && (
@@ -417,23 +439,25 @@ const Explore = () => {
                 </div>
               )}
 
-              {/* Mock Experiences - Horizontal Scroll */}
-              <div className="overflow-x-auto scrollbar-hide -mx-3 px-3">
-                <div className="flex gap-3 w-max pb-2">
-                  {filteredExperiences.map((experience) => (
-                    <div key={experience.id} className="flex-shrink-0 w-40">
-                      <ExperienceCard 
-                        experience={experience} 
-                        showAddButton={isHostMode}
-                      />
-                    </div>
-                  ))}
+              {showMockExperiences && (
+                <div className="overflow-x-auto scrollbar-hide -mx-3 px-3">
+                  <div className="flex gap-3 w-max pb-2">
+                    {filteredExperiences.map((experience) => (
+                      <div key={experience.id} className="flex-shrink-0 w-40">
+                        <ExperienceCard 
+                          experience={experience} 
+                          showAddButton={isHostMode}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {filteredExperiences.length === 0 && filteredVendorExperiences.length === 0 && (
+              {!isLoadingProfiles && filteredExperiences.length === 0 && filteredVendorExperiences.length === 0 && (
                 <div className="text-center py-8">
                   <p className="text-muted-foreground text-sm">No experiences found</p>
+                  <p className="text-xs text-muted-foreground mt-1">Try another category or search</p>
                 </div>
               )}
             </TabsContent>
@@ -461,25 +485,77 @@ const Explore = () => {
                 ))}
               </div>
 
-              {/* Restaurants - Horizontal Scroll */}
-              <div className="overflow-x-auto scrollbar-hide -mx-3 px-3">
-                <div className="flex gap-3 w-max pb-2">
-                  {filteredRestaurants.map((restaurant) => (
-                    <div key={restaurant.id} className="flex-shrink-0 w-40">
-                      <RestaurantCard
-                        restaurant={restaurant}
-                        variant="grid"
-                        size="small"
-                        showAddButton={isHostMode}
-                      />
-                    </div>
-                  ))}
+              {filteredVendorRestaurants.length > 0 && (
+                <div className="overflow-x-auto scrollbar-hide -mx-3 px-3">
+                  <div className="flex gap-3 w-max pb-2">
+                    {filteredVendorRestaurants.map((vendor) => (
+                      <Link
+                        key={vendor.id}
+                        to={`/vendor/${vendor.id}${isHostMode ? '?mode=host' : ''}`}
+                        className="flex-shrink-0 w-40 block group"
+                      >
+                        <div className="listing-tile">
+                          {vendor.photos && vendor.photos.length > 0 ? (
+                            <img
+                              src={vendor.photos[0]}
+                              alt={vendor.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-orange-500/20 to-purple-600/20 flex items-center justify-center">
+                              <Store className="h-8 w-8 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                          {isHostMode && vendor.commission_percentage && (
+                            <Badge className="absolute top-2 right-2 bg-amber-500 text-amber-950 text-[10px] px-1.5 py-0.5 font-semibold">
+                              {vendor.commission_percentage}%
+                            </Badge>
+                          )}
+                          <div className="absolute bottom-2 left-2 right-2">
+                            <p className="text-white text-xs font-medium line-clamp-1">{vendor.name}</p>
+                            <div className="flex items-center gap-1 text-white/80 text-[10px]">
+                              {vendor.google_rating && (
+                                <>
+                                  <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
+                                  <span>{vendor.google_rating}</span>
+                                  <span>•</span>
+                                </>
+                              )}
+                              <span>${vendor.price_per_person || 0}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-1.5">
+                          <p className="text-[10px] text-muted-foreground line-clamp-1">{vendor.category}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {filteredRestaurants.length === 0 && (
+              {showMockRestaurants && (
+                <div className="overflow-x-auto scrollbar-hide -mx-3 px-3">
+                  <div className="flex gap-3 w-max pb-2">
+                    {filteredRestaurants.map((restaurant) => (
+                      <div key={restaurant.id} className="flex-shrink-0 w-40">
+                        <RestaurantCard
+                          restaurant={restaurant}
+                          variant="grid"
+                          size="small"
+                          showAddButton={isHostMode}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {!isLoadingProfiles && filteredVendorRestaurants.length === 0 && (showMockRestaurants ? filteredRestaurants.length === 0 : true) && (
                 <div className="text-center py-8">
                   <p className="text-muted-foreground text-sm">No restaurants found</p>
+                  <p className="text-xs text-muted-foreground mt-1">Try another category or search</p>
                 </div>
               )}
             </TabsContent>

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { format, parseISO, differenceInDays } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
+import { readLocalSharedItinerary } from "@/features/trip-planner/utils";
 import { PageTransition } from "@/components/PageTransition";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -451,6 +452,13 @@ export default function SharedItinerary() {
         .maybeSingle();
 
       if (sharedError || !sharedData) {
+        const local = readLocalSharedItinerary(token);
+        if (local && typeof local === "object") {
+          setItinerary(local as Itinerary);
+          setPermission("viewer");
+          setIsLoading(false);
+          return;
+        }
         console.error('Error fetching shared itinerary:', sharedError);
         setNotFound(true);
         setIsLoading(false);
@@ -580,14 +588,18 @@ export default function SharedItinerary() {
     return (
       <PageTransition>
         <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-          <Calendar className="h-16 w-16 text-muted-foreground/50 mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Itinerary not found</h2>
-          <p className="text-muted-foreground mb-6 text-center">
-            This itinerary may have been removed or the link is invalid.
-          </p>
-          <Button onClick={() => navigate('/')}>
-            Go Home
-          </Button>
+          <div className="w-full max-w-[430px] text-center rounded-2xl border border-border/80 bg-card p-8">
+            <div className="mx-auto w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Calendar className="h-7 w-7 text-muted-foreground" />
+            </div>
+            <h2 className="text-xl mb-2">Itinerary not found</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              This link may have expired. Build a weekend sample from the trip planner instead.
+            </p>
+            <Button className="rounded-full" onClick={() => navigate('/trip-planner/itinerary')}>
+              Open itinerary
+            </Button>
+          </div>
         </div>
       </PageTransition>
     );
@@ -616,15 +628,19 @@ export default function SharedItinerary() {
     return (
       <PageTransition>
         <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-          <Calendar className="h-16 w-16 text-muted-foreground/50 mb-4" />
-          <h2 className="text-xl font-semibold mb-2">No itinerary details</h2>
-          <p className="text-muted-foreground mb-6 text-center">
-            This itinerary doesn't have any scheduled activities yet.
-          </p>
-          <Button onClick={() => navigate('/trip-planner')}>
-            <Sparkles className="h-4 w-4 mr-2" />
-            Plan Your Own Trip
-          </Button>
+          <div className="w-full max-w-[430px] text-center rounded-2xl border border-border/80 bg-card p-8">
+            <div className="mx-auto w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Calendar className="h-7 w-7 text-muted-foreground" />
+            </div>
+            <h2 className="text-xl mb-2">No activities yet</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              This shared plan is empty. Build a weekend sample from published vendors.
+            </p>
+            <Button className="rounded-full" onClick={() => navigate('/trip-planner/itinerary')}>
+              <Sparkles className="h-4 w-4 mr-2" />
+              Build weekend sample
+            </Button>
+          </div>
         </div>
       </PageTransition>
     );

@@ -54,10 +54,10 @@ const InteractiveSelector = ({ photos, titles, icons }: InteractiveSelectorProps
   if (photos.length === 0) return null;
 
   return (
-    <div className="relative flex flex-col items-center justify-center py-4 bg-background">
+    <div className="relative flex flex-col items-center justify-center py-3 bg-background">
       {/* Options Container */}
       <div 
-        className="flex w-full max-w-[450px] h-[280px] mx-auto items-stretch overflow-hidden relative rounded-xl"
+        className="flex w-full max-w-[450px] h-[280px] mx-auto items-stretch overflow-hidden relative rounded-2xl"
         style={{ minWidth: '300px' }}
       >
         {options.map((option, index) => (
