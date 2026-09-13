@@ -205,7 +205,7 @@ export function extractVendorFromMessage(content: string): string | null {
  * Check if message contains a quote (booking link or price mention)
  */
 export function hasQuoteInMessage(content: string): boolean {
-  const hasBookingLink = /\[Book[^\]]*\]\(\/experience\//.test(content);
+  const hasBookingLink = /\[Book[^\]]*\]\(\/(?:vendor|experience)\//.test(content);
   const hasPriceMention = /\$\d+/.test(content) && /per person|total|price/i.test(content);
   // Also detect the styled booking summary format from the AI
   const hasBookingSummary = /✅\s*\*\*Great choice/.test(content) || /⏱️.*💰/.test(content);

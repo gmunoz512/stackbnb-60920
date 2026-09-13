@@ -118,8 +118,10 @@ function parseActivitiesFromContent(content: string): ParsedActivity[] {
     const bookingMatch = block.match(/\[Book[^\]]*\]\(([^)]+)\)/i);
     const bookingLink = bookingMatch?.[1];
     
-    // Extract vendor ID from booking link
-    const vendorIdMatch = bookingLink?.match(/\/experience\/(\d+)/);
+    // Extract vendor ID from booking link (/vendor/{id}/book or legacy /experience/{id})
+    const vendorIdMatch =
+      bookingLink?.match(/\/vendor\/([^/\s)]+)\/book/) ??
+      bookingLink?.match(/\/experience\/([^/\s)]+)/);
     const vendorId = vendorIdMatch?.[1];
     
     activities.push({
@@ -198,7 +200,8 @@ export const ChatMessage = memo(function ChatMessage({ message, bionicEnabled }:
   const markdownComponents = useMemo(() => ({
     a: ({ href, children }: { href?: string; children?: ReactNode }) => {
       const text = String(children);
-      const isBookingLink = href?.startsWith('/experience/') && text.includes('Book');
+      const isBookingLink =
+        (href?.startsWith('/vendor/') || href?.startsWith('/experience/')) && text.includes('Book');
       
       if (isBookingLink && href) {
         return <BookingLink href={href} text={text} />;
