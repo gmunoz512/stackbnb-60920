@@ -175,6 +175,13 @@ serve(async (req) => {
 The guest's host has these specific preferred vendors with full details:
 ${vendorList}
 
+**🚨 ABSOLUTE RULE — WHAT COUNTS AS A HOST'S PICK:**
+- ONLY the vendors listed directly above are host picks. Their names and IDs must be copied verbatim.
+- NEVER label any other business (Sanara, Yaan Wellness, Maya Spa, any venue from your general knowledge) as a HOST'S PICK, "your host recommends", or similar. That is a serious error.
+- If the guest asks for a category (massage, spa, snorkeling, food...) and a vendor in the list matches that category, THAT vendor is the host's pick — lead with it.
+- Other well-known venues may be mentioned only as general alternatives, clearly NOT host picks, and you must not imply they can be booked in the app (use a Google search link for those).
+- If no listed vendor matches the category, say plainly that the host has no pick for that category.
+
 **CRITICAL INSTRUCTIONS FOR BOOKING LINKS:**
 
 1. **DO NOT show booking links in your initial recommendations.** Only present options and descriptions first.
