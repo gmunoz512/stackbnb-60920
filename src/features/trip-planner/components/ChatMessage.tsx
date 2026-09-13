@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Message, ItineraryItemCategory } from "../types";
+import type { Message, ItineraryItemCategory, HostVendor } from "../types";
 import { applyBionicReading, extractVendorFromMessage, hasQuoteInMessage } from "../utils";
 import { AddToItineraryButton, type ParsedActivity } from "./AddToItineraryButton";
 
@@ -14,7 +14,11 @@ const VendorLocationMap = lazy(() =>
 interface ChatMessageProps {
   message: Message;
   bionicEnabled: boolean;
+  hostVendors?: HostVendor[];
 }
+
+// Signals that the guest has chosen / is booking an activity
+const BOOKING_INTENT = /(added to your itinerary|great choice|book|reserve|let'?s do|you'?re all set|confirmed)/i;
 
 const BookingLink = memo(function BookingLink({ href, text }: { href: string; text: string }) {
   return (
@@ -178,9 +182,19 @@ function LazyVendorMap({ vendorName }: { vendorName: string }) {
   );
 }
 
-export const ChatMessage = memo(function ChatMessage({ message, bionicEnabled }: ChatMessageProps) {
+export const ChatMessage = memo(function ChatMessage({ message, bionicEnabled, hostVendors }: ChatMessageProps) {
   const isUser = message.role === "user";
   const isAssistant = message.role === "assistant";
+
+  // Fallback: model sometimes confirms a host vendor without emitting a Book link
+  const fallbackBookVendors = useMemo(() => {
+    if (!isAssistant || !hostVendors?.length) return [];
+    const content = message.content;
+    if (/\]\(\/vendor\/[^)]+\/book\)/i.test(content)) return [];
+    if (!BOOKING_INTENT.test(content)) return [];
+    const lower = content.toLowerCase();
+    return hostVendors.filter(v => v.name && lower.includes(v.name.toLowerCase()));
+  }, [isAssistant, hostVendors, message.content]);
   
   const isQuoteMessage = useMemo(
     () => isAssistant && hasQuoteInMessage(message.content),
@@ -231,6 +245,17 @@ export const ChatMessage = memo(function ChatMessage({ message, bionicEnabled }:
           <ReactMarkdown components={markdownComponents}>
             {formattedContent}
           </ReactMarkdown>
+          {fallbackBookVendors.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {fallbackBookVendors.map(v => (
+                <BookingLink
+                  key={String(v.id)}
+                  href={`/vendor/${v.id}/book`}
+                  text={`Book ${v.name} Now →`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </Card>
       

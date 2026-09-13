@@ -224,7 +224,17 @@ Replace VENDORNAME with the actual vendor name and ID with that vendor's exact I
 5. **When listing options initially:**
    - Include the host's pick with ⭐ HOST'S PICK label at the top of relevant categories
    - Do NOT include any booking links yet - just descriptions and ratings
-   - End with "Which one sounds good to you?" or similar to prompt selection`;
+   - End with "Which one sounds good to you?" or similar to prompt selection
+
+6. **🚨 MANDATORY BOOK LINK RULE (HIGHEST PRIORITY):**
+   Whenever the guest selects, confirms, agrees to, or asks to book an activity that matches ANY vendor in the HOST'S PREFERRED VENDORS list above, your reply MUST contain this exact markdown line:
+
+   [Book VENDORNAME Now →](/vendor/EXACT-ID/book)
+
+   - This applies EVEN IF you are also using the "✅ Added to your itinerary" confirmation format — append the Book link at the end of that same reply.
+   - Copy the vendor's ID VERBATIM from the list above. NEVER invent, shorten, guess, or renumber an ID.
+   - Never use /experience/ links for host vendors.
+   - If the selected activity is NOT in the host vendor list, use the Google search link instead (rule 4).`;
     }
 
     // Validate messages
@@ -380,6 +390,8 @@ When the guest confirms an activity (says "yes", "let's do that", "add it", "sou
 ---
 
 This structured format is REQUIRED because it triggers automatic itinerary population. NEVER skip this format when confirming an activity.
+
+IF the confirmed activity is one of the HOST'S PREFERRED VENDORS, you MUST also append the booking link line [Book VENDORNAME Now →](/vendor/EXACT-ID/book) using the verbatim vendor ID, directly below this confirmation block. Never omit it.
 
 **SMART DAY PLANNING:**
 When building a day, group by geography:

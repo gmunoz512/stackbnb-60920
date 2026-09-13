@@ -76,7 +76,7 @@ interface ChatMessageListProps {
 }
 
 export function ChatMessageList({ onOpenItinerary }: ChatMessageListProps) {
-  const { messages, isLoading, bionicEnabled, streamingStatus, retryLastMessage } = useTripPlannerChatContext();
+  const { messages, isLoading, bionicEnabled, streamingStatus, retryLastMessage, hostVendors } = useTripPlannerChatContext();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -126,6 +126,7 @@ export function ChatMessageList({ onOpenItinerary }: ChatMessageListProps) {
             key={`${message.role}-${index}`}
             message={message}
             bionicEnabled={bionicEnabled}
+            hostVendors={hostVendors}
           />
         ))}
         
