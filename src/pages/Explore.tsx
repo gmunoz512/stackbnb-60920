@@ -205,7 +205,7 @@ const Explore = () => {
   return (
     <div className="min-h-screen h-screen w-screen bg-background flex justify-center overflow-hidden">
       {/* Phone Container - Centered & Constrained */}
-      <div className="w-full max-w-[430px] h-full flex flex-col bg-background overflow-hidden relative">
+      <div className="shot-phone">
         
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20">
@@ -292,12 +292,12 @@ const Explore = () => {
 
             {/* Hero Content */}
             <div className="relative z-10 px-4 pb-4 pt-4 text-center">
-              <img src={stackdLogo} alt="stackd" className="h-40 w-40 mx-auto mb-3" />
-              <h1 className="text-xl font-bold text-foreground mb-1">
+              <img src={stackdLogo} alt="stackd" className="h-24 w-24 mx-auto mb-3 object-contain" />
+              <h1 className="text-2xl text-foreground mb-1">
                 {isHostMode ? "Explore Vendors" : "Discover Experiences"}
               </h1>
-              <p className="text-xs text-muted-foreground mb-3">
-                {isHostMode ? "Add vendors to your guest guide by tapping the +" : "Find amazing experiences nearby"}
+              <p className="text-sm text-muted-foreground mb-4">
+                {isHostMode ? "Add vendors to your guest guide by tapping the +" : "Find restaurants and experiences nearby"}
               </p>
 
               {/* Search Section - Single Bar */}
@@ -371,21 +371,21 @@ const Explore = () => {
                       <Link
                         key={vendor.id}
                         to={`/vendor/${vendor.id}${isHostMode ? '?mode=host' : ''}`}
-                        className="flex-shrink-0 w-40 block"
+                        className="flex-shrink-0 w-40 block group"
                       >
-                        <div className="aspect-square rounded-xl overflow-hidden relative">
+                        <div className="listing-tile">
                           {vendor.photos && vendor.photos.length > 0 ? (
                             <img
                               src={vendor.photos[0]}
                               alt={vendor.name}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-orange-500/20 to-purple-600/20 flex items-center justify-center">
                               <Store className="h-8 w-8 text-muted-foreground" />
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                           
                           {/* Add Button for Hosts - Top Left */}
                           {isHostMode && (
@@ -492,21 +492,21 @@ const Explore = () => {
                       <Link
                         key={vendor.id}
                         to={`/vendor/${vendor.id}${isHostMode ? '?mode=host' : ''}`}
-                        className="flex-shrink-0 w-40 block"
+                        className="flex-shrink-0 w-40 block group"
                       >
-                        <div className="aspect-square rounded-xl overflow-hidden relative">
+                        <div className="listing-tile">
                           {vendor.photos && vendor.photos.length > 0 ? (
                             <img
                               src={vendor.photos[0]}
                               alt={vendor.name}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-orange-500/20 to-purple-600/20 flex items-center justify-center">
                               <Store className="h-8 w-8 text-muted-foreground" />
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                           {isHostMode && vendor.commission_percentage && (
                             <Badge className="absolute top-2 right-2 bg-amber-500 text-amber-950 text-[10px] px-1.5 py-0.5 font-semibold">
                               {vendor.commission_percentage}%

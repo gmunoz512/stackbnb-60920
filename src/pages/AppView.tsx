@@ -246,7 +246,7 @@ const AppView = () => {
   return (
     <PageTransition className="min-h-screen h-screen w-screen bg-background flex justify-center overflow-hidden">
       {/* Phone Container - Centered & Constrained */}
-      <div className="w-full max-w-[430px] h-full flex flex-col bg-background overflow-hidden relative">
+      <div className="shot-phone">
         
         <Tabs defaultValue="explore" className="flex-1 flex flex-col overflow-hidden">
           {/* Sticky Tabs Header */}
@@ -354,12 +354,12 @@ const AppView = () => {
 
               {/* Hero Content */}
               <div className="relative z-10 px-4 pb-4 pt-4 text-center">
-                <img src={stackdLogo} alt="stackd" className="h-40 w-40 mx-auto mb-3" />
-                <h1 className="text-xl font-bold text-foreground mb-1">
+                <img src={stackdLogo} alt="stackd" className="h-24 w-24 mx-auto mb-3 object-contain" />
+                <h1 className="text-2xl text-foreground mb-1">
                   Discover Experiences
                 </h1>
-                <p className="text-xs text-muted-foreground mb-3">
-                  Find amazing restaurants & adventures nearby
+                <p className="text-sm text-muted-foreground mb-4">
+                  Restaurants and adventures curated nearby
                 </p>
 
                 {/* Search Section - Single Bar */}
@@ -404,7 +404,7 @@ const AppView = () => {
               </div>
             </div>
             
-            <div className="px-3 py-3 space-y-5">
+            <div className="px-4 py-5 space-y-6">
 
               {/* My Businesses */}
               {myBusinesses.length > 0 && (
@@ -438,7 +438,7 @@ const AppView = () => {
               {/* Restaurants Near You */}
               <section className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold">Restaurants Near You</h2>
+                  <h2 className="text-base tracking-tight">Restaurants Near You</h2>
                   <Link to="/restaurants" className="flex items-center text-muted-foreground">
                     <ChevronRight className="h-4 w-4" />
                   </Link>
@@ -461,10 +461,10 @@ const AppView = () => {
                           <Link
                             key={vendor.id}
                             to={`/vendor/${vendor.id}`}
-                            className="flex-shrink-0 w-36 animate-fade-in group"
+                            className="flex-shrink-0 w-40 animate-fade-in group"
                             style={{ animationDelay: `${index * 50}ms` }}
                           >
-                            <div className="aspect-square rounded-xl overflow-hidden relative transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_10px_30px_-5px_rgba(0,0,0,0.3)]">
+                            <div className="listing-tile transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_12px_28px_-8px_rgba(0,0,0,0.45)]">
                               {vendor.photos && vendor.photos.length > 0 ? (
                                 <BlurImage
                                   src={vendor.photos[0]}
@@ -478,19 +478,19 @@ const AppView = () => {
                               )}
                               <button
                                 onClick={(e) => toggleVendorFavorite(vendor.id, e)}
-                                className="absolute top-2 right-2 z-10"
+                                className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-black/35 backdrop-blur-sm"
                               >
                                 <Heart
-                                  className={`h-5 w-5 drop-shadow-md ${
+                                  className={`h-4 w-4 drop-shadow-md ${
                                     vendorFavorites.includes(vendor.id)
                                       ? "fill-red-500 text-red-500"
-                                      : "fill-black/40 text-white"
+                                      : "text-white"
                                   }`}
                                 />
                               </button>
-                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                                <p className="text-white text-xs font-medium line-clamp-1">{vendor.name}</p>
-                                <div className="flex items-center gap-1 text-white/80 text-[10px]">
+                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5">
+                                <p className="text-white text-xs font-semibold line-clamp-1">{vendor.name}</p>
+                                <div className="flex items-center gap-1 text-white/85 text-[10px]">
                                   {vendor.google_rating && (
                                     <>
                                       <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
@@ -521,7 +521,7 @@ const AppView = () => {
               {/* Popular Experiences */}
               <section className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold">Popular Experiences</h2>
+                  <h2 className="text-base tracking-tight">Popular Experiences</h2>
                   <Link to="/experiences" className="flex items-center text-muted-foreground">
                     <ChevronRight className="h-4 w-4" />
                   </Link>
@@ -544,10 +544,10 @@ const AppView = () => {
                           <Link
                             key={vendor.id}
                             to={`/vendor/${vendor.id}`}
-                            className="flex-shrink-0 w-36 animate-fade-in group"
+                            className="flex-shrink-0 w-40 animate-fade-in group"
                             style={{ animationDelay: `${index * 50}ms` }}
                           >
-                            <div className="aspect-square rounded-xl overflow-hidden relative transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_10px_30px_-5px_rgba(0,0,0,0.3)]">
+                            <div className="listing-tile transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_12px_28px_-8px_rgba(0,0,0,0.45)]">
                               {vendor.photos && vendor.photos.length > 0 ? (
                                 <BlurImage
                                   src={vendor.photos[0]}
@@ -561,19 +561,19 @@ const AppView = () => {
                               )}
                               <button
                                 onClick={(e) => toggleVendorFavorite(vendor.id, e)}
-                                className="absolute top-2 right-2 z-10"
+                                className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-black/35 backdrop-blur-sm"
                               >
                                 <Heart
-                                  className={`h-5 w-5 drop-shadow-md ${
+                                  className={`h-4 w-4 drop-shadow-md ${
                                     vendorFavorites.includes(vendor.id)
                                       ? "fill-red-500 text-red-500"
-                                      : "fill-black/40 text-white"
+                                      : "text-white"
                                   }`}
                                 />
                               </button>
-                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                                <p className="text-white text-xs font-medium line-clamp-1">{vendor.name}</p>
-                                <div className="flex items-center gap-1 text-white/80 text-[10px]">
+                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-2.5">
+                                <p className="text-white text-xs font-semibold line-clamp-1">{vendor.name}</p>
+                                <div className="flex items-center gap-1 text-white/85 text-[10px]">
                                   {vendor.google_rating && (
                                     <>
                                       <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
@@ -634,7 +634,7 @@ const AppView = () => {
               {/* Wishlists Section - Shows hearted experiences and vendors */}
               <section className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold">My Wishlists</h2>
+                  <h2 className="text-base tracking-tight">My Wishlists</h2>
                   {(favorites.length > 0 || vendorFavorites.length > 0) && (
                     <span className="text-xs text-muted-foreground">{favorites.length + vendorFavorites.length} saved</span>
                   )}

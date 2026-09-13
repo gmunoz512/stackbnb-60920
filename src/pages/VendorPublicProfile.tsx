@@ -186,10 +186,12 @@ const VendorPublicProfile = () => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center pb-24">
-        <Card className="p-8 text-center">
-          <p className="text-muted-foreground">Profile not found or not published</p>
-          <Button variant="link" className="mt-4" onClick={handleBack}>
+      <div className="min-h-screen bg-background flex items-center justify-center pb-24 p-6">
+        <Card className="p-8 text-center max-w-sm rounded-2xl">
+          <Store className="h-8 w-8 mx-auto text-muted-foreground mb-3" />
+          <p className="font-medium mb-1">Listing not available</p>
+          <p className="text-sm text-muted-foreground">This profile is unpublished or the link is old.</p>
+          <Button variant="gradient" className="mt-4 rounded-full" onClick={handleBack}>
             Back to Explore
           </Button>
         </Card>
@@ -207,31 +209,31 @@ const VendorPublicProfile = () => {
   const photoIcons = photos.map(() => categoryConfig.faIcon);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-[375px] mx-auto">
+    <div className="min-h-screen bg-background pb-28">
+      <div className="shot-frame sm:border-x sm:border-border sm:shadow-2xl">
         {/* Header */}
         <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
           <div className="px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 min-w-0">
               <button
                 onClick={handleBack}
                 className="p-2 -ml-2 rounded-full hover:bg-muted transition-colors"
               >
                 <ArrowLeft className="h-5 w-5" />
               </button>
-              <span className="font-semibold">{profile.category}</span>
+              <span className="font-semibold text-sm truncate">{profile.category}</span>
             </div>
             <button
               onClick={toggleFavorite}
               className="p-2 rounded-full hover:bg-muted transition-colors"
             >
-              <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+              <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
             </button>
           </div>
         </header>
 
         {/* Interactive Photo Selector */}
-        <div className="mb-4">
+        <div className="mb-2 px-3">
           {photos.length > 0 ? (
             <InteractiveSelector 
               photos={photos}
@@ -247,28 +249,26 @@ const VendorPublicProfile = () => {
           )}
         </div>
 
-        <div className="px-4 py-6 space-y-6">
+        <div className="px-4 py-5 space-y-5">
           {/* Experience Header */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             <div className="space-y-1">
-              <h1 className="text-2xl font-medium leading-tight">{profile.name}</h1>
-              <p className="text-muted-foreground">{profile.category}</p>
+              <h1 className="text-2xl leading-tight">{profile.name}</h1>
+              <p className="text-sm text-muted-foreground">{profile.category}</p>
             </div>
 
-            <div className="flex items-center gap-4 text-sm">
-              {profile.google_rating && (
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold">{profile.google_rating}</span>
-                  <span className="text-muted-foreground">(Google Reviews)</span>
-                </div>
-              )}
-            </div>
+            {profile.google_rating && (
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-muted/70 px-2.5 py-1 text-sm">
+                <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                <span className="font-semibold">{profile.google_rating}</span>
+                <span className="text-muted-foreground text-xs">Google</span>
+              </div>
+            )}
           </div>
 
           {/* Price Tier Selector */}
           {profile.price_tiers && profile.price_tiers.length > 0 ? (
-            <Card className="p-4">
+            <Card className="p-4 rounded-2xl border-border/80">
               <div className="space-y-3">
                 <label className="text-sm font-medium">Select Service Type</label>
                 <Select
@@ -295,7 +295,7 @@ const VendorPublicProfile = () => {
               </div>
             </Card>
           ) : profile.price_per_person ? (
-            <Card className="p-4">
+            <Card className="p-4 rounded-2xl border-border/80">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Price per person:</span>
                 <Badge variant="secondary" className="bg-gradient-to-r from-orange-500 to-pink-500 text-white text-lg px-3 py-1">
@@ -360,7 +360,7 @@ const VendorPublicProfile = () => {
           {(profile.about_experience || profile.description) && (
             <div className="space-y-3">
               <h2 className="text-lg font-semibold">About This Experience</h2>
-              <Card className="p-4">
+              <Card className="p-4 rounded-2xl border-border/80">
                 <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
                   {profile.about_experience || profile.description}
                 </p>
@@ -372,7 +372,7 @@ const VendorPublicProfile = () => {
           {profile.included_items && profile.included_items.length > 0 && (
             <div className="space-y-3">
               <h2 className="text-lg font-semibold">What's Included</h2>
-              <Card className="p-4">
+              <Card className="p-4 rounded-2xl border-border/80">
                 <ul className="space-y-2">
                   {profile.included_items.map((item, index) => (
                     <li key={index} className="flex items-start gap-2 text-sm">
@@ -466,24 +466,25 @@ const VendorPublicProfile = () => {
         </div>
 
         {/* Fixed Bottom CTA */}
-        <div className="fixed bottom-0 left-0 right-0 bg-card border-t p-4 shadow-lg z-40">
-          <div className="max-w-[375px] mx-auto flex items-center justify-between gap-4">
-            <div>
-              <p className="text-xs text-muted-foreground">
+        <div className="fixed bottom-0 left-0 right-0 z-40">
+          <div className="max-w-[430px] mx-auto bg-card/95 backdrop-blur-md border-t border-border p-4 pb-safe shadow-[0_-8px_24px_rgba(0,0,0,0.18)] flex items-center justify-between gap-4">
+            <div className="min-w-[88px]">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
                 {profile.price_tiers && profile.price_tiers.length > 0 
                   ? profile.price_tiers[selectedTierIndex]?.name 
-                  : 'Price'}
+                  : 'From'}
               </p>
-              <p className="text-2xl font-bold">
+              <p className="text-2xl font-bold leading-none mt-0.5">
                 ${profile.price_tiers && profile.price_tiers.length > 0 
                   ? profile.price_tiers[selectedTierIndex]?.price 
                   : profile.price_per_person || 'TBD'}
               </p>
+              <p className="text-[11px] text-muted-foreground mt-1">per person</p>
             </div>
             <Button 
               variant="default"
               size="lg"
-              className="flex-1 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600"
+              className="flex-1 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white"
               onClick={() => {
                 const params = new URLSearchParams();
                 if (profile.price_tiers && profile.price_tiers.length > 0) {
