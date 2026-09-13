@@ -165,7 +165,7 @@ serve(async (req) => {
   Price: $${vendor.price} per person | ${durationText}${maxGuestsText ? ` | ${maxGuestsText}` : ""}
   Rating: ${vendor.rating}/5
   What's Included: ${included || "Contact for details"}
-  Booking Link: /experience/${vendor.id}`;
+  Booking Link: /vendor/${vendor.id}/book`;
         })
         .join("\n\n");
       
@@ -202,14 +202,14 @@ IMPORTANT: You MUST include the ⏱️ duration segment above. NEVER show "---" 
 • [item 3]
 • [etc...]
 
-[Book VENDORNAME Now →](/experience/ID)
+[Book VENDORNAME Now →](/vendor/ID/book)
 
 ---
 
 IMPORTANT: For the booking link, use this EXACT markdown format:
-[Book Snorkeling Adventure Now →](/experience/3)
+[Book Snorkeling Adventure Now →](/vendor/3f1c2b9e-5a7d-4c8e-9b21-0d4e6f7a8b90/book)
 
-Replace VENDORNAME with the actual vendor name and ID with the numeric ID.
+Replace VENDORNAME with the actual vendor name and ID with that vendor's exact ID string from the list above (copy it verbatim — never invent or shorten it).
 
 4. **If the guest selects a NON-host vendor (any other business):**
    Show a Google search link instead:

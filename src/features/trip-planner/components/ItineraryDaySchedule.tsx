@@ -1,4 +1,5 @@
 import { format, parseISO } from "date-fns";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
@@ -126,6 +127,7 @@ interface ScheduleItemProps {
 
 function ScheduleItem({ item, index, isLast, onEdit, onRemove }: ScheduleItemProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
   const Icon = categoryIcons[item.category];
   const colorClass = categoryColors[item.category];
   
@@ -313,7 +315,14 @@ function ScheduleItem({ item, index, isLast, onEdit, onRemove }: ScheduleItemPro
               variant="outline"
               size="sm"
               className="mt-3 h-8 text-xs"
-              onClick={() => window.open(item.bookingLink, "_blank", "noopener,noreferrer")}
+              onClick={() => {
+                const link = item.bookingLink!;
+                if (link.startsWith("/")) {
+                  navigate(link);
+                } else {
+                  window.open(link, "_blank", "noopener,noreferrer");
+                }
+              }}
             >
               <ExternalLink className="h-3 w-3 mr-1.5" />
               Book Now
