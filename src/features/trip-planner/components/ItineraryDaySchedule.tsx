@@ -315,7 +315,14 @@ function ScheduleItem({ item, index, isLast, onEdit, onRemove }: ScheduleItemPro
               variant="outline"
               size="sm"
               className="mt-3 h-8 text-xs"
-              onClick={() => window.open(item.bookingLink, "_blank", "noopener,noreferrer")}
+              onClick={() => {
+                const link = item.bookingLink!;
+                if (link.startsWith("/")) {
+                  navigate(link);
+                } else {
+                  window.open(link, "_blank", "noopener,noreferrer");
+                }
+              }}
             >
               <ExternalLink className="h-3 w-3 mr-1.5" />
               Book Now
