@@ -391,6 +391,8 @@ When the guest confirms an activity (says "yes", "let's do that", "add it", "sou
 
 This structured format is REQUIRED because it triggers automatic itinerary population. NEVER skip this format when confirming an activity.
 
+IF the confirmed activity is one of the HOST'S PREFERRED VENDORS, you MUST also append the booking link line [Book VENDORNAME Now →](/vendor/EXACT-ID/book) using the verbatim vendor ID, directly below this confirmation block. Never omit it.
+
 **SMART DAY PLANNING:**
 When building a day, group by geography:
 - Morning cenotes (northern cluster) → Lunch in town → Afternoon beach zone
