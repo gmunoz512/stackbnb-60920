@@ -127,6 +127,7 @@ interface ScheduleItemProps {
 
 function ScheduleItem({ item, index, isLast, onEdit, onRemove }: ScheduleItemProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
   const Icon = categoryIcons[item.category];
   const colorClass = categoryColors[item.category];
   
