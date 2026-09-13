@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Message, ItineraryItemCategory } from "../types";
+import type { Message, ItineraryItemCategory, HostVendor } from "../types";
 import { applyBionicReading, extractVendorFromMessage, hasQuoteInMessage } from "../utils";
 import { AddToItineraryButton, type ParsedActivity } from "./AddToItineraryButton";
 
@@ -14,7 +14,11 @@ const VendorLocationMap = lazy(() =>
 interface ChatMessageProps {
   message: Message;
   bionicEnabled: boolean;
+  hostVendors?: HostVendor[];
 }
+
+// Signals that the guest has chosen / is booking an activity
+const BOOKING_INTENT = /(added to your itinerary|great choice|book|reserve|let'?s do|you'?re all set|confirmed)/i;
 
 const BookingLink = memo(function BookingLink({ href, text }: { href: string; text: string }) {
   return (
