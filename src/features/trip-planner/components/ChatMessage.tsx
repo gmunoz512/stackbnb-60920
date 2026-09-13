@@ -245,6 +245,17 @@ export const ChatMessage = memo(function ChatMessage({ message, bionicEnabled, h
           <ReactMarkdown components={markdownComponents}>
             {formattedContent}
           </ReactMarkdown>
+          {fallbackBookVendors.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {fallbackBookVendors.map(v => (
+                <BookingLink
+                  key={String(v.id)}
+                  href={`/vendor/${v.id}/book`}
+                  text={`Book ${v.name} Now →`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </Card>
       
