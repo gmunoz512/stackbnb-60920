@@ -68,7 +68,7 @@ export function SortableItineraryItem({
     >
       <div className="flex items-start gap-3">
         {/* Drag Handle */}
-        <button
+        <button aria-label="Drag to reorder"
           {...attributes}
           {...listeners}
           className="mt-1 p-1 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing touch-none"

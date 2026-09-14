@@ -1,51 +1,8 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Star, Heart } from "lucide-react";
 import { BlurImage } from "@/components/BlurImage";
-import { supabase } from "@/integrations/supabase/client";
+import { useGoogleReviews } from "@/hooks/useGoogleReviews";
 import type { Restaurant } from "@/data/mockRestaurants";
-
-interface GoogleReviewsData {
-  rating?: number;
-  totalReviews?: number;
-}
-
-interface CachedGoogleData extends GoogleReviewsData {
-  timestamp: number;
-}
-
-const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours
-
-const getCacheKey = (restaurantId: string) => `google_reviews_${restaurantId}`;
-
-const getCachedData = (restaurantId: string): GoogleReviewsData | null => {
-  try {
-    const cached = localStorage.getItem(getCacheKey(restaurantId));
-    if (!cached) return null;
-    
-    const parsed: CachedGoogleData = JSON.parse(cached);
-    if (Date.now() - parsed.timestamp > CACHE_DURATION_MS) {
-      localStorage.removeItem(getCacheKey(restaurantId));
-      return null;
-    }
-    
-    return { rating: parsed.rating, totalReviews: parsed.totalReviews };
-  } catch {
-    return null;
-  }
-};
-
-const setCachedData = (restaurantId: string, data: GoogleReviewsData) => {
-  try {
-    const cacheData: CachedGoogleData = {
-      ...data,
-      timestamp: Date.now()
-    };
-    localStorage.setItem(getCacheKey(restaurantId), JSON.stringify(cacheData));
-  } catch (error) {
-    console.error('Error caching Google data:', error);
-  }
-};
 
 interface RestaurantCardWithGoogleRatingProps {
   restaurant: Restaurant;
@@ -62,42 +19,15 @@ export const RestaurantCardWithGoogleRating = ({
   onToggleFavorite,
   showFavoriteButton = false,
 }: RestaurantCardWithGoogleRatingProps) => {
-  const [googleData, setGoogleData] = useState<GoogleReviewsData | null>(() => 
-    getCachedData(restaurant.id)
-  );
-
-  useEffect(() => {
-    // If we have cached data, don't fetch
-    if (googleData) return;
-
-    const fetchGoogleRating = async () => {
-      try {
-        const searchQuery = `${restaurant.name} restaurant ${restaurant.address} ${restaurant.city}`;
-        const { data, error } = await supabase.functions.invoke('google-reviews', {
-          body: { 
-            searchQuery,
-            lat: restaurant.coordinates?.lat,
-            lng: restaurant.coordinates?.lng
-          }
-        });
-
-        if (!error && data?.rating) {
-          const reviewData = {
-            rating: data.rating,
-            totalReviews: data.totalReviews
-          };
-          setGoogleData(reviewData);
-          setCachedData(restaurant.id, reviewData);
-        }
-      } catch (error) {
-        console.error('Error fetching Google rating:', error);
-      }
-    };
-
-    fetchGoogleRating();
-  }, [restaurant, googleData]);
+  const { data: googleData } = useGoogleReviews({
+    id: restaurant.id,
+    searchQuery: `${restaurant.name} restaurant ${restaurant.address} ${restaurant.city}`,
+    lat: restaurant.coordinates?.lat,
+    lng: restaurant.coordinates?.lng,
+  });
 
   const displayRating = googleData?.rating ?? restaurant.rating;
+  const displayPhoto = googleData?.photos?.[0] ?? restaurant.photos[0];
 
   return (
     <Link
@@ -107,7 +37,7 @@ export const RestaurantCardWithGoogleRating = ({
     >
       <div className="aspect-square rounded-xl overflow-hidden relative transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_10px_30px_-5px_rgba(0,0,0,0.3)]">
         <BlurImage
-          src={restaurant.photos[0]}
+          src={displayPhoto}
           alt={restaurant.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />

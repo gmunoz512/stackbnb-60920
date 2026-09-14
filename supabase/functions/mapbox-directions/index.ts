@@ -1,3 +1,4 @@
+import { guardPaidApi } from "../_shared/paidApiGuard.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -15,6 +16,9 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const blocked = await guardPaidApi(req, "mapbox-directions", corsHeaders, false);
+  if (blocked) return blocked;
 
   try {
     const { destinationLat, destinationLng } = await req.json();
@@ -69,7 +73,7 @@ serve(async (req) => {
       })) || [],
       origin: { lat: TULUM_CENTRO.lat, lng: TULUM_CENTRO.lng },
       destination: { lat: destinationLat, lng: destinationLng },
-      mapboxToken, // Pass token for frontend map rendering
+      // SECURITY: Do NOT return mapboxToken to the client
     };
 
     console.log('Route calculated:', { duration: result.durationText, distance: result.distanceText });

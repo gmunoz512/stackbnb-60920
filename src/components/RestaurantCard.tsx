@@ -8,6 +8,7 @@ import { formatDistance } from "@/services/googleMapsService";
 import { useProfile } from "@/contexts/ProfileContext";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { BlurImage } from "@/components/BlurImage";
+import { useGoogleReviews } from "@/hooks/useGoogleReviews";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -20,6 +21,18 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const isOpen = isRestaurantOpen(restaurant);
+
+  // Shared Google data (rating/photos) — one cache for the whole app
+  const { data: googleData } = useGoogleReviews({
+    id: restaurant.id,
+    searchQuery: `${restaurant.name} restaurant ${restaurant.address || ''} ${restaurant.city}`,
+    lat: restaurant.coordinates?.lat,
+    lng: restaurant.coordinates?.lng,
+    enabled: Boolean(restaurant.coordinates?.lat && restaurant.coordinates?.lng),
+  });
+
+  const coverPhoto = googleData?.photos?.[0] ?? restaurant.photos[0];
+
   const isSmall = size === 'small';
   
   const { isAuthenticated, role } = useAuthContext();
@@ -92,11 +105,11 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
           {/* Image */}
           <div className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
             <BlurImage
-              src={restaurant.photos[0]}
+              src={coverPhoto}
               alt={restaurant.name}
               className="group-hover:scale-105 transition-transform duration-500"
             />
-            <button
+            <button aria-label="Toggle favorite"
               onClick={toggleFavorite}
               className="absolute top-1.5 right-1.5 p-1 rounded-full hover:scale-110 active:scale-95 transition-transform"
             >
@@ -169,14 +182,14 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
         {/* Image with blur-up loading */}
         <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
           <BlurImage
-            src={restaurant.photos[0]}
+            src={coverPhoto}
             alt={restaurant.name}
             className="group-hover:scale-105 transition-transform duration-500"
           />
           
           {/* Add to guide button (for hosts) - Top Left */}
           {showAddButton ? (
-            <button
+            <button aria-label="Add restaurant to guide"
               onClick={handleAddToGuide}
               disabled={isAdding}
               className={`absolute top-2 left-2 z-20 p-2 rounded-full shadow-lg transition-all duration-200 ${

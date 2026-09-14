@@ -1,4 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit, createRateLimitResponse } from "../_shared/rateLimit.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,6 +17,12 @@ interface GoogleReview {
   time: number;
 }
 
+interface GooglePhoto {
+  photo_reference: string;
+  width: number;
+  height: number;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -22,6 +30,29 @@ serve(async (req) => {
   }
 
   try {
+    // Rate limiting - 20 requests per minute per IP
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
+
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+               req.headers.get('x-real-ip') || 
+               'unknown';
+    
+    const rateLimitResult = await checkRateLimit(
+      supabaseAdmin,
+      `google:${ip}`,
+      'google-reviews',
+      { windowMinutes: 1, maxRequests: 20 }
+    );
+
+    if (!rateLimitResult.allowed) {
+      console.log(`Rate limit exceeded for Google reviews from IP: ${ip}`);
+      return createRateLimitResponse(rateLimitResult.resetAt, corsHeaders);
+    }
+
     const { placeId, searchQuery, lat, lng } = await req.json();
     const apiKey = Deno.env.get('GOOGLE_REVIEWS_API_KEY');
 
@@ -59,6 +90,7 @@ serve(async (req) => {
           JSON.stringify({ 
             error: 'Place not found',
             reviews: [],
+            photos: [],
             googleMapsUrl: null
           }),
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -73,10 +105,10 @@ serve(async (req) => {
       );
     }
 
-    // Fetch place details with reviews using legacy Places API
+    // Fetch place details with reviews AND photos using legacy Places API
     console.log('Fetching place details for:', googlePlaceId);
     
-    const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${googlePlaceId}&fields=place_id,name,rating,user_ratings_total,reviews,url&key=${apiKey}`;
+    const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${googlePlaceId}&fields=place_id,name,rating,user_ratings_total,reviews,url,photos&key=${apiKey}`;
     
     const detailsResponse = await fetch(detailsUrl);
     const detailsData = await detailsResponse.json();
@@ -88,6 +120,7 @@ serve(async (req) => {
         JSON.stringify({ 
           error: detailsData.error_message || `API returned status: ${detailsData.status}`,
           reviews: [],
+          photos: [],
           googleMapsUrl: null
         }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -105,6 +138,19 @@ serve(async (req) => {
       time: review.time || 0
     }));
 
+    // Convert photo references to actual photo URLs
+    const photos: string[] = [];
+    if (result.photos && Array.isArray(result.photos)) {
+      for (const photo of result.photos.slice(0, 10)) { // Limit to 10 photos
+        if (photo.photo_reference) {
+          // Construct the photo URL - this returns a redirect to the actual image
+          const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photo_reference=${photo.photo_reference}&key=${apiKey}`;
+          photos.push(photoUrl);
+        }
+      }
+      console.log(`Found ${photos.length} photos for place`);
+    }
+
     console.log(`Found ${reviews.length} reviews for place`);
     
     return new Response(
@@ -114,6 +160,7 @@ serve(async (req) => {
         rating: result.rating,
         totalReviews: result.user_ratings_total,
         reviews: reviews,
+        photos: photos,
         googleMapsUrl: result.url || `https://www.google.com/maps/place/?q=place_id:${googlePlaceId}`
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

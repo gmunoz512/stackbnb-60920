@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactNode } from 'react';
+ import React, { useState, useEffect, ReactNode, useRef } from 'react';
 import { FaUtensils, FaStar, FaCamera, FaGlassCheers, FaLeaf } from 'react-icons/fa';
 
 interface PhotoOption {
@@ -24,11 +24,20 @@ const defaultIcons = [
 const InteractiveSelector = ({ photos, titles, icons }: InteractiveSelectorProps) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [animatedOptions, setAnimatedOptions] = useState<number[]>([]);
+   const containerRef = useRef<HTMLDivElement>(null);
+   const touchStartX = useRef<number>(0);
+   const touchEndX = useRef<number>(0);
   
   const options: PhotoOption[] = photos.map((photo, index) => ({
     title: titles?.[index] || `Photo ${index + 1}`,
     image: photo,
   }));
+
+  // When there are many photos (common on restaurants via Google), the fixed strip width
+  // can crowd out the expanded photo. Make the inactive strips slimmer and give the
+  // active image more flex so the first photo is clearly visible.
+  const inactiveMinWidth = options.length > 8 ? 8 : options.length > 6 ? 10 : options.length > 4 ? 14 : 20;
+  const activeFlexGrow = options.length > 6 ? 15 : 10;
 
   const handleOptionClick = (index: number) => {
     if (index !== activeIndex) {
@@ -36,8 +45,35 @@ const InteractiveSelector = ({ photos, titles, icons }: InteractiveSelectorProps
     }
   };
 
+   const handleTouchStart = (e: React.TouchEvent) => {
+     touchStartX.current = e.touches[0].clientX;
+   };
+ 
+   const handleTouchMove = (e: React.TouchEvent) => {
+     touchEndX.current = e.touches[0].clientX;
+   };
+ 
+   const handleTouchEnd = () => {
+     const diff = touchStartX.current - touchEndX.current;
+     const threshold = 50; // minimum swipe distance
+ 
+     if (Math.abs(diff) > threshold) {
+       if (diff > 0 && activeIndex < options.length - 1) {
+         // Swipe left - go to next
+         setActiveIndex(prev => prev + 1);
+       } else if (diff < 0 && activeIndex > 0) {
+         // Swipe right - go to previous
+         setActiveIndex(prev => prev - 1);
+       }
+     }
+     
+     // Reset
+     touchStartX.current = 0;
+     touchEndX.current = 0;
+   };
+ 
   useEffect(() => {
-    const timers: NodeJS.Timeout[] = [];
+    const timers: ReturnType<typeof setTimeout>[] = [];
     
     options.forEach((_, i) => {
       const timer = setTimeout(() => {
@@ -54,11 +90,15 @@ const InteractiveSelector = ({ photos, titles, icons }: InteractiveSelectorProps
   if (photos.length === 0) return null;
 
   return (
-    <div className="relative flex flex-col items-center justify-center py-3 bg-background">
+    <div className="relative flex flex-col items-center justify-center py-4 bg-background">
       {/* Options Container */}
       <div 
-        className="flex w-full max-w-[450px] h-[280px] mx-auto items-stretch overflow-hidden relative rounded-2xl"
-        style={{ minWidth: '300px' }}
+         ref={containerRef}
+        className="flex w-full max-w-[375px] h-[280px] mx-auto items-stretch overflow-hidden relative rounded-xl"
+         style={{ minWidth: '300px', touchAction: 'pan-y' }}
+         onTouchStart={handleTouchStart}
+         onTouchMove={handleTouchMove}
+         onTouchEnd={handleTouchEnd}
       >
         {options.map((option, index) => (
           <div
@@ -71,7 +111,7 @@ const InteractiveSelector = ({ photos, titles, icons }: InteractiveSelectorProps
               backfaceVisibility: 'hidden',
               opacity: animatedOptions.includes(index) ? 1 : 0,
               transform: animatedOptions.includes(index) ? 'translateX(0)' : 'translateX(-60px)',
-              minWidth: '40px',
+              minWidth: activeIndex === index ? 0 : inactiveMinWidth,
               borderWidth: '1px',
               borderStyle: 'solid',
               borderColor: activeIndex === index ? 'hsl(var(--primary))' : 'hsl(var(--border))',
@@ -79,7 +119,7 @@ const InteractiveSelector = ({ photos, titles, icons }: InteractiveSelectorProps
               boxShadow: activeIndex === index 
                 ? '0 20px 60px rgba(0,0,0,0.50)' 
                 : '0 10px 30px rgba(0,0,0,0.30)',
-              flex: activeIndex === index ? '7 1 0%' : '1 1 0%',
+              flex: activeIndex === index ? `${activeFlexGrow} 1 0%` : '1 1 0%',
               zIndex: activeIndex === index ? 10 : 1,
               willChange: 'flex-grow, box-shadow, background-size'
             }}

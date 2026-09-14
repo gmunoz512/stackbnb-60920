@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Message, Itinerary, ItineraryDay, ItineraryItem, CollaboratorPermission } from "../types";
-import { extractDestination, extractActivities, generateDays, persistLocalSharedItinerary } from "../utils";
+import { extractDestination, extractActivities, generateDays } from "../utils";
 import type { ParsedActivity } from "../components/AddToItineraryButton";
 import { useItinerarySync, saveItineraryToDatabase, getCollaborators, addCollaborator } from "../hooks/useItinerarySync";
 import type { Json } from "@/integrations/supabase/types";
+import { toast } from "sonner";
 
 const ITINERARY_STORAGE_KEY = "tripPlannerItinerary";
 
@@ -165,7 +166,6 @@ export function ItineraryProvider({ children }: ItineraryProviderProps) {
 
   // Handle remote changes from realtime sync
   const handleRemoteChange = useCallback((remoteItinerary: Itinerary) => {
-    console.log("[ItineraryContext] Received remote change");
     setItinerary(remoteItinerary);
   }, []);
 
@@ -265,7 +265,6 @@ export function ItineraryProvider({ children }: ItineraryProviderProps) {
     setIsSaving(false);
     
     if (error) {
-      console.error("[ItineraryContext] Save error:", error);
       return false;
     }
 
@@ -344,40 +343,23 @@ export function ItineraryProvider({ children }: ItineraryProviderProps) {
     setLastMessages(messages);
     setLastMode(mode);
     
-    void (async () => {
+    setTimeout(() => {
       try {
         const assistantMessages = messages.filter(m => m.role === "assistant");
-        const combinedText = assistantMessages.map(m => m.content).join("\n\n");
-        const { startDate, endDate, destination } = extractTripDatesFromMessages(messages);
-        let activities = extractActivities(combinedText);
-
-        if (activities.length === 0) {
-          const { data } = await supabase
-            .from("vendor_profiles")
-            .select("name, category, description, duration, included_items, listing_type")
-            .eq("is_published", true)
-            .limit(6);
-
-          activities = (data || []).map((vendor, index) => ({
-            title: vendor.name,
-            description: vendor.description || vendor.category,
-            category: vendor.listing_type === "restaurant" ? "food" as const : "activity" as const,
-            time: ["9:00 AM", "12:00 PM", "4:00 PM"][index % 3],
-            duration: vendor.duration || undefined,
-            includes: vendor.included_items || undefined,
-          }));
-        }
-
-        if (activities.length === 0) {
+        
+        if (assistantMessages.length === 0) {
           setGenerationError({
-            message: "No trip information yet. Chat with JC or apply the demo vendor seed, then try again.",
+            message: "No trip information found. Please chat about your destination first.",
             code: "NO_DATA",
-            retryable: true,
+            retryable: false,
           });
           setIsGenerating(false);
           return;
         }
-
+        
+        const combinedText = assistantMessages.map(m => m.content).join("\n\n");
+        const { startDate, endDate, destination } = extractTripDatesFromMessages(messages);
+        const activities = extractActivities(combinedText);
         const newGeneratedDays = generateDays(startDate, endDate, activities);
 
         if (newGeneratedDays.length === 0) {
@@ -436,7 +418,7 @@ export function ItineraryProvider({ children }: ItineraryProviderProps) {
       } finally {
         setIsGenerating(false);
       }
-    })();
+    }, 100);
   }, [itinerary]);
 
   const syncTripFromChat = useCallback((messages: Message[]) => {
@@ -807,11 +789,7 @@ export function ItineraryProvider({ children }: ItineraryProviderProps) {
 
           if (error || !newData) {
             console.error("Error creating itinerary:", error);
-            const localToken = crypto.randomUUID();
-            persistLocalSharedItinerary(localToken, { ...itinerary, isConfirmed: true });
-            const shareUrl = `${window.location.origin}/shared/${localToken}`;
-            setItinerary(prev => prev ? { ...prev, shareToken: localToken, shareUrl } : prev);
-            return shareUrl;
+            return null;
           }
 
           shareToken = newData.share_token;
@@ -832,50 +810,13 @@ export function ItineraryProvider({ children }: ItineraryProviderProps) {
         return shareUrl;
       }
       
-      // For anonymous users, use the legacy shared_itineraries table
-      const shareToken = crypto.randomUUID();
-      const userId = crypto.randomUUID();
-      
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabase
-        .from('shared_itineraries')
-        .insert({
-          share_token: shareToken,
-          user_id: userId,
-          title: `Trip to ${itinerary.destination}`,
-          is_public: true,
-          destination: itinerary.destination,
-          start_date: itinerary.startDate,
-          end_date: itinerary.endDate,
-          itinerary_data: itinerary,
-        } as any));
-
-      if (error) {
-        console.error('Error creating shared itinerary:', error);
-        persistLocalSharedItinerary(shareToken, { ...itinerary, isConfirmed: true });
-        const shareUrl = `${window.location.origin}/shared/${shareToken}`;
-        setItinerary(prev => prev ? { ...prev, shareToken, shareUrl } : prev);
-        return shareUrl;
-      }
-
-      const baseUrl = window.location.origin;
-      const shareUrl = `${baseUrl}/shared/${shareToken}`;
-
-      setItinerary(prev => prev ? {
-        ...prev,
-        shareToken,
-        shareUrl,
-      } : prev);
-
-      return shareUrl;
+      // Anonymous users cannot create share links - prompt them to sign in
+      console.log("[ItineraryContext] Anonymous user cannot generate share link");
+      toast.error("Please sign in to share your itinerary");
+      return null;
     } catch (error) {
       console.error('Error generating share link:', error);
-      if (!itinerary) return null;
-      const localToken = crypto.randomUUID();
-      persistLocalSharedItinerary(localToken, { ...itinerary, isConfirmed: true });
-      const shareUrl = `${window.location.origin}/shared/${localToken}`;
-      setItinerary(prev => prev ? { ...prev, shareToken: localToken, shareUrl } : prev);
-      return shareUrl;
+      return null;
     } finally {
       setIsSharing(false);
     }

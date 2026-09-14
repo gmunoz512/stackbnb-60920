@@ -34,7 +34,7 @@ const LocationSearch = ({
   const [suggestions, setSuggestions] = useState<AutocompleteSuggestion[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Update query when city changes externally
   useEffect(() => {
@@ -162,7 +162,7 @@ const LocationSearch = ({
           )}
 
           {query && !isSearching && (
-            <button
+            <button aria-label="Clear search"
               onClick={clearSearch}
               className="p-1.5 hover:bg-muted rounded-full transition-colors"
             >
@@ -170,7 +170,7 @@ const LocationSearch = ({
             </button>
           )}
 
-          <button
+          <button aria-label="Use my location"
             onClick={onLocationDetect}
             disabled={isLoadingLocation}
             className="p-2 hover:bg-muted rounded-full transition-colors disabled:opacity-50"
@@ -183,7 +183,7 @@ const LocationSearch = ({
             )}
           </button>
 
-          <button 
+          <button aria-label="Search" 
             onClick={handleSearchClick}
             className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white rounded-full p-2 flex-shrink-0 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg"
           >

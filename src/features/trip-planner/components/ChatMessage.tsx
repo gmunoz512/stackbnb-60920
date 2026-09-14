@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Message, ItineraryItemCategory } from "../types";
+import type { Message, ItineraryItemCategory, HostVendor } from "../types";
 import { applyBionicReading, extractVendorFromMessage, hasQuoteInMessage } from "../utils";
 import { AddToItineraryButton, type ParsedActivity } from "./AddToItineraryButton";
 
@@ -14,7 +14,11 @@ const VendorLocationMap = lazy(() =>
 interface ChatMessageProps {
   message: Message;
   bionicEnabled: boolean;
+  hostVendors?: HostVendor[];
 }
+
+// Signals that the guest has chosen / is booking an activity
+const BOOKING_INTENT = /(added to your itinerary|great choice|book|reserve|let'?s do|you'?re all set|confirmed)/i;
 
 const BookingLink = memo(function BookingLink({ href, text }: { href: string; text: string }) {
   return (
@@ -118,8 +122,10 @@ function parseActivitiesFromContent(content: string): ParsedActivity[] {
     const bookingMatch = block.match(/\[Book[^\]]*\]\(([^)]+)\)/i);
     const bookingLink = bookingMatch?.[1];
     
-    // Extract vendor ID from booking link
-    const vendorIdMatch = bookingLink?.match(/\/experience\/(\d+)/);
+    // Extract vendor ID from booking link (/vendor/{id}/book or legacy /experience/{id})
+    const vendorIdMatch =
+      bookingLink?.match(/\/vendor\/([^/\s)]+)\/book/) ??
+      bookingLink?.match(/\/experience\/([^/\s)]+)/);
     const vendorId = vendorIdMatch?.[1];
     
     activities.push({
@@ -176,9 +182,19 @@ function LazyVendorMap({ vendorName }: { vendorName: string }) {
   );
 }
 
-export const ChatMessage = memo(function ChatMessage({ message, bionicEnabled }: ChatMessageProps) {
+export const ChatMessage = memo(function ChatMessage({ message, bionicEnabled, hostVendors }: ChatMessageProps) {
   const isUser = message.role === "user";
   const isAssistant = message.role === "assistant";
+
+  // Fallback: model sometimes confirms a host vendor without emitting a Book link
+  const fallbackBookVendors = useMemo(() => {
+    if (!isAssistant || !hostVendors?.length) return [];
+    const content = message.content;
+    if (/\]\(\/vendor\/[^)]+\/book\)/i.test(content)) return [];
+    if (!BOOKING_INTENT.test(content)) return [];
+    const lower = content.toLowerCase();
+    return hostVendors.filter(v => v.name && lower.includes(v.name.toLowerCase()));
+  }, [isAssistant, hostVendors, message.content]);
   
   const isQuoteMessage = useMemo(
     () => isAssistant && hasQuoteInMessage(message.content),
@@ -195,16 +211,11 @@ export const ChatMessage = memo(function ChatMessage({ message, bionicEnabled }:
     [isAssistant, bionicEnabled, message.content]
   );
 
-  // Parse activities from assistant messages for "Add to itinerary" buttons
-  const parsedActivities = useMemo(() => {
-    if (!isAssistant) return [];
-    return parseActivitiesFromContent(message.content);
-  }, [isAssistant, message.content]);
-
   const markdownComponents = useMemo(() => ({
     a: ({ href, children }: { href?: string; children?: ReactNode }) => {
       const text = String(children);
-      const isBookingLink = href?.startsWith('/experience/') && text.includes('Book');
+      const isBookingLink =
+        (href?.startsWith('/vendor/') || href?.startsWith('/experience/')) && text.includes('Book');
       
       if (isBookingLink && href) {
         return <BookingLink href={href} text={text} />;
@@ -234,20 +245,18 @@ export const ChatMessage = memo(function ChatMessage({ message, bionicEnabled }:
           <ReactMarkdown components={markdownComponents}>
             {formattedContent}
           </ReactMarkdown>
+          {fallbackBookVendors.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {fallbackBookVendors.map(v => (
+                <BookingLink
+                  key={String(v.id)}
+                  href={`/vendor/${v.id}/book`}
+                  text={`Book ${v.name} Now →`}
+                />
+              ))}
+            </div>
+          )}
         </div>
-        
-        {/* Show "Add to itinerary" buttons for parsed activities */}
-        {parsedActivities.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-border/50">
-            {parsedActivities.slice(0, 5).map((activity, index) => (
-              <AddToItineraryButton
-                key={`${activity.title}-${index}`}
-                activity={activity}
-                variant="compact"
-              />
-            ))}
-          </div>
-        )}
       </Card>
       
       {isQuoteMessage && vendorName && (

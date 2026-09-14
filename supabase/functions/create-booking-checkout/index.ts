@@ -2,18 +2,9 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:8080',
-  'https://stackbnb-60920.lovable.app',
-];
-
-const getCorsHeaders = (origin: string | null) => {
-  const isAllowed = origin && (allowedOrigins.includes(origin) || origin.endsWith('.lovable.app'));
-  return {
-    'Access-Control-Allow-Origin': isAllowed ? origin : allowedOrigins[0],
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  };
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 const logStep = (step: string, details?: any) => {
@@ -22,10 +13,6 @@ const logStep = (step: string, details?: any) => {
 };
 
 serve(async (req) => {
-  const origin = req.headers.get('origin');
-  const corsHeaders = getCorsHeaders(origin);
-
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -35,9 +22,7 @@ serve(async (req) => {
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-    logStep("Stripe key verified");
 
-    // Create Supabase clients
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
@@ -49,10 +34,8 @@ serve(async (req) => {
       { auth: { persistSession: false } }
     );
 
-    // Authenticate user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
-    logStep("Authorization header found");
 
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
@@ -61,7 +44,6 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    // Parse request body
     const { 
       experienceName, 
       vendorName, 
@@ -71,14 +53,13 @@ serve(async (req) => {
       totalPrice,
       originalPrice,
       vendorId,
-      hostId, // The host who referred this guest (from storefront/guide link)
+      hostId,
       promoCode,
       discountAmount
     } = await req.json();
 
     logStep("Booking details received", { experienceName, vendorName, date, time, guests, totalPrice, vendorId, hostId });
 
-    // Validate required fields
     if (!experienceName || !guests || guests <= 0) {
       throw new Error("Invalid booking details");
     }
@@ -91,34 +72,27 @@ serve(async (req) => {
       .single();
 
     if (vendorError || !vendorProfile) {
-      logStep("Error fetching vendor profile", { error: vendorError?.message });
       throw new Error("Vendor not found");
     }
 
     logStep("Vendor profile fetched", { id: vendorId, name: vendorProfile.name, price: vendorProfile.price_per_person });
 
     // SECURITY: Calculate total price server-side
-    // We ignore the 'totalPrice' sent from the client to prevent tampering
     let calculatedTotal = (vendorProfile.price_per_person || 0) * guests;
     let finalDiscountAmount = 0;
 
-    // Validate Promo Code Server-Side
     if (promoCode) {
-       const { data: promoData, error: promoError } = await supabaseAdmin.rpc('validate_promo_code', {
+      const { data: promoData, error: promoError } = await supabaseAdmin.rpc('validate_promo_code', {
         p_code: promoCode,
         p_order_amount: calculatedTotal
       });
       
       if (!promoError && promoData && promoData.length > 0 && promoData[0].valid) {
-         finalDiscountAmount = Number(promoData[0].discount_amount);
-         logStep("Promo code applied", { code: promoCode, discount: finalDiscountAmount });
-      } else {
-         logStep("Invalid promo code provided", { code: promoCode });
-         // We silently ignore invalid promos and charge full price, or you could throw an error
+        finalDiscountAmount = Number(promoData[0].discount_amount);
+        logStep("Promo code applied", { code: promoCode, discount: finalDiscountAmount });
       }
     }
 
-    // Final charge amount
     const finalAmountToCharge = Math.max(0, calculatedTotal - finalDiscountAmount);
 
     logStep("Price calculation", { 
@@ -129,26 +103,19 @@ serve(async (req) => {
       finalCharge: finalAmountToCharge 
     });
 
-    // Get platform fee percentage (fixed at 3%)
-
-    // Get platform fee percentage (fixed at 3%)
+    // Get platform fee percentage
     const { data: platformSettings } = await supabaseAdmin
       .from("platform_settings")
       .select("platform_fee_percentage")
       .single();
 
     const platformFeePercent = platformSettings?.platform_fee_percentage || 3;
-    logStep("Platform fee percentage", { platformFeePercent });
-
-    // Vendor's commission_percentage = what the host earns
     const hostCommissionPercent = vendorProfile?.commission_percentage || 0;
 
-    // Get host's Stripe account if there's a host and they're linked to this vendor
-    let hostStripeAccountId: string | null = null;
+    // Validate host
     let validHostId: string | null = null;
 
     if (hostId) {
-      // Verify the host has this vendor linked
       const { data: hostVendorLink } = await supabaseAdmin
         .from("host_vendor_links")
         .select("id")
@@ -158,18 +125,7 @@ serve(async (req) => {
 
       if (hostVendorLink) {
         validHostId = hostId;
-        
-        // Get host's Stripe account
-        const { data: hostProfile } = await supabaseAdmin
-          .from("profiles")
-          .select("stripe_account_id, stripe_onboarding_complete")
-          .eq("user_id", hostId)
-          .single();
-
-        if (hostProfile?.stripe_onboarding_complete) {
-          hostStripeAccountId = hostProfile.stripe_account_id;
-        }
-        logStep("Host profile", { hostId, hostStripeAccountId, onboardingComplete: hostProfile?.stripe_onboarding_complete });
+        logStep("Host validated", { hostId });
       } else {
         logStep("Host not linked to this vendor", { hostId, vendorId });
       }
@@ -180,50 +136,41 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
-    // Check if a Stripe customer exists for this user
+    // Check if a Stripe customer exists
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
-      logStep("Found existing Stripe customer", { customerId });
-    } else {
-      logStep("No existing Stripe customer found");
     }
 
     // Calculate payment splits
-    // If host is valid: Host gets hostCommissionPercent, Platform gets 3%, Vendor gets rest
-    // If no host: Platform gets hostCommissionPercent + 3%, Vendor gets rest
     const totalAmountCents = Math.round(finalAmountToCharge * 100);
     
     let platformFeeCents: number;
     let hostPayoutCents: number;
     
     if (validHostId) {
-      // Host exists and is linked - they get the commission
       platformFeeCents = Math.round(totalAmountCents * (platformFeePercent / 100));
       hostPayoutCents = Math.round(totalAmountCents * (hostCommissionPercent / 100));
     } else {
-      // No host - platform gets the host's commission too
       platformFeeCents = Math.round(totalAmountCents * ((platformFeePercent + hostCommissionPercent) / 100));
       hostPayoutCents = 0;
     }
     
     const vendorPayoutCents = totalAmountCents - platformFeeCents - hostPayoutCents;
 
-    logStep("Payment splits calculated", {
+    logStep("Payment splits calculated (ESCROW)", {
       totalAmountCents,
       platformFeeCents,
       hostPayoutCents,
       vendorPayoutCents,
-      platformFeePercent,
-      hostCommissionPercent,
       hasValidHost: !!validHostId
     });
 
-    // Create checkout session
     const origin = req.headers.get("origin") || "http://localhost:5173";
     
-    // Build session config
+    // ESCROW: Platform holds ALL funds. No transfer_data.destination.
+    // Transfers to vendor and host are created by release-payouts after experience completes.
     const sessionConfig: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       customer_email: customerId ? undefined : user.email,
@@ -245,7 +192,7 @@ serve(async (req) => {
       cancel_url: `${origin}/vendor/${vendorId}/payment`,
       metadata: {
         vendor_id: vendorId,
-        vendor_name: vendorProfile.name, // Use verified name
+        vendor_name: vendorProfile.name,
         experience_name: experienceName,
         date: date,
         time: time,
@@ -259,30 +206,13 @@ serve(async (req) => {
         promo_code: promoCode || "",
         discount_amount: finalDiscountAmount.toString(),
         original_amount: calculatedTotal.toString(),
+        escrow: "true",
       },
     };
 
-    // If vendor has Stripe Connect set up, use payment_intent_data for transfers
-    if (vendorProfile?.stripe_account_id && vendorProfile?.stripe_onboarding_complete) {
-      // Vendor receives the payment, we take platform fee + host cut as application fee
-      // Then we'll transfer host cut to host separately via webhook
-      sessionConfig.payment_intent_data = {
-        application_fee_amount: platformFeeCents + hostPayoutCents,
-        transfer_data: {
-          destination: vendorProfile.stripe_account_id,
-        },
-      };
-      logStep("Using Stripe Connect - vendor destination", { 
-        vendorAccountId: vendorProfile.stripe_account_id,
-        applicationFee: platformFeeCents + hostPayoutCents
-      });
-    } else {
-      logStep("Vendor not using Stripe Connect - platform receives full payment");
-    }
-
     const session = await stripe.checkout.sessions.create(sessionConfig);
 
-    logStep("Checkout session created", { sessionId: session.id, url: session.url });
+    logStep("Checkout session created (ESCROW mode)", { sessionId: session.id, url: session.url });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

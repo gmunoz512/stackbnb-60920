@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Itinerary, CollaboratorPermission } from "../types";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import type { Json } from "@/integrations/supabase/types";
+
 interface UseItinerarySyncOptions {
   /** The itinerary ID to sync */
   itineraryId: string | null;
@@ -50,8 +51,6 @@ export function useItinerarySync({
       return;
     }
 
-    console.log("[useItinerarySync] Subscribing to itinerary:", itineraryId);
-
     const channel = supabase
       .channel(`itinerary:${itineraryId}`)
       .on(
@@ -63,15 +62,12 @@ export function useItinerarySync({
           filter: `id=eq.${itineraryId}`,
         },
         (payload) => {
-          console.log("[useItinerarySync] Received update:", payload);
-          
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const row = payload.new as any;
           
           // Skip if this was our own change (avoid echo)
           const dataHash = JSON.stringify(row.itinerary_data);
           if (dataHash === lastPushedRef.current) {
-            console.log("[useItinerarySync] Skipping own change");
             return;
           }
 
@@ -92,26 +88,22 @@ export function useItinerarySync({
         }
       )
       .subscribe((status) => {
-        console.log("[useItinerarySync] Subscription status:", status);
         setIsConnected(status === "SUBSCRIBED");
       });
 
     channelRef.current = channel;
 
     return () => {
-      console.log("[useItinerarySync] Unsubscribing from itinerary:", itineraryId);
       channel.unsubscribe();
       channelRef.current = null;
       setIsConnected(false);
     };
   }, [itineraryId, onRemoteChange]);
 
-  // Push local changes to database with debounce
   const pushChanges = useCallback(
     (itinerary: Itinerary) => {
       if (!itineraryId) return;
       if (permission !== "owner" && permission !== "editor") {
-        console.log("[useItinerarySync] Cannot push: no edit permission");
         return;
       }
 
@@ -147,14 +139,11 @@ export function useItinerarySync({
             .eq("id", itineraryId);
 
           if (error) {
-            console.error("[useItinerarySync] Push error:", error);
             lastPushedRef.current = null;
           } else {
             setLastSyncAt(new Date());
-            console.log("[useItinerarySync] Push successful");
           }
-        } catch (err) {
-          console.error("[useItinerarySync] Push exception:", err);
+        } catch {
           lastPushedRef.current = null;
         } finally {
           setIsSyncing(false);
@@ -183,6 +172,7 @@ export function useItinerarySync({
 
 /**
  * Load an itinerary from the database by ID or share token.
+  * Uses itineraries_public view for anonymous/unauthenticated access.
  */
 export async function loadItineraryFromDatabase(
   idOrToken: string,
@@ -190,8 +180,50 @@ export async function loadItineraryFromDatabase(
 ): Promise<{ itinerary: Itinerary | null; permission: "owner" | CollaboratorPermission | null; error: string | null }> {
   try {
     const { data: { user } } = await supabase.auth.getUser();
-    
-    // Build query
+
+    // For unauthenticated users, use the public view (no user_id exposed)
+    if (!user) {
+      // Query the public view that strips sensitive fields
+      let query = supabase
+        .from("itineraries_public")
+        .select("*");
+      
+      if (isShareToken) {
+        query = query.eq("share_token", idOrToken);
+      } else {
+        query = query.eq("id", idOrToken);
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await query.maybeSingle() as any;
+
+      if (error) {
+        return { itinerary: null, permission: null, error: error.message };
+      }
+
+      if (!data) {
+        return { itinerary: null, permission: null, error: "Itinerary not found" };
+      }
+
+      // Build itinerary from public view (no user_id field)
+      const itineraryData = data.itinerary_data || { days: [] };
+      const itinerary: Itinerary = {
+        ...itineraryData,
+        id: data.id,
+        destination: data.destination,
+        startDate: data.start_date,
+        endDate: data.end_date,
+        isConfirmed: data.is_confirmed,
+        shareToken: data.share_token,
+        isPublic: data.is_public,
+        // userId intentionally not set - not exposed in public view
+        shareUrl: `${window.location.origin}/shared/${data.share_token}`,
+      };
+
+      return { itinerary, permission: "viewer", error: null };
+    }
+
+    // Authenticated user: query the base table (RLS applies)
     let query = supabase
       .from("itineraries")
       .select("*");
@@ -206,7 +238,6 @@ export async function loadItineraryFromDatabase(
     const { data, error } = await query.maybeSingle() as any;
 
     if (error) {
-      console.error("[loadItineraryFromDatabase] Error:", error);
       return { itinerary: null, permission: null, error: error.message };
     }
 
@@ -214,23 +245,24 @@ export async function loadItineraryFromDatabase(
       return { itinerary: null, permission: null, error: "Itinerary not found" };
     }
 
-    // Determine permission
+    // Determine permission for authenticated user
     let permission: "owner" | CollaboratorPermission | null = null;
+    const isOwner = user.id === data.user_id;
 
-    if (user?.id === data.user_id) {
+    if (isOwner) {
       permission = "owner";
-    } else if (data.is_public) {
+    } else {
       // Check if user is a collaborator
-      if (user) {
-        const { data: collab } = await supabase
-          .from("itinerary_collaborators")
-          .select("permission")
-          .eq("itinerary_id", data.id)
-          .or(`user_id.eq.${user.id},email.eq.${user.email}`)
-          .maybeSingle();
-        
-        permission = (collab?.permission as CollaboratorPermission) || "viewer";
-      } else {
+      const { data: collab } = await supabase
+        .from("itinerary_collaborators")
+        .select("permission")
+        .eq("itinerary_id", data.id)
+        .or(`user_id.eq.${user.id},email.eq.${user.email}`)
+        .maybeSingle();
+      
+      if (collab) {
+        permission = collab.permission as CollaboratorPermission;
+      } else if (data.is_public) {
         permission = "viewer";
       }
     }
@@ -246,13 +278,12 @@ export async function loadItineraryFromDatabase(
       isConfirmed: data.is_confirmed,
       shareToken: data.share_token,
       isPublic: data.is_public,
-      userId: data.user_id,
+      userId: isOwner ? data.user_id : undefined, // Only expose userId to owner
       shareUrl: `${window.location.origin}/shared/${data.share_token}`,
     };
 
     return { itinerary, permission, error: null };
-  } catch (err) {
-    console.error("[loadItineraryFromDatabase] Exception:", err);
+  } catch {
     return { itinerary: null, permission: null, error: "Failed to load itinerary" };
   }
 }
@@ -325,8 +356,7 @@ export async function saveItineraryToDatabase(
     }
 
     return { id: data.id, shareToken: data.share_token, error: null };
-  } catch (err) {
-    console.error("[saveItineraryToDatabase] Exception:", err);
+  } catch {
     return { id: null, shareToken: null, error: "Failed to save itinerary" };
   }
 }
@@ -355,8 +385,7 @@ export async function addCollaborator(
     }
 
     return { inviteToken: data.invite_token, error: null };
-  } catch (err) {
-    console.error("[addCollaborator] Exception:", err);
+  } catch {
     return { inviteToken: null, error: "Failed to add collaborator" };
   }
 }
@@ -378,8 +407,7 @@ export async function removeCollaborator(
     }
 
     return { error: null };
-  } catch (err) {
-    console.error("[removeCollaborator] Exception:", err);
+  } catch {
     return { error: "Failed to remove collaborator" };
   }
 }
@@ -408,8 +436,7 @@ export async function getCollaborators(
     }));
 
     return { collaborators, error: null };
-  } catch (err) {
-    console.error("[getCollaborators] Exception:", err);
+  } catch {
     return { collaborators: [], error: "Failed to get collaborators" };
   }
 }

@@ -8,6 +8,8 @@ import chamicosTulum from '@/assets/restaurants/chamicos-tulum.jpg';
 import kitchenTableTulum from '@/assets/restaurants/kitchen-table-tulum.jpg';
 import rawLoveTulum from '@/assets/restaurants/raw-love-tulum.jpg';
 
+import { expandedTulumRestaurants } from './tulumRestaurantsExpanded';
+
 // Mock restaurant data with realistic information
 export interface Restaurant {
   id: string;
@@ -49,7 +51,7 @@ const uniqueRestaurantPhotos: Record<string, string[]> = {
 };
 
 export const mockRestaurants: Restaurant[] = [
-  // Tulum restaurants
+  // ==================== TULUM RESTAURANTS ====================
   {
     id: 'r1',
     name: "ARCA",
@@ -76,6 +78,7 @@ export const mockRestaurants: Restaurant[] = [
     features: ["Outdoor Seating", "Open-Fire Cooking", "Fine Dining", "Reservations Required"],
     hasOutdoorSeating: true,
     reservationPlatform: 'resy',
+    reservationUrl: 'https://resy.com/cities/tulum-mx/arca',
     coordinates: { lat: 20.2048, lng: -87.4312 },
   },
   {
@@ -85,7 +88,7 @@ export const mockRestaurants: Restaurant[] = [
     rating: 4.8,
     reviewCount: 3247,
     priceRange: '$$$$',
-    address: "Carr. Tulum-Boca Paila km 7.6",
+    address: "Carr. Tulum-Boca Paila km 7.4",
     neighborhood: "Tulum Beach",
     city: "Tulum",
     zipCode: "77780",
@@ -103,8 +106,9 @@ export const mockRestaurants: Restaurant[] = [
     photos: uniqueRestaurantPhotos.r2,
     features: ["Outdoor Seating", "Wood-Fired Cooking", "Farm-to-Table", "Reservations Required"],
     hasOutdoorSeating: true,
-    reservationPlatform: 'opentable',
-    coordinates: { lat: 20.2047, lng: -87.4313 },
+    reservationPlatform: 'resy',
+    reservationUrl: 'https://resy.com/cities/tulum-mx/hartwood',
+    coordinates: { lat: 20.2070, lng: -87.4340 },
   },
   {
     id: 'r3',
@@ -244,6 +248,7 @@ export const mockRestaurants: Restaurant[] = [
     features: ["Garden Setting", "Tasting Menu", "Wine Pairing", "Reservations Recommended"],
     hasOutdoorSeating: true,
     reservationPlatform: 'resy',
+    reservationUrl: 'https://resy.com/cities/tulum-mx/kitchen-table',
     coordinates: { lat: 20.2098, lng: -87.4623 },
   },
   {
@@ -274,8 +279,8 @@ export const mockRestaurants: Restaurant[] = [
     reservationPlatform: null,
     coordinates: { lat: 20.2034, lng: -87.4298 },
   },
+  ...expandedTulumRestaurants,
 ];
-
 // Location suggestions for autocomplete
 export const locationSuggestions = [
   { type: 'city', value: 'Tulum', state: 'QR', zipCode: '77780' },
@@ -329,7 +334,7 @@ export const filterRestaurantsByLocation = (
       const cityLower = city.toLowerCase();
       return (
         r.city.toLowerCase().includes(cityLower) ||
-        r.neighborhood.toLowerCase().includes(cityLower)
+        (r.neighborhood && r.neighborhood.toLowerCase().includes(cityLower))
       );
     }
     return false;

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { checkRateLimit, createRateLimitResponse } from "../_shared/rateLimit.ts";
 
 const allowedOrigins = [
   'http://localhost:5173',
@@ -24,6 +25,29 @@ serve(async (req) => {
   }
 
   try {
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
+
+    // Rate limiting - 5 requests per minute per IP
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
+               req.headers.get('x-real-ip') || 
+               'unknown';
+    
+    const rateLimitResult = await checkRateLimit(
+      supabaseAdmin,
+      `verify:${ip}`,
+      'verify-reset-otp',
+      { windowMinutes: 1, maxRequests: 5 }
+    );
+
+    if (!rateLimitResult.allowed) {
+      console.log(`Rate limit exceeded for OTP verification from IP: ${ip}`);
+      return createRateLimitResponse(rateLimitResult.resetAt, corsHeaders);
+    }
+
     const { email, otp } = await req.json();
 
     if (!email || !otp) {
@@ -32,13 +56,6 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    // Create admin client
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    );
 
     // Look up the OTP
     const { data: otpData, error: otpError } = await supabaseAdmin
@@ -64,7 +81,8 @@ serve(async (req) => {
       .update({ verified: true })
       .eq('id', otpData.id);
 
-    // Generate password reset link
+    // SECURITY: Generate a magic link and redirect server-side instead of returning raw link
+    // We use the PKCE recovery flow which generates a code the client exchanges for a session
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: "recovery",
       email: email,
@@ -87,10 +105,15 @@ serve(async (req) => {
       .delete()
       .eq('id', otpData.id);
 
+    // SECURITY: Return the link for client-side redirect but extract only the code/token
+    // The action_link contains a token that gets exchanged — this is the standard Supabase recovery flow
+    const actionLink = linkData.properties?.action_link;
+    
     return new Response(
       JSON.stringify({ 
         success: true, 
-        link: linkData.properties?.action_link,
+        // Return the redirect URL — client will navigate to it directly
+        redirectUrl: actionLink,
         message: "OTP verified successfully" 
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }

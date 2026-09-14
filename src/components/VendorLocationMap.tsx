@@ -13,6 +13,8 @@ interface VendorLocationMapProps {
   vendorName: string;
   vendorAddress?: string;
   placeId?: string;
+  /** "directions" shows the full route from Tulum Centro; "pin" shows only the vendor location marker */
+  mode?: 'directions' | 'pin';
 }
 
 interface DirectionsData {
@@ -46,13 +48,26 @@ interface MapboxRouteData {
   distanceText: string;
   origin: { lat: number; lng: number };
   destination: { lat: number; lng: number };
-  mapboxToken: string;
   steps?: RouteStep[];
+}
+
+let _cachedMapboxToken: string | null = null;
+async function getMapboxToken(): Promise<string | null> {
+  if (_cachedMapboxToken) return _cachedMapboxToken;
+  try {
+    const { data, error } = await supabase.functions.invoke('mapbox-token');
+    if (error || !data?.token) return null;
+    _cachedMapboxToken = data.token;
+    return data.token;
+  } catch {
+    return null;
+  }
 }
 
 const TULUM_CENTRO = { lat: 20.2114, lng: -87.4654 };
 
-export function VendorLocationMap({ vendorName, vendorAddress, placeId }: VendorLocationMapProps) {
+export function VendorLocationMap({ vendorName, vendorAddress, placeId, mode = 'directions' }: VendorLocationMapProps) {
+  const isPinMode = mode === 'pin';
   const { toast } = useToast();
   const [directionsData, setDirectionsData] = useState<DirectionsData | null>(null);
   const [mapRouteData, setMapRouteData] = useState<MapboxRouteData | null>(null);
@@ -129,8 +144,9 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
     }
   }, [vendorName, vendorAddress, placeId]);
 
-  // Fetch Mapbox route when we have vendor location
+  // Fetch Mapbox route when we have vendor location (skip in pin mode)
   useEffect(() => {
+    if (isPinMode) return;
     const fetchMapboxRoute = async () => {
       if (!directionsData?.vendorLocation) return;
 
@@ -156,164 +172,195 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
     };
 
     fetchMapboxRoute();
-  }, [directionsData?.vendorLocation]);
+  }, [directionsData?.vendorLocation, isPinMode]);
 
-  // Initialize Mapbox map when route data is available
+  // In pin mode, fetch just the Mapbox token and init map centered on vendor
   useEffect(() => {
-    if (!mapContainer.current || !mapRouteData?.mapboxToken || !mapRouteData?.route) return;
-    if (map.current) return; // Already initialized
+    if (!isPinMode || !directionsData?.vendorLocation) return;
+    if (!mapContainer.current || map.current) return;
 
-    try {
-      mapboxgl.accessToken = mapRouteData.mapboxToken;
+    const initPinMap = async () => {
+      try {
+        const token = await getMapboxToken();
+        if (!token) {
+          console.error('Could not get Mapbox token');
+          setMapError(true);
+          return;
+        }
 
-      // Calculate bounds to fit the route
-      const coordinates = mapRouteData.route.coordinates;
-      const bounds = coordinates.reduce((bounds, coord) => {
-        return bounds.extend(coord as [number, number]);
-      }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+        if (!mapContainer.current || map.current) return;
 
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
-        bounds: bounds,
-        fitBoundsOptions: { padding: 40 },
-        attributionControl: false, // Hide Mapbox attribution/logo
-      });
+        mapboxgl.accessToken = token;
+        const { lat, lng } = directionsData.vendorLocation!;
 
-      map.current.on('load', () => {
-        if (!map.current) return;
+        map.current = new mapboxgl.Map({
+          container: mapContainer.current,
+          style: 'mapbox://styles/mapbox/light-v11',
+          center: [lng, lat],
+          zoom: 15,
+          attributionControl: false,
+        });
 
-        // Add route line
-        map.current.addSource('route', {
-          type: 'geojson',
-          data: {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-              type: 'LineString' as const,
-              coordinates: mapRouteData.route.coordinates
+        map.current.on('load', () => {
+          if (!map.current) return;
+
+          // Add vendor marker
+          const destEl = document.createElement('div');
+          destEl.className = 'destination-marker';
+          destEl.innerHTML = `
+            <div style="
+              width: 36px; 
+              height: 36px; 
+              background: #ef4444; 
+              border: 3px solid white; 
+              border-radius: 50%; 
+              display: flex; 
+              align-items: center; 
+              justify-content: center;
+              box-shadow: 0 2px 12px rgba(239,68,68,0.4);
+            ">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+          `;
+          new mapboxgl.Marker(destEl)
+            .setLngLat([lng, lat])
+            .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`<strong>${vendorName}</strong>`))
+            .addTo(map.current!);
+
+          map.current!.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
+          setMapLoaded(true);
+        });
+
+      } catch (err) {
+        console.error('Error initializing pin map:', err);
+        setMapError(true);
+      }
+    };
+
+    initPinMap();
+
+    return () => {
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    };
+  }, [isPinMode, directionsData?.vendorLocation, vendorName]);
+
+  // Initialize Mapbox map when route data is available (directions mode only)
+  useEffect(() => {
+    if (isPinMode) return;
+    if (!mapContainer.current || !mapRouteData?.route) return;
+    if (map.current) return;
+
+    const initDirectionsMap = async () => {
+      const token = await getMapboxToken();
+      if (!token || !mapContainer.current || map.current) return;
+
+      try {
+        mapboxgl.accessToken = token;
+
+        // Calculate bounds to fit the route
+        const coordinates = mapRouteData.route.coordinates;
+        const bounds = coordinates.reduce((bounds, coord) => {
+          return bounds.extend(coord as [number, number]);
+        }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+
+        map.current = new mapboxgl.Map({
+          container: mapContainer.current,
+          style: 'mapbox://styles/mapbox/light-v11',
+          bounds: bounds,
+          fitBoundsOptions: { padding: 40 },
+          attributionControl: false,
+        });
+
+        map.current.on('load', () => {
+          if (!map.current) return;
+
+          map.current.addSource('route', {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'LineString' as const,
+                coordinates: mapRouteData.route.coordinates
+              }
             }
-          }
+          });
+
+          map.current.addLayer({
+            id: 'route-outline',
+            type: 'line',
+            source: 'route',
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: { 'line-color': '#1e40af', 'line-width': 8, 'line-opacity': 0.4 }
+          });
+
+          map.current.addLayer({
+            id: 'route-line',
+            type: 'line',
+            source: 'route',
+            layout: { 'line-join': 'round', 'line-cap': 'round' },
+            paint: { 'line-color': '#3b82f6', 'line-width': 5, 'line-opacity': 0.9 }
+          });
+
+          const originEl = document.createElement('div');
+          originEl.className = 'origin-marker';
+          originEl.innerHTML = `
+            <div style="width: 32px; height: 32px; background: white; border: 3px solid #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+              <div style="width: 12px; height: 12px; background: #3b82f6; border-radius: 50%;"></div>
+            </div>
+          `;
+          new mapboxgl.Marker(originEl)
+            .setLngLat([mapRouteData.origin.lng, mapRouteData.origin.lat])
+            .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML('<strong>Tulum Centro</strong><p>Starting point</p>'))
+            .addTo(map.current);
+
+          const destEl = document.createElement('div');
+          destEl.className = 'destination-marker';
+          destEl.innerHTML = `
+            <div style="width: 36px; height: 36px; background: #ef4444; border: 3px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 12px rgba(239,68,68,0.4);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+          `;
+          new mapboxgl.Marker(destEl)
+            .setLngLat([mapRouteData.destination.lng, mapRouteData.destination.lat])
+            .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`<strong>${vendorName}</strong><p>${mapRouteData.distanceText} • ${mapRouteData.durationText}</p>`))
+            .addTo(map.current);
+
+          const carEl = document.createElement('div');
+          carEl.className = 'car-marker';
+          carEl.innerHTML = `
+            <div style="width: 28px; height: 28px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 12px rgba(16,185,129,0.5); transition: transform 0.1s ease-out;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+                <circle cx="7" cy="17" r="2"/>
+                <circle cx="17" cy="17" r="2"/>
+              </svg>
+            </div>
+          `;
+          carMarker.current = new mapboxgl.Marker(carEl)
+            .setLngLat([mapRouteData.origin.lng, mapRouteData.origin.lat])
+            .addTo(map.current);
+
+          map.current.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
+          setMapLoaded(true);
         });
 
-        // Route outline (darker)
-        map.current.addLayer({
-          id: 'route-outline',
-          type: 'line',
-          source: 'route',
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round'
-          },
-          paint: {
-            'line-color': '#1e40af',
-            'line-width': 8,
-            'line-opacity': 0.4
-          }
-        });
+      } catch (err) {
+        console.error('Error initializing map:', err);
+        setMapError(true);
+      }
+    };
 
-        // Route line (primary color)
-        map.current.addLayer({
-          id: 'route-line',
-          type: 'line',
-          source: 'route',
-          layout: {
-            'line-join': 'round',
-            'line-cap': 'round'
-          },
-          paint: {
-            'line-color': '#3b82f6',
-            'line-width': 5,
-            'line-opacity': 0.9
-          }
-        });
-
-        // Add origin marker (Tulum Centro)
-        const originEl = document.createElement('div');
-        originEl.className = 'origin-marker';
-        originEl.innerHTML = `
-          <div style="
-            width: 32px; 
-            height: 32px; 
-            background: white; 
-            border: 3px solid #3b82f6; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-          ">
-            <div style="width: 12px; height: 12px; background: #3b82f6; border-radius: 50%;"></div>
-          </div>
-        `;
-        new mapboxgl.Marker(originEl)
-          .setLngLat([mapRouteData.origin.lng, mapRouteData.origin.lat])
-          .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML('<strong>Tulum Centro</strong><p>Starting point</p>'))
-          .addTo(map.current);
-
-        // Add destination marker (Vendor)
-        const destEl = document.createElement('div');
-        destEl.className = 'destination-marker';
-        destEl.innerHTML = `
-          <div style="
-            width: 36px; 
-            height: 36px; 
-            background: #ef4444; 
-            border: 3px solid white; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            box-shadow: 0 2px 12px rgba(239,68,68,0.4);
-          ">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-              <circle cx="12" cy="10" r="3"></circle>
-            </svg>
-          </div>
-        `;
-        new mapboxgl.Marker(destEl)
-          .setLngLat([mapRouteData.destination.lng, mapRouteData.destination.lat])
-          .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`<strong>${vendorName}</strong><p>${mapRouteData.distanceText} • ${mapRouteData.durationText}</p>`))
-          .addTo(map.current);
-
-        // Add car marker for animation
-        const carEl = document.createElement('div');
-        carEl.className = 'car-marker';
-        carEl.innerHTML = `
-          <div style="
-            width: 28px; 
-            height: 28px; 
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
-            border: 2px solid white; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            box-shadow: 0 3px 12px rgba(16,185,129,0.5);
-            transition: transform 0.1s ease-out;
-          ">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
-              <circle cx="7" cy="17" r="2"/>
-              <circle cx="17" cy="17" r="2"/>
-            </svg>
-          </div>
-        `;
-        carMarker.current = new mapboxgl.Marker(carEl)
-          .setLngLat([mapRouteData.origin.lng, mapRouteData.origin.lat])
-          .addTo(map.current);
-
-        // Add navigation controls
-        map.current.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
-
-        setMapLoaded(true);
-      });
-
-    } catch (err) {
-      console.error('Error initializing map:', err);
-      setMapError(true);
-    }
+    initDirectionsMap();
 
     return () => {
       if (animationRef.current) {
@@ -492,6 +539,9 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
   };
 
   if (isLoading) {
+    if (isPinMode) {
+      return <Skeleton className="h-48 w-full rounded-xl" />;
+    }
     return (
       <Card className="overflow-hidden border-border/50 bg-card/80 backdrop-blur-sm">
         <Skeleton className="h-48 w-full" />
@@ -510,6 +560,13 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
   }
 
   if (error && !directionsData?.vendorLocation) {
+    if (isPinMode) {
+      return (
+        <div className="rounded-xl bg-muted p-4">
+          <p className="text-muted-foreground text-sm">{error}</p>
+        </div>
+      );
+    }
     return (
       <Card className="p-4 border-border/50 bg-card/80 backdrop-blur-sm">
         <p className="text-muted-foreground text-sm">{error}</p>
@@ -519,6 +576,48 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
 
   const displayDistance = mapRouteData?.distanceText || directionsData?.distance;
   const displayDuration = mapRouteData?.durationText || directionsData?.duration;
+
+  // Pin mode: render just the map container, no Card wrapper
+  if (isPinMode) {
+    return (
+      <div className="relative w-full rounded-xl overflow-hidden" style={{ height: '192px', minHeight: '192px' }}>
+        {directionsData?.vendorLocation && !mapError ? (
+          <>
+            <div 
+              ref={mapContainer} 
+              className="absolute inset-0 w-full h-full"
+              style={{ width: '100%', height: '100%' }}
+            />
+            
+            {/* Loading overlay */}
+            {!mapLoaded && (
+              <div className="absolute inset-0 bg-muted flex items-center justify-center">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            )}
+
+            {/* Open in Maps button */}
+            <div className="absolute bottom-2 right-2">
+              <button
+                onClick={openInGoogleMaps}
+                className="px-2.5 py-1.5 rounded-full bg-background/90 backdrop-blur-sm text-xs font-medium text-foreground flex items-center gap-1.5 shadow-sm border border-border/50 hover:bg-background transition-colors"
+              >
+                <ExternalLink className="h-3 w-3" />
+                Open in Maps
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-blue-50 to-teal-50 dark:from-slate-900 dark:via-blue-950/40 dark:to-teal-950/30 flex items-center justify-center">
+            <div className="text-center">
+              <MapPin className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+              <p className="text-xs text-muted-foreground">Location loading...</p>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <Card className="overflow-hidden border-border/50 bg-gradient-to-br from-card via-card to-primary/5 backdrop-blur-sm">
@@ -531,7 +630,6 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
               className="absolute inset-0 w-full h-full"
               style={{ width: '100%', height: '100%' }}
               onClick={(e) => {
-                // Only open if not interacting with map controls
                 if ((e.target as HTMLElement).closest('.mapboxgl-ctrl')) return;
               }}
             />
@@ -546,7 +644,6 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
             {/* Fallback stylized map while loading Mapbox data */}
             {!mapRouteData && (
               <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-blue-50 to-teal-50 dark:from-slate-900 dark:via-blue-950/40 dark:to-teal-950/30">
-                {/* Subtle map grid pattern */}
                 <div className="absolute inset-0 opacity-10">
                   <div className="w-full h-full" style={{
                     backgroundImage: 'linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)',
@@ -554,7 +651,6 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
                   }} />
                 </div>
                 
-                {/* Curved route path */}
                 <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 192" preserveAspectRatio="xMidYMid slice">
                   <path 
                     d="M 80 96 Q 200 50 320 96" 
@@ -573,7 +669,6 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
                   </defs>
                 </svg>
 
-                {/* Origin */}
                 <div className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1">
                   <div className="h-10 w-10 rounded-full bg-muted border-2 border-primary/40 flex items-center justify-center shadow-md">
                     <CircleDot className="h-5 w-5 text-primary" />
@@ -583,7 +678,6 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
                   </span>
                 </div>
 
-                {/* Destination */}
                 <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1">
                   <div className="relative">
                     <div className="h-10 w-10 rounded-full bg-primary/20 animate-ping absolute inset-0" />
@@ -596,7 +690,6 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
                   </span>
                 </div>
 
-                {/* Loading indicator */}
                 <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/90 backdrop-blur-sm shadow-sm border border-border/50">
                   <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
                   <span className="text-xs font-medium text-muted-foreground">Loading route...</span>
@@ -606,11 +699,10 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
 
             {/* Gradient overlay at bottom */}
             <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-card to-transparent pointer-events-none" />
-
             {/* Map controls row */}
             <div className="absolute bottom-2 left-2 right-2 flex justify-between items-center">
-              {/* Animate journey button */}
-              {mapLoaded && mapRouteData?.route && (
+              {/* Animate journey button (directions mode only) */}
+              {!isPinMode && mapLoaded && mapRouteData?.route && (
                 <button
                   onClick={animateCar}
                   disabled={isAnimating}
@@ -625,7 +717,7 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
                   {isAnimating ? "Driving..." : "Animate Route"}
                 </button>
               )}
-              {!mapLoaded && <div />}
+              {(!mapLoaded || isPinMode) && <div />}
               
               {/* Open in Maps button */}
               <button
@@ -670,8 +762,8 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
               </p>
             )}
             
-            {/* Distance & Duration Pills */}
-            {(displayDistance || displayDuration) && (
+            {/* Distance & Duration Pills (directions mode only) */}
+            {!isPinMode && (displayDistance || displayDuration) && (
               <div className="flex items-center gap-2 mt-2">
                 {displayDistance && (
                   <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
@@ -690,8 +782,8 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
           </div>
         </div>
 
-        {/* Turn-by-Turn Directions */}
-        {mapRouteData?.steps && mapRouteData.steps.length > 0 && (
+        {/* Turn-by-Turn Directions (directions mode only) */}
+        {!isPinMode && mapRouteData?.steps && mapRouteData.steps.length > 0 && (
           <div className="rounded-lg border border-border/50 overflow-hidden">
             <button
               onClick={() => setShowDirections(!showDirections)}
@@ -716,15 +808,12 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
                     key={index}
                     className="flex items-start gap-3 p-3 hover:bg-muted/20 transition-colors"
                   >
-                    {/* Step number with icon */}
                     <div className="flex flex-col items-center gap-1">
                       <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
                         {getDirectionIcon(step.instruction)}
                       </div>
                       <span className="text-[10px] text-muted-foreground">{index + 1}</span>
                     </div>
-                    
-                    {/* Step details */}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-foreground leading-relaxed">
                         {step.instruction}
@@ -743,7 +832,6 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
                   </div>
                 ))}
                 
-                {/* Arrival step */}
                 <div className="flex items-start gap-3 p-3 bg-green-500/5">
                   <div className="flex flex-col items-center gap-1">
                     <div className="h-8 w-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-600 shrink-0">
@@ -763,8 +851,8 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId }: Vendor
           </div>
         )}
 
-        {/* Arrival Tips */}
-        {directionsData?.arrivalTips && directionsData.arrivalTips.length > 0 && (
+        {/* Arrival Tips (directions mode only) */}
+        {!isPinMode && directionsData?.arrivalTips && directionsData.arrivalTips.length > 0 && (
           <div className="rounded-lg bg-yellow-500/10 border border-yellow-500/20 p-3">
             <div className="flex items-start gap-2">
               <Lightbulb className="h-4 w-4 text-yellow-500 shrink-0 mt-0.5" />
