@@ -154,7 +154,7 @@ const AllRestaurants = () => {
         </div>
       </header>
 
-      <div className="px-4 py-4 space-y-4">
+      <div className="px-4 py-4 space-y-4 max-w-6xl mx-auto w-full">
         <h1 className="text-2xl font-bold">Restaurants Near You</h1>
         
         <LocationSearch
@@ -194,7 +194,7 @@ const AllRestaurants = () => {
             <p className="text-sm text-muted-foreground">
               {filteredRestaurants.length} restaurant{filteredRestaurants.length !== 1 ? 's' : ''} found
             </p>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {filteredRestaurants.map((restaurant) => (
                 <RestaurantCard key={restaurant.id} restaurant={restaurant} variant="grid" />
               ))}
