@@ -261,14 +261,14 @@ const AppView = () => {
   });
 
   return (
-    <PageTransition className="min-h-screen h-screen w-screen bg-background flex justify-center overflow-hidden lg:h-auto lg:min-h-screen lg:overflow-x-hidden lg:overflow-y-visible">
+    <PageTransition className="min-h-screen h-screen w-screen bg-background flex justify-center overflow-hidden lg:h-auto lg:min-h-screen lg:overflow-visible">
       {/* Phone container on mobile; full-width website shell on md/lg+ */}
       <div className="w-full max-w-[430px] h-full flex flex-col bg-background overflow-hidden relative md:max-w-5xl lg:max-w-6xl lg:h-auto lg:min-h-screen lg:overflow-visible">
         <div className="hidden lg:block h-14 shrink-0" aria-hidden="true" />
         
         <Tabs defaultValue="explore" className="flex-1 flex flex-col overflow-hidden lg:overflow-visible">
           {/* Sticky Tabs Header */}
-          <div className="flex-shrink-0 sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border lg:top-14">
+          <div className="flex-shrink-0 sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border lg:top-14 lg:bg-background lg:z-30">
             <TabsList className="w-full justify-start rounded-none bg-transparent h-10 p-0">
               <TabsTrigger 
                 value="explore" 
@@ -974,7 +974,7 @@ Get additional advertising and promote your affiliate programs to reach more cus
         </Tabs>
 
         {/* Bottom nav on mobile; top desktop nav on lg+ */}
-        <nav className="absolute bottom-0 left-0 right-0 z-50 pb-safe lg:fixed lg:bottom-auto lg:top-0 lg:pb-0">
+        <nav className="absolute bottom-0 left-0 right-0 z-50 pb-safe lg:fixed lg:bottom-auto lg:top-0 lg:pb-0 lg:z-[60]">
           {/* Glass effect container */}
           <div className="relative">
             {/* Frosted glass background */}
