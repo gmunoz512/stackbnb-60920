@@ -1,0 +1,1064 @@
+import { useState, useEffect, useMemo } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+import { PageTransition } from "@/components/PageTransition";
+import type { Vendor } from "@/types";
+import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import { Heart, User, Search, Star, Sparkles, Store, ChevronRight, ChevronDown, Megaphone, Monitor, MapPin, CalendarDays, LogIn, UserPlus, CheckCircle, DollarSign, Zap, Home, Settings, LogOut, Check } from "lucide-react";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { useSearch } from "@/contexts/SearchContext";
+import { Card } from "@/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "@/hooks/use-toast";
+// Real data + curated restaurants
+import { supabase } from "@/integrations/supabase/client";
+import { mockRestaurants } from "@/data/mockRestaurants";
+import stackdLogo from "@/assets/stackd-logo-new.png";
+import heroImage from "@/assets/hero-beach.jpg";
+import { ThemeToggle } from "@/components/ThemeToggle";
+
+import { BlurImage } from "@/components/BlurImage";
+
+
+const categories = [
+  { id: "all", name: "All", icon: "✨" },
+  { id: "Water Sports", name: "Water", icon: "🌊" },
+  { id: "Tours & Activities", name: "Tours", icon: "🗺️" },
+  { id: "Transportation", name: "Transport", icon: "🚴" },
+  { id: "Food & Dining", name: "Food", icon: "🍷" },
+  { id: "Wellness", name: "Wellness", icon: "💆" },
+  { id: "Photography", name: "Photo", icon: "📸" },
+];
+
+interface VendorProfile {
+  id: string;
+  name: string;
+  category: string;
+  description: string | null;
+  photos: string[] | null;
+  price_per_person: number | null;
+  google_rating: number | null;
+  is_published: boolean | null;
+  listing_type: 'restaurant' | 'experience';
+}
+
+const AppView = () => {
+  const { isAuthenticated, signOut, role } = useAuthContext();
+  const { selectedDate, setSelectedDate, destination, setDestination, selectedCity, supportedCities } = useSearch();
+  const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
+  
+  // Get profile route based on user role
+  const profileRoute = useMemo(() => {
+    if (role === 'host') return '/host/dashboard';
+    if (role === 'vendor') return '/vendor/dashboard';
+    return '/profile';
+  }, [role]);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [favorites, setFavorites] = useState<number[]>(() => {
+    const saved = localStorage.getItem("favorites");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [vendorFavorites, setVendorFavorites] = useState<string[]>(() => {
+    const saved = localStorage.getItem("vendorFavorites");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [myBusinesses, setMyBusinesses] = useState<Vendor[]>([]);
+  const [vendorRestaurants, setVendorRestaurants] = useState<VendorProfile[]>([]);
+  const [vendorExperiences, setVendorExperiences] = useState<VendorProfile[]>([]);
+  const [isLoadingVendors, setIsLoadingVendors] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [googlePhotos, setGooglePhotos] = useState<Record<string, string>>({});
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/appview");
+  };
+
+  useEffect(() => {
+    fetchMyBusinesses();
+  }, []);
+
+  // Re-fetch vendors when city changes
+  useEffect(() => {
+    fetchPublishedVendors();
+  }, [destination]);
+
+  // Fetch Google photos for curated restaurants (no mock fallback)
+  useEffect(() => {
+    const fetchPhotosForRestaurants = async () => {
+      const curatedForCity = mockRestaurants.filter(
+        r => r.city.toLowerCase() === destination.toLowerCase()
+      );
+      const photosMap: Record<string, string> = {};
+      const toFetch: typeof curatedForCity = [];
+
+      for (const r of curatedForCity) {
+        try {
+          const cached = localStorage.getItem(`google_reviews_detail_${r.id}`);
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed.photos?.length > 0) {
+              photosMap[r.id] = parsed.photos[0];
+              continue;
+            }
+          }
+        } catch {}
+        toFetch.push(r);
+      }
+
+      if (Object.keys(photosMap).length > 0) {
+        setGooglePhotos(prev => ({ ...prev, ...photosMap }));
+      }
+
+      // Fetch missing ones in parallel with simplified search queries
+      await Promise.all(
+        toFetch.map(async (r) => {
+          try {
+            // Use just name + city for better Google match rates
+            const query = `${r.name} ${r.city}`;
+            const { data } = await supabase.functions.invoke('google-reviews', {
+              body: { searchQuery: query, lat: r.coordinates?.lat, lng: r.coordinates?.lng }
+            });
+            if (data?.photos?.length > 0) {
+              try {
+                localStorage.setItem(
+                  `google_reviews_detail_${r.id}`,
+                  JSON.stringify({ ...data, timestamp: Date.now() })
+                );
+              } catch {}
+              setGooglePhotos(prev => ({ ...prev, [r.id]: data.photos[0] }));
+            } else {
+              // Mark as "no photo" so we can hide the card
+              setGooglePhotos(prev => ({ ...prev, [r.id]: '' }));
+            }
+          } catch {
+            setGooglePhotos(prev => ({ ...prev, [r.id]: '' }));
+          }
+        })
+      );
+    };
+    fetchPhotosForRestaurants();
+  }, [destination]);
+
+  const fetchMyBusinesses = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('vendors')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      setMyBusinesses((data as Vendor[]) || []);
+    } catch (error) {
+      console.error('Error fetching businesses:', error);
+    }
+  };
+
+  const fetchPublishedVendors = async () => {
+    try {
+      setIsLoadingVendors(true);
+      // Use the public view to avoid exposing sensitive fields
+      const { data, error } = await supabase
+        .from('vendor_profiles_public')
+        .select('id, name, category, description, photos, price_per_person, google_rating, is_published, listing_type')
+        .eq('is_published', true);
+
+      if (error) throw error;
+      
+      const vendors = (data as VendorProfile[]) || [];
+      // Filter by city client-side since the public view doesn't include city
+      setVendorRestaurants(vendors.filter(v => v.listing_type === 'restaurant'));
+      setVendorExperiences(vendors.filter(v => v.listing_type === 'experience'));
+    } catch (error) {
+      console.error('Error fetching published vendors:', error);
+    } finally {
+      setIsLoadingVendors(false);
+    }
+  };
+
+  // Get curated restaurants for the selected city
+  const curatedRestaurants = useMemo(() => {
+    return mockRestaurants.filter(r => 
+      r.city.toLowerCase() === destination.toLowerCase()
+    );
+  }, [destination]);
+
+  const toggleFavorite = (id: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setFavorites((prev) => {
+      const newFavorites = prev.includes(id)
+        ? prev.filter((fav) => fav !== id)
+        : [...prev, id];
+      
+      localStorage.setItem("favorites", JSON.stringify(newFavorites));
+      
+      toast({
+        title: prev.includes(id) ? "Removed from favorites" : "Added to favorites",
+        duration: 2000,
+      });
+      
+      return newFavorites;
+    });
+  };
+
+  const toggleVendorFavorite = (id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setVendorFavorites((prev) => {
+      const newFavorites = prev.includes(id)
+        ? prev.filter((fav) => fav !== id)
+        : [...prev, id];
+      
+      localStorage.setItem("vendorFavorites", JSON.stringify(newFavorites));
+      
+      toast({
+        title: prev.includes(id) ? "Removed from favorites" : "Added to favorites",
+        duration: 2000,
+      });
+      
+      return newFavorites;
+    });
+  };
+
+  // Filter vendor experiences by category and search
+  const filteredVendorExperiences = vendorExperiences.filter((vendor) => {
+    const matchesCategory = selectedCategory === "all" || vendor.category === selectedCategory;
+    const matchesSearch = searchQuery === "" || 
+      vendor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      vendor.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (vendor.description && vendor.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesCategory && matchesSearch;
+  });
+
+  return (
+    <PageTransition className="min-h-screen h-screen w-screen bg-background flex justify-center overflow-hidden lg:h-auto lg:min-h-screen lg:overflow-visible">
+      {/* Phone container on mobile; full-width website shell on md/lg+ */}
+      <div className="w-full max-w-[430px] h-full flex flex-col bg-background overflow-hidden relative md:max-w-5xl lg:max-w-6xl lg:h-auto lg:min-h-screen lg:overflow-visible">
+        <div className="hidden lg:block h-14 shrink-0" aria-hidden="true" />
+        
+        <Tabs defaultValue="explore" className="flex-1 flex flex-col overflow-hidden lg:overflow-visible">
+          {/* Sticky Tabs Header */}
+          <div className="flex-shrink-0 sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b border-border lg:top-14 lg:bg-background lg:z-30">
+            <TabsList className="w-full justify-start rounded-none bg-transparent h-10 p-0">
+              <TabsTrigger 
+                value="explore" 
+                className="flex-1 rounded-none text-xs data-[state=active]:border-b-2 data-[state=active]:border-primary"
+              >
+                Explore
+              </TabsTrigger>
+              <TabsTrigger 
+                value="services" 
+                className="flex-1 rounded-none text-xs data-[state=active]:border-b-2 data-[state=active]:border-primary"
+              >
+                Services
+              </TabsTrigger>
+              <TabsTrigger 
+                value="about" 
+                className="flex-1 rounded-none text-xs data-[state=active]:border-b-2 data-[state=active]:border-primary"
+              >
+                About
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          <TabsContent value="explore" className="flex-1 overflow-y-auto overflow-x-hidden pb-20 mt-0 lg:overflow-visible lg:pb-8">
+            {/* Hero Section - Now scrollable */}
+            <div className="relative">
+              {/* Background image */}
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ 
+                  backgroundImage: `url(${heroImage})`,
+                  filter: 'blur(1px)',
+                }}
+              />
+              <div className="absolute inset-0 bg-background/70" />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
+
+              {/* Header */}
+              <div className="relative z-10 flex items-center justify-between px-4 pt-3 pb-2">
+                <ThemeToggle />
+                <div className="flex items-center gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="p-2 rounded-full bg-background/80 border border-border text-foreground hover:bg-accent transition-colors relative">
+                      <User className="h-4 w-4" />
+                      {role && (
+                        <span className={cn(
+                          "absolute -bottom-1 -right-1 text-[8px] font-bold px-1 rounded-full capitalize",
+                          role === 'host' ? "bg-orange-500 text-white" :
+                          role === 'vendor' ? "bg-purple-500 text-white" :
+                          "bg-muted text-muted-foreground"
+                        )}>
+                          {role === 'host' ? 'H' : role === 'vendor' ? 'V' : 'U'}
+                        </span>
+                      )}
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-40">
+                      {isAuthenticated ? (
+                        <>
+                          <DropdownMenuItem asChild>
+                            <Link to={profileRoute} className="flex items-center gap-2 cursor-pointer">
+                              <User className="h-4 w-4" />
+                              Profile
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link to={role === 'host' ? '/host/profile' : role === 'vendor' ? '/vendor/profile' : '/profile'} className="flex items-center gap-2 cursor-pointer">
+                              <Settings className="h-4 w-4" />
+                              Settings
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={handleSignOut} className="flex items-center gap-2 cursor-pointer text-destructive">
+                            <LogOut className="h-4 w-4" />
+                            Sign Out
+                          </DropdownMenuItem>
+                        </>
+                      ) : (
+                        <>
+                          <DropdownMenuItem asChild>
+                            <Link to="/auth" className="flex items-center gap-2 cursor-pointer">
+                              <LogIn className="h-4 w-4" />
+                              Sign In
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <Link to="/auth?signup=true" className="flex items-center gap-2 cursor-pointer">
+                              <UserPlus className="h-4 w-4" />
+                              Sign Up
+                            </Link>
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <Link
+                    to="/trip-planner"
+                    className="p-2 rounded-full bg-gradient-to-r from-orange-500 to-purple-600 text-white"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Hero Content */}
+              <div className="relative z-10 px-4 pb-4 pt-4 text-center">
+                <img src={stackdLogo} alt="stackd" className="h-40 w-40 mx-auto mb-3" />
+                <h1 className="text-xl font-bold text-foreground mb-1">
+                  Discover Experiences
+                </h1>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Find amazing restaurants & adventures nearby
+                </p>
+
+                {/* Search Section - Single Bar */}
+                <div className="relative md:max-w-2xl md:mx-auto">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500/20 to-purple-600/20 rounded-full blur-sm"></div>
+                  <div className="relative bg-card/90 rounded-full border border-border/50 backdrop-blur-sm flex items-center px-3 py-2">
+                    {/* Left: Location icon */}
+                    <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
+                    
+                    {/* Center: City Dropdown - takes flex space and centers */}
+                    <div className="flex-1 flex items-center">
+                      <Popover open={cityDropdownOpen} onOpenChange={setCityDropdownOpen}>
+                        <PopoverTrigger asChild>
+                          <button className="flex-1 flex items-center justify-between text-xs text-muted-foreground hover:text-foreground transition-colors px-2">
+                            <span>{destination}</span>
+                            <ChevronDown className="h-3 w-3" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-48 p-1 z-50 bg-popover" align="center">
+                          <div className="space-y-0.5">
+                            {supportedCities.map((city) => (
+                              <button
+                                key={city.id}
+                                onClick={() => {
+                                  setDestination(city.name);
+                                  setCityDropdownOpen(false);
+                                }}
+                                className={cn(
+                                  "w-full flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors",
+                                  destination === city.name
+                                    ? "bg-primary/10 text-primary"
+                                    : "hover:bg-muted"
+                                )}
+                              >
+                                <span>{city.name}</span>
+                                {destination === city.name && (
+                                  <Check className="h-4 w-4" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    
+                    <div className="h-4 w-px bg-border/50 flex-shrink-0" />
+                    
+                    {/* Right: Date picker */}
+                    <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                      <PopoverTrigger asChild>
+                        <button className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors flex-shrink-0">
+                          <CalendarDays className="h-4 w-4 text-primary" />
+                          <span className="text-xs whitespace-nowrap">
+                            {selectedDate ? format(selectedDate, "MMM d, yyyy") : "When?"}
+                          </span>
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 z-50 bg-popover" align="end">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={(date) => {
+                            setSelectedDate(date);
+                            setCalendarOpen(false);
+                          }}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    
+                    <button 
+                      className="ml-2 bg-gradient-to-r from-orange-500 to-purple-600 text-white rounded-full p-1.5 flex-shrink-0"
+                      onClick={() => navigate('/restaurants')}
+                    >
+                      <Search className="h-3 w-3" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="px-3 py-3 space-y-5 md:px-6">
+
+              {/* My Businesses */}
+              {myBusinesses.length > 0 && (
+                <section className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-sm font-semibold">My Businesses</h2>
+                    <Link to="/host/vendors" className="text-xs text-primary">
+                      View all
+                    </Link>
+                  </div>
+                  <div className="overflow-x-auto scrollbar-hide -mx-3 px-3 md:overflow-visible md:mx-0 md:px-0">
+                    <div className="flex gap-3 w-max md:grid md:grid-cols-4 lg:grid-cols-6 md:w-full">
+                      {myBusinesses.map((business) => (
+                        <Link
+                          key={business.id}
+                          to="/host/vendors"
+                          className="flex-shrink-0 w-28 md:w-auto md:min-w-0"
+                        >
+                          <div className="aspect-square bg-gradient-to-br from-orange-500/20 to-pink-500/20 rounded-xl flex items-center justify-center border border-border">
+                            <Store className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                          <p className="text-xs font-medium mt-1 line-clamp-1">{business.name}</p>
+                          <p className="text-[10px] text-muted-foreground">{business.category}</p>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )}
+
+              {/* Restaurants in {destination} */}
+              <section className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold">Restaurants in {destination}</h2>
+                  <Link to="/restaurants" className="flex items-center text-muted-foreground">
+                    <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </div>
+                <div className="overflow-x-auto scrollbar-hide -mx-3 px-3 md:overflow-visible md:mx-0 md:px-0">
+                  <div className="flex gap-3 w-max pb-2 md:grid md:grid-cols-3 lg:grid-cols-4 md:w-full">
+                    {isLoadingVendors ? (
+                      // Show skeleton loading states
+                      <>
+                        {[1, 2, 3, 4].map((i) => (
+                          <div key={i} className="flex-shrink-0 w-36 md:w-auto md:min-w-0">
+                            <Skeleton className="aspect-square rounded-xl" />
+                          </div>
+                        ))}
+                      </>
+                    ) : (
+                      <>
+                        {/* Vendor restaurants from database */}
+                        {vendorRestaurants.map((vendor, index) => (
+                          <Link
+                            key={vendor.id}
+                            to={`/vendor/${vendor.id}`}
+                            className="flex-shrink-0 w-36 animate-fade-in group md:w-auto md:min-w-0"
+                            style={{ animationDelay: `${index * 50}ms` }}
+                          >
+                            <div className="aspect-square rounded-xl overflow-hidden relative transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_10px_30px_-5px_rgba(0,0,0,0.3)]">
+                              {vendor.photos && vendor.photos.length > 0 ? (
+                                <BlurImage
+                                  src={vendor.photos[0]}
+                                  alt={vendor.name}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-orange-500 to-purple-600 flex items-center justify-center">
+                                  <Store className="h-8 w-8 text-white/80" />
+                                </div>
+                              )}
+                              <button
+                                onClick={(e) => toggleVendorFavorite(vendor.id, e)}
+                                className="absolute top-2 right-2 z-10"
+                              >
+                                <Heart
+                                  className={`h-5 w-5 drop-shadow-md ${
+                                    vendorFavorites.includes(vendor.id)
+                                      ? "fill-red-500 text-red-500"
+                                      : "fill-black/40 text-white"
+                                  }`}
+                                />
+                              </button>
+                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                                <p className="text-white text-xs font-medium line-clamp-1">{vendor.name}</p>
+                                <div className="flex items-center gap-1 text-white/80 text-[10px]">
+                                  {vendor.google_rating && (
+                                    <>
+                                      <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
+                                      <span>{vendor.google_rating}</span>
+                                      <span>•</span>
+                                    </>
+                                  )}
+                                  <span>{vendor.category}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                        
+                        {/* Curated restaurants for the selected city */}
+                        {curatedRestaurants.map((restaurant, index) => {
+                          const photo = googlePhotos[restaurant.id];
+
+                          // Hide cards that failed to get a Google photo (empty string = no photo found)
+                          if (photo === '') return null;
+
+                          return (
+                            <Link
+                              key={restaurant.id}
+                              to={`/restaurant/${restaurant.id}`}
+                              className="flex-shrink-0 w-36 animate-fade-in group md:w-auto md:min-w-0"
+                              style={{ animationDelay: `${(vendorRestaurants.length + index) * 50}ms` }}
+                            >
+                              <div className="aspect-square rounded-xl overflow-hidden relative transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_10px_30px_-5px_rgba(0,0,0,0.3)]">
+                                {photo ? (
+                                  <BlurImage
+                                    src={photo}
+                                    alt={restaurant.name}
+                                    containerClassName="w-full h-full"
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                  />
+                                ) : (
+                                  <Skeleton className="w-full h-full" />
+                                )}
+                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                                  <p className="text-white text-xs font-medium line-clamp-1">{restaurant.name}</p>
+                                  <div className="flex items-center gap-1 text-white/80 text-[10px]">
+                                    <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
+                                    <span>{restaurant.rating?.toFixed(1) ?? 'N/A'}</span>
+                                    <span>•</span>
+                                    <span>{restaurant.priceRange}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </Link>
+                          );
+                        })}
+
+                        {/* Empty state when no restaurants at all */}
+                        {vendorRestaurants.length === 0 && curatedRestaurants.length === 0 && (
+                          <div className="flex-shrink-0 w-full py-4 text-center md:col-span-full">
+                            <p className="text-xs text-muted-foreground">No restaurants available in {destination} yet</p>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              </section>
+
+              {/* Popular Experiences in {destination} */}
+              <section className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold">Experiences in {destination}</h2>
+                  <Link to="/experiences" className="flex items-center text-muted-foreground">
+                    <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </div>
+                <div className="overflow-x-auto scrollbar-hide -mx-3 px-3 md:overflow-visible md:mx-0 md:px-0">
+                  <div className="flex gap-3 w-max pb-2 md:grid md:grid-cols-3 lg:grid-cols-4 md:w-full">
+                    {isLoadingVendors ? (
+                      // Show skeleton loading states
+                      <>
+                        {[1, 2, 3, 4].map((i) => (
+                          <div key={i} className="flex-shrink-0 w-36 md:w-auto md:min-w-0">
+                            <Skeleton className="aspect-square rounded-xl" />
+                          </div>
+                        ))}
+                      </>
+                    ) : (
+                      <>
+                        {/* Vendor experiences first */}
+                        {vendorExperiences.map((vendor, index) => (
+                          <Link
+                            key={vendor.id}
+                            to={`/vendor/${vendor.id}`}
+                            className="flex-shrink-0 w-36 animate-fade-in group md:w-auto md:min-w-0"
+                            style={{ animationDelay: `${index * 50}ms` }}
+                          >
+                            <div className="aspect-square rounded-xl overflow-hidden relative transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_10px_30px_-5px_rgba(0,0,0,0.3)]">
+                              {vendor.photos && vendor.photos.length > 0 ? (
+                                <BlurImage
+                                  src={vendor.photos[0]}
+                                  alt={vendor.name}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                              ) : (
+                                <div className="w-full h-full bg-gradient-to-br from-orange-500 to-purple-600 flex items-center justify-center">
+                                  <Store className="h-8 w-8 text-white/80" />
+                                </div>
+                              )}
+                              <button
+                                onClick={(e) => toggleVendorFavorite(vendor.id, e)}
+                                className="absolute top-2 right-2 z-10"
+                              >
+                                <Heart
+                                  className={`h-5 w-5 drop-shadow-md ${
+                                    vendorFavorites.includes(vendor.id)
+                                      ? "fill-red-500 text-red-500"
+                                      : "fill-black/40 text-white"
+                                  }`}
+                                />
+                              </button>
+                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                                <p className="text-white text-xs font-medium line-clamp-1">{vendor.name}</p>
+                                <div className="flex items-center gap-1 text-white/80 text-[10px]">
+                                  {vendor.google_rating && (
+                                    <>
+                                      <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
+                                      <span>{vendor.google_rating}</span>
+                                      <span>•</span>
+                                    </>
+                                  )}
+                                  {vendor.price_per_person && <span>${vendor.price_per_person}</span>}
+                                </div>
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                        {/* Empty state when no experiences */}
+                        {vendorExperiences.length === 0 && (
+                          <div className="flex-shrink-0 w-full py-4 text-center md:col-span-full">
+                            <p className="text-xs text-muted-foreground">No experiences available in {destination} yet</p>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              </section>
+
+              {/* Wishlists Section - Shows hearted experiences and vendors */}
+              <section className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold">My Wishlists</h2>
+                  {(favorites.length > 0 || vendorFavorites.length > 0) && (
+                    <span className="text-xs text-muted-foreground">{favorites.length + vendorFavorites.length} saved</span>
+                  )}
+                </div>
+                {favorites.length === 0 && vendorFavorites.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <Heart className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
+                    <p className="text-xs text-muted-foreground">No favorites yet</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">Heart experiences to save them here</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {/* Vendor favorites */}
+                    {[...vendorExperiences, ...vendorRestaurants]
+                      .filter(vendor => vendorFavorites.includes(vendor.id))
+                      .map((vendor) => (
+                        <Link key={vendor.id} to={`/vendor/${vendor.id}`} className="block group">
+                          <div className="aspect-square rounded-xl overflow-hidden relative transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_10px_30px_-5px_rgba(0,0,0,0.3)]">
+                            <BlurImage
+                              src={vendor.photos?.[0] || '/placeholder.svg'}
+                              alt={vendor.name}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                            <button
+                              onClick={(e) => toggleVendorFavorite(vendor.id, e)}
+                              className="absolute top-2 right-2 z-10"
+                            >
+                              <Heart className="h-4 w-4 drop-shadow-md fill-red-500 text-red-500" />
+                            </button>
+                          </div>
+                          <div className="mt-1.5">
+                            <p className="text-xs font-medium line-clamp-1">{vendor.name}</p>
+                            <p className="text-[10px] text-muted-foreground line-clamp-1">{vendor.category}</p>
+                            <div className="flex items-center gap-1 text-[10px]">
+                              {vendor.google_rating && (
+                                <>
+                                  <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
+                                  <span>{vendor.google_rating}</span>
+                                  <span className="text-muted-foreground">•</span>
+                                </>
+                              )}
+                              <span className="font-medium">${vendor.price_per_person}</span>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    {/* Only show vendor favorites - mock experiences removed */}
+                  </div>
+                )}
+              </section>
+
+              {/* Footer spacer for bottom nav */}
+              <div className="h-4" />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="services" className="flex-1 overflow-y-auto pb-20 mt-0 lg:overflow-visible lg:pb-8">
+            <div className="px-4 py-6 space-y-5 md:px-6 md:max-w-3xl md:mx-auto">
+              <div className="text-center">
+                <img src={stackdLogo} alt="stackd" className="h-32 w-32 mx-auto" />
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-start gap-3 p-3 bg-card rounded-xl border border-border">
+                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                    <User className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xs font-semibold">For Customers</h3>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      Discover and book amazing local experiences with ease. From dining to adventures, find everything you need in one place.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 bg-card rounded-xl border border-border">
+                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                    <Store className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xs font-semibold">For Airbnb Hosts</h3>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                      Create your profile, add vendors from our directory or your own list, and share with guests so they can book through the platform.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 bg-card rounded-xl border border-border">
+                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                    <Megaphone className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xs font-semibold">For Vendors</h3>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">
+Get additional advertising and promote your affiliate programs to reach more customers through local Airbnb hosts.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Partner Links Section */}
+              <section className="space-y-3">
+                <Collapsible>
+                  <CollapsibleTrigger className="w-full">
+                    <div className="flex items-center justify-between p-3 bg-card rounded-lg border border-border hover:border-purple-500/30 transition-all cursor-pointer group">
+                      <h2 className="text-sm font-display font-bold tracking-wide">Partner With Us</h2>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground group-data-[state=open]:rotate-180 transition-transform duration-200" />
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-2 space-y-2">
+                    <Link 
+                      to="/for-vendors" 
+                      className="flex items-center justify-between p-3 bg-card rounded-lg border border-border hover:border-orange-500/50 transition-all group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                          <Store className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold">For Vendors</p>
+                          <p className="text-[10px] text-muted-foreground">Grow your business with stackd</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-orange-500 transition-colors" />
+                    </Link>
+                    <Link 
+                      to="/for-hosts" 
+                      className="flex items-center justify-between p-3 bg-card rounded-lg border border-border hover:border-orange-500/50 transition-all group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                          <Home className="h-4 w-4 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold">For Hosts</p>
+                          <p className="text-[10px] text-muted-foreground">Monetize your recommendations</p>
+                        </div>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-orange-500 transition-colors" />
+                    </Link>
+                  </CollapsibleContent>
+                </Collapsible>
+              </section>
+
+              {/* FAQ Section */}
+              <section className="space-y-3">
+                <Collapsible>
+                  <CollapsibleTrigger className="w-full">
+                    <div className="flex items-center justify-between p-3 bg-card rounded-lg border border-border hover:border-purple-500/30 transition-all cursor-pointer group">
+                      <h2 className="text-sm font-display font-bold tracking-wide">Common Questions</h2>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground group-data-[state=open]:rotate-180 transition-transform duration-200" />
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-2">
+                    <Accordion type="single" collapsible className="space-y-2">
+                      <AccordionItem value="item-1" className="bg-card rounded-lg border border-border px-4">
+                        <AccordionTrigger className="text-left text-xs font-semibold hover:no-underline py-3">
+                          Do my guests pay more?
+                        </AccordionTrigger>
+                        <AccordionContent className="text-xs text-muted-foreground pb-3">
+                          No. Guests pay the vendor's regular price. Your commission comes from the vendor, not the guest.
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="item-2" className="bg-card rounded-lg border border-border px-4">
+                        <AccordionTrigger className="text-left text-xs font-semibold hover:no-underline py-3">
+                          How do I get paid?
+                        </AccordionTrigger>
+                        <AccordionContent className="text-xs text-muted-foreground pb-3">
+                          Automatic payouts every week via Stripe. No chasing vendors for payment.
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="item-3" className="bg-card rounded-lg border border-border px-4">
+                        <AccordionTrigger className="text-left text-xs font-semibold hover:no-underline py-3">
+                          What if I already recommend these places?
+                        </AccordionTrigger>
+                        <AccordionContent className="text-xs text-muted-foreground pb-3">
+                          Perfect! Now you'll get paid for recommendations you're already making for free.
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="item-4" className="bg-card rounded-lg border border-border px-4">
+                        <AccordionTrigger className="text-left text-xs font-semibold hover:no-underline py-3">
+                          Is there a monthly fee?
+                        </AccordionTrigger>
+                        <AccordionContent className="text-xs text-muted-foreground pb-3">
+                          No monthly fee for hosts. stackd earns a small platform fee from vendors.
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="item-5" className="bg-card rounded-lg border border-border px-4">
+                        <AccordionTrigger className="text-left text-xs font-semibold hover:no-underline py-3">
+                          What do vendors get?
+                        </AccordionTrigger>
+                        <AccordionContent className="text-xs text-muted-foreground pb-3">
+                          Advertising and exposure through trusted host recommendations — the most valuable kind of marketing.
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="item-6" className="bg-card rounded-lg border border-border px-4">
+                        <AccordionTrigger className="text-left text-xs font-semibold hover:no-underline py-3">
+                          What do guests get?
+                        </AccordionTrigger>
+                        <AccordionContent className="text-xs text-muted-foreground pb-3">
+                          Convenience of booking highly recommended businesses in one place, curated by their host.
+                        </AccordionContent>
+                      </AccordionItem>
+                      <AccordionItem value="item-7" className="bg-card rounded-lg border border-border px-4">
+                        <AccordionTrigger className="text-left text-xs font-semibold hover:no-underline py-3">
+                          I already have affiliate partnerships — can I still use stackd?
+                        </AccordionTrigger>
+                        <AccordionContent className="text-xs text-muted-foreground pb-3">
+                          Absolutely! Keep your existing relationships and discover new ones through our platform.
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </CollapsibleContent>
+                </Collapsible>
+              </section>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="about" className="flex-1 overflow-y-auto pb-20 mt-0 lg:overflow-visible lg:pb-8">
+            <div className="px-4 py-6 space-y-6 md:px-6 md:max-w-3xl md:mx-auto">
+              {/* Logo and Tagline */}
+              <div className="text-center space-y-2">
+                <img src={stackdLogo} alt="stackd" className="h-32 w-32 mx-auto" />
+                <p className="text-muted-foreground text-xs max-w-xs mx-auto">
+                  Your one-stop platform for discovering local experiences, dining, and adventures.
+                </p>
+              </div>
+
+              {/* Mission */}
+              <div className="space-y-1.5">
+                <h3 className="font-semibold text-sm">Our Mission</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  We connect travelers with unforgettable local experiences while empowering hosts and vendors to grow their businesses through meaningful partnerships.
+                </p>
+              </div>
+
+              {/* What We Offer */}
+              <div className="space-y-2">
+                <h3 className="font-semibold text-sm">What We Offer</h3>
+                <ul className="space-y-1.5 text-xs text-muted-foreground">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Curated local restaurants and dining experiences</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Adventure activities and tours from trusted vendors</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">•</span>
+                    <span>AI-powered trip planning assistance</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary">•</span>
+                    <span>Seamless booking and reservation management</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Contact */}
+              <div className="space-y-1.5 pt-3 border-t border-border">
+                <h3 className="font-semibold text-sm">Get in Touch</h3>
+                <p className="text-xs text-muted-foreground">
+                  Have questions or feedback? We'd love to hear from you.
+                </p>
+                <p className="text-xs text-primary">support@stackd.com</p>
+              </div>
+
+              {/* Version */}
+              <div className="text-center pt-3">
+                <p className="text-[10px] text-muted-foreground">Version 1.0.0</p>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        {/* Bottom nav on mobile; top desktop nav on lg+ */}
+        <nav className="absolute bottom-0 left-0 right-0 z-50 pb-safe lg:fixed lg:bottom-auto lg:top-0 lg:pb-0 lg:z-[60]">
+          {/* Glass effect container */}
+          <div className="relative">
+            {/* Frosted glass background */}
+            <div className="absolute inset-0 bg-card/80 backdrop-blur-xl border-t border-white/10 dark:border-white/5 lg:border-t-0 lg:border-b" />
+            
+            {/* Gradient glow effect */}
+            <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent lg:top-auto lg:-bottom-px" />
+            
+            {/* Content */}
+            <div className="relative flex justify-around items-center h-14 lg:max-w-6xl lg:mx-auto lg:justify-center lg:gap-2">
+              {[
+                { to: "/wishlists", icon: Heart, label: "Wishlists", badge: favorites.length },
+                { to: "/trip-planner", icon: Sparkles, label: "AI" },
+                { to: profileRoute, icon: User, label: "Profile", roleBadge: role },
+              ].map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname === item.to;
+                
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className={cn(
+                      "relative flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-all duration-300",
+                      "active:scale-90 touch-manipulation lg:flex-none lg:flex-row lg:gap-2 lg:px-8",
+                      isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {/* Active indicator dot */}
+                    {isActive && (
+                      <motion.div
+                        layoutId="appNavIndicator"
+                        className="absolute -top-0.5 h-1 w-1 rounded-full bg-primary lg:top-auto lg:bottom-1"
+                        initial={false}
+                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      />
+                    )}
+                    
+                    <motion.div
+                      animate={isActive ? { scale: 1.1 } : { scale: 1 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                      className="relative"
+                    >
+                      <Icon className="h-5 w-5" strokeWidth={isActive ? 2.5 : 2} />
+                      
+                      {/* Favorites badge */}
+                      {item.badge !== undefined && item.badge > 0 && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="absolute -top-1 -right-2 h-3.5 w-3.5 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full text-[7px] text-white font-bold flex items-center justify-center"
+                        >
+                          {item.badge > 99 ? '99+' : item.badge}
+                        </motion.div>
+                      )}
+                      
+                      {/* Role badge */}
+                      {item.roleBadge && (
+                        <span className={cn(
+                          "absolute -bottom-0.5 -right-1.5 text-[6px] font-bold px-0.5 rounded-full",
+                          item.roleBadge === 'host' ? "bg-orange-500 text-white" :
+                          item.roleBadge === 'vendor' ? "bg-purple-500 text-white" :
+                          "bg-muted text-muted-foreground"
+                        )}>
+                          {item.roleBadge === 'host' ? 'H' : item.roleBadge === 'vendor' ? 'V' : 'U'}
+                        </span>
+                      )}
+                    </motion.div>
+                    
+                    <span className={cn(
+                      "text-[9px] transition-all duration-200 lg:text-sm",
+                      isActive ? "font-semibold" : "font-medium"
+                    )}>
+                      {item.label}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </nav>
+      </div>
+    </PageTransition>
+  );
+};
+
+export default AppView;
