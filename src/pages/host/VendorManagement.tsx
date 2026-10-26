@@ -4,13 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Search, Plus, Trash2, Store, StarIcon, Percent, Check, X, Loader2 } from "lucide-react";
+import { ArrowLeft, Search, Plus, Trash2, Store, Percent, Check, X, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import HostBottomNav from "@/components/HostBottomNav";
+import { GoogleRating } from "@/components/GoogleRating";
+import { resolveGoogleRating } from "@/lib/googleRating";
 
 interface VendorProfile {
   id: string;
@@ -134,24 +136,24 @@ const HostVendorManagement = () => {
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 pb-24">
       <div className="max-w-lg mx-auto">
         {/* Header */}
-        <div className="bg-gradient-to-br from-orange-500 to-pink-500 px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
+        <div className="bg-gradient-to-br from-brand to-hot px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 rounded-xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all"
+              className="p-2 rounded-xl bg-paper/10 backdrop-blur-sm hover:bg-paper/20 transition-all"
             >
-              <ArrowLeft className="h-5 w-5 text-white" />
+              <ArrowLeft className="h-5 w-5 text-paper" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-white">My Vendors</h1>
-              <p className="text-sm text-white/70">Manage vendors you earn commissions from</p>
+              <h1 className="text-xl font-bold text-paper">My Vendors</h1>
+              <p className="text-sm text-paper/70">Manage vendors you earn commissions from</p>
             </div>
           </div>
 
           {/* Add Vendor Button */}
           <Button
             onClick={() => setShowSearch(!showSearch)}
-            className="w-full bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-white/30 gap-2"
+            className="w-full bg-paper/20 backdrop-blur-sm hover:bg-paper/30 text-paper border-paper/30 gap-2"
             variant="outline"
           >
             {showSearch ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
@@ -209,7 +211,7 @@ const HostVendorManagement = () => {
                         <p className="text-xs text-muted-foreground">{vendor.category}</p>
                       </div>
 
-                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+                      <Badge className="bg-gradient-to-r from-warning to-brand text-paper">
                         {vendor.commission_percentage}%
                       </Badge>
 
@@ -286,18 +288,18 @@ const HostVendorManagement = () => {
                             <p className="font-semibold">{vendor.name}</p>
                             <p className="text-xs text-muted-foreground">{vendor.category}</p>
                           </div>
-                          <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-lg px-3">
+                          <Badge className="bg-gradient-to-r from-success to-mint text-paper text-lg px-3">
                             {vendor.commission_percentage}%
                           </Badge>
                         </div>
 
                         <div className="flex items-center gap-3 mt-2">
-                          {vendor.google_rating && (
-                            <div className="flex items-center gap-1">
-                              <StarIcon className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                              <span className="text-xs text-muted-foreground">{vendor.google_rating}</span>
-                            </div>
-                          )}
+                          <GoogleRating
+                            value={resolveGoogleRating({ googleRating: vendor.google_rating })}
+                            showCount={false}
+                            className="text-xs text-muted-foreground"
+                            starClassName="h-3 w-3"
+                          />
                           <Button
                             size="sm"
                             variant="ghost"

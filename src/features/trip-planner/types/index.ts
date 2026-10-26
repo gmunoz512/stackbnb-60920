@@ -9,7 +9,7 @@ export interface HostVendor {
   category: string;
   vendor: string;
   price: number;
-  rating: number;
+  rating: number | null;
   description: string;
   duration?: string;
   maxGuests?: number;

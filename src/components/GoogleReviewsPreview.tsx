@@ -1,14 +1,18 @@
 import { Star } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { GoogleRating } from "@/components/GoogleRating";
 import { useGoogleReviews } from "@/hooks/useGoogleReviews";
+import { resolveGoogleRating } from "@/lib/googleRating";
 import { cn } from "@/lib/utils";
 
 interface GoogleReviewsPreviewProps {
   googlePlaceId: string;
   className?: string;
+  /** Shown when Google returns no reviews. Omit to render nothing. */
+  emptyLabel?: string | null;
 }
 
-export function GoogleReviewsPreview({ googlePlaceId, className }: GoogleReviewsPreviewProps) {
+export function GoogleReviewsPreview({ googlePlaceId, className, emptyLabel = null }: GoogleReviewsPreviewProps) {
   const { data, isLoading } = useGoogleReviews({ placeId: googlePlaceId });
 
   const renderStars = (rating: number) => (
@@ -49,20 +53,18 @@ export function GoogleReviewsPreview({ googlePlaceId, className }: GoogleReviews
   }
 
   const reviews = data?.reviews ?? [];
-  if (!data || reviews.length === 0) return null;
+  const placeRating = resolveGoogleRating({
+    google: data ? { rating: data.rating, totalReviews: data.totalReviews } : null,
+  });
+  if (!data || (reviews.length === 0 && !placeRating)) {
+    return emptyLabel ? <p className={cn("text-[15px] text-muted-foreground", className)}>{emptyLabel}</p> : null;
+  }
 
   return (
     <div className={cn("space-y-4", className)}>
       {/* Header with aggregate rating */}
       <div className="space-y-1">
-        <div className="flex items-center gap-2">
-          <Star className="h-5 w-5 fill-foreground text-foreground" />
-          <span className="text-[22px] font-semibold">{data.rating?.toFixed(1)}</span>
-          <span className="text-muted-foreground">·</span>
-          <span className="text-[15px] text-muted-foreground">
-            {data.totalReviews} Google {data.totalReviews === 1 ? "review" : "reviews"}
-          </span>
-        </div>
+        <GoogleRating value={placeRating} className="text-[22px]" starClassName="h-5 w-5" />
       </div>
 
       {/* Horizontal scrollable review cards */}

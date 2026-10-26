@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { HostOnboardingCard, HostVerificationCard } from "@/components/onboarding";
 import { TrustScoreBadge } from "@/components/TrustScoreBadge";
+import { GoogleRating } from "@/components/GoogleRating";
+import { resolveGoogleRating } from "@/lib/googleRating";
 
 interface VendorWithCommission {
   id: string;
@@ -219,13 +221,13 @@ const HostDashboard = () => {
     <PageTransition className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 pb-24">
       <div className="max-w-[375px] mx-auto">
         {/* Hero Header with Gradient */}
-        <div className="bg-gradient-to-br from-orange-500 to-pink-500 px-4 pt-6 pb-20 rounded-b-3xl shadow-lg relative overflow-hidden">
+        <div className="bg-gradient-to-br from-brand to-hot px-4 pt-6 pb-20 rounded-b-3xl shadow-lg relative overflow-hidden">
           <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,black)]" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-6">
               <div className="space-y-1">
-                <h1 className="text-2xl font-bold text-white">Welcome Back</h1>
-                <p className="text-sm text-white/80">Here's your performance today</p>
+                <h1 className="text-2xl font-bold text-paper">Welcome Back</h1>
+                <p className="text-sm text-paper/80">Here's your performance today</p>
                 {profileData && typeof profileData.host_trust_score === 'number' && (
                   <div className="mt-2">
                     <TrustScoreBadge score={profileData.host_trust_score} size="sm" />
@@ -234,29 +236,29 @@ const HostDashboard = () => {
               </div>
               <button
                 onClick={() => navigate('/signout')}
-                className="p-2 rounded-xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all active:scale-95"
+                className="p-2 rounded-xl bg-paper/10 backdrop-blur-sm hover:bg-paper/20 transition-all active:scale-95"
                 aria-label="Sign out"
               >
-                <LogOut className="h-5 w-5 text-white" />
+                <LogOut className="h-5 w-5 text-paper" />
               </button>
             </div>
 
             {/* Stripe Connect Status Card */}
-            <Card className="mt-4 p-4 bg-white/10 backdrop-blur-sm border-white/20">
+            <Card className="mt-4 p-4 bg-paper/10 backdrop-blur-sm border-paper/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${connectStatus?.onboardingComplete ? 'bg-green-500/20' : 'bg-yellow-500/20'}`}>
+                  <div className={`p-2 rounded-lg ${connectStatus?.onboardingComplete ? 'bg-success/20' : 'bg-rating/20'}`}>
                     {connectStatus?.onboardingComplete ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-400" />
+                      <CheckCircle2 className="h-5 w-5 text-success-light" />
                     ) : (
-                      <AlertCircle className="h-5 w-5 text-yellow-400" />
+                      <AlertCircle className="h-5 w-5 text-rating-light" />
                     )}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-white">
+                    <p className="text-sm font-medium text-paper">
                       {connectStatus?.onboardingComplete ? 'Commissions Active' : 'Set Up Payouts'}
                     </p>
-                    <p className="text-xs text-white/70">
+                    <p className="text-xs text-paper/70">
                       {connectStatus?.onboardingComplete 
                         ? 'Receive commissions directly to your bank' 
                         : 'Connect your bank to receive commissions'}
@@ -268,7 +270,7 @@ const HostDashboard = () => {
                     onClick={handleConnectStripe}
                     disabled={isConnecting}
                     size="sm"
-                    className="bg-white text-orange-600 hover:bg-white/90 gap-1"
+                    className="bg-paper text-brand-strong hover:bg-paper/90 gap-1"
                   >
                     {isConnecting ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -348,12 +350,12 @@ const HostDashboard = () => {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-gradient-to-br from-orange-500/20 to-pink-500/20 ring-1 ring-orange-500/20">
-                          <Icon className="h-6 w-6 text-orange-500" />
+                        <div className="p-3 rounded-2xl bg-gradient-to-br from-brand/20 to-hot/20 ring-1 ring-brand/20">
+                          <Icon className="h-6 w-6 text-brand" />
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
-                          <p className="text-3xl font-bold mt-1 bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
+                          <p className="text-3xl font-bold mt-1 bg-gradient-to-r from-brand to-hot bg-clip-text text-transparent">
                             {stat.value}
                           </p>
                         </div>
@@ -373,7 +375,7 @@ const HostDashboard = () => {
         <div className="px-4 mt-8 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-orange-500" />
+              <TrendingUp className="h-5 w-5 text-brand" />
               <h2 className="text-xl font-bold">Recent Activity</h2>
             </div>
             <button 
@@ -404,19 +406,19 @@ const HostDashboard = () => {
               {recentBookings.map((booking, index) => (
                 <Card
                   key={index}
-                  className="p-4 hover:shadow-lg transition-all duration-200 hover:scale-[1.01] active:scale-95 group border-l-4 border-l-transparent hover:border-l-orange-500"
+                  className="p-4 hover:shadow-lg transition-all duration-200 hover:scale-[1.01] active:scale-95 group border-l-4 border-l-transparent hover:border-l-brand"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-base truncate group-hover:text-orange-500 transition-colors">
+                      <p className="font-semibold text-base truncate group-hover:text-brand transition-colors">
                         {booking.service}
                       </p>
                       <p className="text-sm text-muted-foreground truncate mt-1">{booking.vendor}</p>
                       <p className="text-xs text-muted-foreground mt-2">{booking.date}</p>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-pink-500">
-                        <p className="font-bold text-sm text-white">{booking.amount}</p>
+                      <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-brand to-hot">
+                        <p className="font-bold text-sm text-paper">{booking.amount}</p>
                       </div>
                     </div>
                   </div>
@@ -430,7 +432,7 @@ const HostDashboard = () => {
         <div className="px-4 mt-8 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Handshake className="h-5 w-5 text-amber-500" />
+              <Handshake className="h-5 w-5 text-warning" />
               <h2 className="text-xl font-bold">Partner Commissions</h2>
             </div>
           </div>
@@ -466,7 +468,7 @@ const HostDashboard = () => {
                 >
                   <div className="flex items-center gap-3">
                     {/* Vendor Photo */}
-                    <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-orange-500/20 to-pink-500/20 ring-1 ring-border/60">
+                    <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-brand/20 to-hot/20 ring-1 ring-border/60">
                       {vendor.photos && vendor.photos.length > 0 ? (
                         <img
                           src={vendor.photos[0]}
@@ -482,21 +484,23 @@ const HostDashboard = () => {
                     
                     {/* Vendor Info */}
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate group-hover:text-orange-500 transition-colors">
+                      <p className="font-semibold truncate group-hover:text-brand transition-colors">
                         {vendor.name}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">{vendor.category}</p>
-                      {vendor.google_rating && (
-                        <div className="flex items-center gap-1 mt-1">
-                          <StarIcon className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                          <span className="text-xs text-muted-foreground">{vendor.google_rating}</span>
-                        </div>
-                      )}
+                      <div className="mt-1">
+                        <GoogleRating
+                          value={resolveGoogleRating({ googleRating: vendor.google_rating })}
+                          showCount={false}
+                          className="text-xs text-muted-foreground"
+                          starClassName="h-3 w-3"
+                        />
+                      </div>
                     </div>
                     
                     {/* Commission Badge */}
                     <div className="flex-shrink-0 text-right">
-                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-lg px-3 py-1 font-bold">
+                      <Badge className="bg-gradient-to-r from-warning to-brand text-paper text-lg px-3 py-1 font-bold">
                         {vendor.commission_percentage}%
                       </Badge>
                       <p className="text-[10px] text-muted-foreground mt-1">per booking</p>

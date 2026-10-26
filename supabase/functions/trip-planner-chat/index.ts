@@ -1,24 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkRateLimit, createRateLimitResponse } from "../_shared/rateLimit.ts";
+import { aiGatewayConfig } from "../_shared/aiGateway.ts";
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:8080',
-  'https://stackbnb-60920.lovable.app',
-];
+import { corsHeadersFor } from "../_shared/http.ts";
 
-const getCorsHeaders = (origin: string | null) => {
-  const isAllowed = origin && (
-    allowedOrigins.includes(origin) || 
-    origin.endsWith('.lovable.app') || 
-    origin.endsWith('.lovableproject.com')
-  );
-  return {
-    'Access-Control-Allow-Origin': isAllowed ? origin : allowedOrigins[0],
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  };
-};
+const getCorsHeaders = (origin: string | null) =>
+  corsHeadersFor(new Request("https://stackd.local/", { headers: origin ? { origin } : {} }));
 
 // Input validation constants
 const MAX_MESSAGES = 50;
@@ -163,7 +151,7 @@ serve(async (req) => {
           return `- "${vendor.name}" (ID: ${vendor.id}, Category: ${vendor.category}) by ${vendor.vendor}
   Description: ${vendor.description}
   Price: $${vendor.price} per person | ${durationText}${maxGuestsText ? ` | ${maxGuestsText}` : ""}
-  Rating: ${vendor.rating}/5
+  Rating: ${typeof vendor.rating === "number" && vendor.rating > 0 ? `${vendor.rating}/5` : "No rating yet"}
   What's Included: ${included || "Contact for details"}
   Booking Link: /vendor/${vendor.id}/book`;
         })
@@ -253,23 +241,25 @@ Replace VENDORNAME with the actual vendor name and ID with that vendor's exact I
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY is not configured");
+    let gateway;
+    try {
+      gateway = aiGatewayConfig();
+    } catch (configError) {
+      console.error(configError);
       return new Response(
         JSON.stringify({ error: "Service configuration error" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch(gateway.url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${gateway.key}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: gateway.model,
         messages: [
           { 
             role: "system", 

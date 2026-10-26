@@ -11,6 +11,7 @@ import { useBooking } from "@/contexts/BookingContext";
 import { useSearch } from "@/contexts/SearchContext";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { useRequireSignIn } from "@/hooks/useRequireSignIn";
 
 const BookingForm = () => {
   const { id } = useParams();
@@ -18,6 +19,7 @@ const BookingForm = () => {
   const { updateBookingData } = useBooking();
   const { selectedDate: searchDate } = useSearch();
   const { toast } = useToast();
+  const { requireSignIn } = useRequireSignIn();
   
   const experience = experiences.find(exp => exp.id === Number(id));
 
@@ -43,6 +45,8 @@ const BookingForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!requireSignIn("book")) return;
     
     if (!formData.date || !formData.time) {
       toast({
@@ -86,7 +90,7 @@ const BookingForm = () => {
         <div className="bg-card border-b p-4">
           <div className="text-center text-sm text-muted-foreground mb-2">Step 1 of 3</div>
           <div className="flex gap-1">
-            <div className="h-1 flex-1 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full" />
+            <div className="h-1 flex-1 bg-gradient-to-r from-brand to-hot rounded-full" />
             <div className="h-1 flex-1 bg-muted rounded-full" />
             <div className="h-1 flex-1 bg-muted rounded-full" />
           </div>
@@ -179,6 +183,7 @@ const BookingForm = () => {
                       type="button"
                       variant="outline"
                       size="icon"
+                      aria-label="Remove a guest"
                       onClick={decrementGuests}
                       disabled={formData.guests <= 1}
                       className="h-8 w-8 rounded-full"
@@ -190,6 +195,7 @@ const BookingForm = () => {
                       type="button"
                       variant="outline"
                       size="icon"
+                      aria-label="Add a guest"
                       onClick={incrementGuests}
                       disabled={formData.guests >= experience.maxGuests}
                       className="h-8 w-8 rounded-full"

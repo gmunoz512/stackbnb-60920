@@ -103,6 +103,7 @@ serve(async (req) => {
           reason: "requested_by_customer",
         });
         refundId = refund.id;
+        console.log("[PROCESS-REFUND] Stripe refund created:", refundId);
       }
     }
 

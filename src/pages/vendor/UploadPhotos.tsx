@@ -129,8 +129,8 @@ const TestInstagramScrape = () => {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-2 pt-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl mb-4">
-            <Camera className="h-8 w-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-iris to-hot rounded-2xl mb-4">
+            <Camera className="h-8 w-8 text-paper" />
           </div>
           <h1 className="text-2xl font-bold">Add Your Photos</h1>
           <p className="text-muted-foreground">

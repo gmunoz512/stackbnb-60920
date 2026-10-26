@@ -130,10 +130,10 @@ const PaymentSettings = () => {
           </Card>
         ) : connectStatus?.onboardingComplete ? (
           // Connected State
-          <Card className="border-green-500/20 bg-green-500/5">
+          <Card className="border-success/20 bg-success/5">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                <CheckCircle2 className="h-5 w-5 text-success-strong" />
                 <CardTitle className="text-lg">Payouts Enabled</CardTitle>
               </div>
               <CardDescription>
@@ -175,10 +175,10 @@ const PaymentSettings = () => {
           </Card>
         ) : connectStatus?.connected ? (
           // Partially Connected - Needs to complete onboarding
-          <Card className="border-yellow-500/20 bg-yellow-500/5">
+          <Card className="border-rating/20 bg-rating/5">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-yellow-600" />
+                <AlertCircle className="h-5 w-5 text-rating-strong" />
                 <CardTitle className="text-lg">Complete Setup</CardTitle>
               </div>
               <CardDescription>

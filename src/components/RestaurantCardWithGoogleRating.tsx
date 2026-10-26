@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
-import { Star, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import { BlurImage } from "@/components/BlurImage";
+import { GoogleRating } from "@/components/GoogleRating";
 import { useGoogleReviews } from "@/hooks/useGoogleReviews";
+import { resolveGoogleRating } from "@/lib/googleRating";
 import type { Restaurant } from "@/data/mockRestaurants";
 
 interface RestaurantCardWithGoogleRatingProps {
@@ -26,7 +28,14 @@ export const RestaurantCardWithGoogleRating = ({
     lng: restaurant.coordinates?.lng,
   });
 
-  const displayRating = googleData?.rating ?? restaurant.rating;
+  const rating = resolveGoogleRating({
+    google: googleData ? { rating: googleData.rating, totalReviews: googleData.totalReviews } : null,
+    place: {
+      rating: restaurant.rating,
+      reviewCount: restaurant.reviewCount,
+      isFromApi: restaurant.isFromApi,
+    },
+  });
   const displayPhoto = googleData?.photos?.[0] ?? restaurant.photos[0];
 
   return (
@@ -43,6 +52,8 @@ export const RestaurantCardWithGoogleRating = ({
         />
         {showFavoriteButton && onToggleFavorite && (
           <button
+            type="button"
+            aria-label={isFavorite ? `Remove ${restaurant.name} from saved` : `Save ${restaurant.name}`}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -53,17 +64,16 @@ export const RestaurantCardWithGoogleRating = ({
             <Heart
               className={`h-5 w-5 drop-shadow-md ${
                 isFavorite
-                  ? "fill-red-500 text-red-500"
-                  : "fill-black/40 text-white"
+                  ? "fill-danger text-danger"
+                  : "fill-ink/40 text-paper"
               }`}
             />
           </button>
         )}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-          <p className="text-white text-xs font-medium line-clamp-1">{restaurant.name}</p>
-          <div className="flex items-center gap-1 text-white/80 text-[10px]">
-            <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
-            <span>{displayRating?.toFixed(1) ?? 'N/A'}</span>
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/70 to-transparent p-2">
+          <p className="text-paper text-xs font-medium line-clamp-1">{restaurant.name}</p>
+          <div className="flex items-center gap-1 text-paper/80 text-[10px]">
+            <GoogleRating value={rating} showCount={false} className="text-[10px] text-inherit" starClassName="h-2.5 w-2.5" />
             <span>•</span>
             <span>{restaurant.priceRange}</span>
           </div>

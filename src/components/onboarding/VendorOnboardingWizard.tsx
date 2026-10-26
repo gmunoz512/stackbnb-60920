@@ -103,8 +103,8 @@ const VendorOnboardingWizard = ({ open, onOpenChange }: VendorOnboardingWizardPr
         {/* Header with gradient accent */}
         <div className="p-6 border-b border-border/50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-pink-500 flex items-center justify-center">
-              <Store className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand to-hot flex items-center justify-center">
+              <Store className="w-5 h-5 text-paper" />
             </div>
             <div>
               <h2 className="text-xl font-semibold">Set up your listing</h2>
@@ -120,7 +120,7 @@ const VendorOnboardingWizard = ({ open, onOpenChange }: VendorOnboardingWizardPr
                 className={cn(
                   "h-1.5 flex-1 rounded-full transition-colors",
                   step.id <= currentStep 
-                    ? "bg-gradient-to-r from-orange-500 to-pink-500" 
+                    ? "bg-gradient-to-r from-brand to-hot" 
                     : "bg-border/50"
                 )} 
               />
@@ -151,11 +151,11 @@ const VendorOnboardingWizard = ({ open, onOpenChange }: VendorOnboardingWizardPr
                     className={cn(
                       "p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2",
                       formData.listingType === 'experience'
-                        ? "border-orange-500 bg-orange-500/10"
-                        : "border-border hover:border-orange-500/50"
+                        ? "border-brand bg-brand/10"
+                        : "border-border hover:border-brand/50"
                     )}
                   >
-                    <PartyPopper className="h-6 w-6 text-orange-500" />
+                    <PartyPopper className="h-6 w-6 text-brand" />
                     <span className="font-medium">Experience</span>
                   </button>
                   <button
@@ -164,11 +164,11 @@ const VendorOnboardingWizard = ({ open, onOpenChange }: VendorOnboardingWizardPr
                     className={cn(
                       "p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2",
                       formData.listingType === 'restaurant'
-                        ? "border-orange-500 bg-orange-500/10"
-                        : "border-border hover:border-orange-500/50"
+                        ? "border-brand bg-brand/10"
+                        : "border-border hover:border-brand/50"
                     )}
                   >
-                    <UtensilsCrossed className="h-6 w-6 text-orange-500" />
+                    <UtensilsCrossed className="h-6 w-6 text-brand" />
                     <span className="font-medium">Restaurant</span>
                   </button>
                 </div>
@@ -203,7 +203,7 @@ const VendorOnboardingWizard = ({ open, onOpenChange }: VendorOnboardingWizardPr
                 <button
                   type="button"
                   onClick={handleGoToPhotos}
-                  className="p-6 rounded-xl border-2 border-dashed border-border hover:border-orange-500/50 transition-all flex flex-col items-center gap-2"
+                  className="p-6 rounded-xl border-2 border-dashed border-border hover:border-brand/50 transition-all flex flex-col items-center gap-2"
                 >
                   <Upload className="h-8 w-8 text-muted-foreground" />
                   <span className="text-sm font-medium">Upload Photos</span>
@@ -211,9 +211,9 @@ const VendorOnboardingWizard = ({ open, onOpenChange }: VendorOnboardingWizardPr
                 <button
                   type="button"
                   onClick={handleGoToPhotos}
-                  className="p-6 rounded-xl border-2 border-dashed border-border hover:border-pink-500/50 transition-all flex flex-col items-center gap-2"
+                  className="p-6 rounded-xl border-2 border-dashed border-border hover:border-hot/50 transition-all flex flex-col items-center gap-2"
                 >
-                  <Instagram className="h-8 w-8 text-pink-500" />
+                  <Instagram className="h-8 w-8 text-hot" />
                   <span className="text-sm font-medium">Import from Instagram</span>
                 </button>
               </div>

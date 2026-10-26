@@ -230,7 +230,7 @@ const HostProfile = () => {
         {/* Profile Header Card */}
         <Card className="p-5">
           <div className="flex items-center gap-3">
-            <div className="h-16 w-16 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+            <div className="h-16 w-16 rounded-full bg-gradient-to-r from-brand to-hot flex items-center justify-center flex-shrink-0">
               <img src={stackdLogo} alt="stackd" className="h-10 w-10 object-contain" />
             </div>
             <div className="min-w-0 flex-1">
@@ -255,7 +255,7 @@ const HostProfile = () => {
                       w-full flex items-center justify-between p-4 
                       hover:bg-muted/30 active:bg-muted/50 transition-all
                       ${index !== allMenuItems.length - 1 ? 'border-b' : ''}
-                      bg-gradient-to-r from-orange-500/5 to-pink-500/5
+                      bg-gradient-to-r from-brand/5 to-hot/5
                     `}
                   >
                     <div className="flex items-center gap-3">
@@ -275,7 +275,7 @@ const HostProfile = () => {
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem onClick={handleCopyGuideLink} className="cursor-pointer">
                     {copied ? (
-                      <Check className="h-4 w-4 mr-2 text-green-500" />
+                      <Check className="h-4 w-4 mr-2 text-success" />
                     ) : (
                       <Copy className="h-4 w-4 mr-2" />
                     )}
@@ -286,7 +286,7 @@ const HostProfile = () => {
                     Share via Text
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleShareWhatsApp} className="cursor-pointer">
-                    <FaWhatsapp className="h-4 w-4 mr-2 text-green-500" />
+                    <FaWhatsapp className="h-4 w-4 mr-2 text-success" />
                     Share via WhatsApp
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -299,11 +299,11 @@ const HostProfile = () => {
                   w-full flex items-center justify-between p-4 
                   hover:bg-muted/30 active:bg-muted/50 transition-all
                   ${index !== allMenuItems.length - 1 ? 'border-b' : ''}
-                  ${'isAdmin' in item && item.isAdmin ? 'bg-gradient-to-r from-violet-500/10 to-purple-500/10' : ''}
+                  ${'isAdmin' in item && item.isAdmin ? 'bg-gradient-to-r from-grape/10 to-iris/10' : ''}
                 `}
               >
                 <div className="flex items-center gap-3">
-                  <item.icon className={`h-5 w-5 flex-shrink-0 ${'isAdmin' in item && item.isAdmin ? 'text-violet-500' : 'text-muted-foreground'}`} />
+                  <item.icon className={`h-5 w-5 flex-shrink-0 ${'isAdmin' in item && item.isAdmin ? 'text-grape' : 'text-muted-foreground'}`} />
                   <div className="text-left">
                     <span className="font-medium text-sm block">
                       {item.label}

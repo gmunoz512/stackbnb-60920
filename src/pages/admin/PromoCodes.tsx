@@ -250,7 +250,7 @@ const AdminPromoCodes = () => {
     if (promo.max_uses && promo.current_uses >= promo.max_uses) {
       return <Badge variant="outline">Limit Reached</Badge>;
     }
-    return <Badge className="bg-green-500/20 text-green-600 border-green-500/30">Active</Badge>;
+    return <Badge className="bg-success/20 text-success-strong border-success/30">Active</Badge>;
   };
 
   if (authLoading || (!isAdmin && isLoading)) {
@@ -291,8 +291,8 @@ const AdminPromoCodes = () => {
               <p className="text-xs text-muted-foreground">Total Codes</p>
             </Card>
             <Card className="p-4 text-center">
-              <div className="w-5 h-5 mx-auto mb-2 rounded-full bg-green-500/20 flex items-center justify-center">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
+              <div className="w-5 h-5 mx-auto mb-2 rounded-full bg-success/20 flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-success" />
               </div>
               <p className="text-2xl font-bold">{activeCodes}</p>
               <p className="text-xs text-muted-foreground">Active</p>
@@ -468,7 +468,7 @@ const AdminPromoCodes = () => {
                           <Switch
                             checked={promo.is_active}
                             onCheckedChange={() => toggleActive(promo)}
-                            className="data-[state=checked]:bg-green-500"
+                            className="data-[state=checked]:bg-success"
                           />
                           <Button
                             variant="ghost"

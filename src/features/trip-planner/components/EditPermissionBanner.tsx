@@ -62,8 +62,8 @@ export function EditPermissionBanner({
           <div className="flex items-center gap-1">
             {isConnected ? (
               <>
-                <Wifi className="h-3 w-3 text-green-500" />
-                <span className="text-[10px] text-green-600">Live</span>
+                <Wifi className="h-3 w-3 text-success" />
+                <span className="text-[10px] text-success-strong">Live</span>
               </>
             ) : (
               <>

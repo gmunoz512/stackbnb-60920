@@ -53,6 +53,7 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const notification: BookingNotification = await req.json();
+    console.log("[ADMIN-NOTIFICATION] Received:", notification);
 
     let subject: string;
     let htmlContent: string;
@@ -185,6 +186,7 @@ const handler = async (req: Request): Promise<Response> => {
         html: htmlContent,
       });
 
+      console.log("[ADMIN-NOTIFICATION] Vendor email sent:", vendorEmailResponse);
 
       return new Response(JSON.stringify({ success: true, emailResponse: vendorEmailResponse }), {
         status: 200,
@@ -268,6 +270,7 @@ const handler = async (req: Request): Promise<Response> => {
         html: htmlContent,
       });
 
+      console.log("[ADMIN-NOTIFICATION] Guest confirmation email sent:", guestEmailResponse);
 
       return new Response(JSON.stringify({ success: true, emailResponse: guestEmailResponse }), {
         status: 200,
@@ -339,6 +342,7 @@ const handler = async (req: Request): Promise<Response> => {
         html: htmlContent,
       });
 
+      console.log("[ADMIN-NOTIFICATION] Booking reminder email sent:", reminderEmailResponse);
 
       return new Response(JSON.stringify({ success: true, emailResponse: reminderEmailResponse }), {
         status: 200,
@@ -412,6 +416,7 @@ const handler = async (req: Request): Promise<Response> => {
         html: htmlContent,
       });
 
+      console.log("[ADMIN-NOTIFICATION] Host commission email sent:", hostEmailResponse);
 
       return new Response(JSON.stringify({ success: true, emailResponse: hostEmailResponse }), {
         status: 200,
@@ -480,6 +485,7 @@ const handler = async (req: Request): Promise<Response> => {
         html: htmlContent,
       });
 
+      console.log("[ADMIN-NOTIFICATION] Guest cancellation email sent:", guestCancelEmailResponse);
 
       return new Response(JSON.stringify({ success: true, emailResponse: guestCancelEmailResponse }), {
         status: 200,
@@ -540,6 +546,7 @@ const handler = async (req: Request): Promise<Response> => {
         html: htmlContent,
       });
 
+      console.log("[ADMIN-NOTIFICATION] Vendor cancellation email sent:", vendorCancelEmailResponse);
 
       return new Response(JSON.stringify({ success: true, emailResponse: vendorCancelEmailResponse }), {
         status: 200,
@@ -599,6 +606,7 @@ const handler = async (req: Request): Promise<Response> => {
         html: htmlContent,
       });
 
+      console.log("[ADMIN-NOTIFICATION] Vendor approved email sent:", vendorApprovedResponse);
 
       return new Response(JSON.stringify({ success: true, emailResponse: vendorApprovedResponse }), {
         status: 200,
@@ -642,6 +650,7 @@ const handler = async (req: Request): Promise<Response> => {
         html: htmlContent,
       });
 
+      console.log("[ADMIN-NOTIFICATION] Vendor rejected email sent:", vendorRejectedResponse);
 
       return new Response(JSON.stringify({ success: true, emailResponse: vendorRejectedResponse }), {
         status: 200,
@@ -685,6 +694,7 @@ const handler = async (req: Request): Promise<Response> => {
         html: htmlContent,
       });
 
+      console.log("[ADMIN-NOTIFICATION] Vendor changes requested email sent:", vendorChangesResponse);
 
       return new Response(JSON.stringify({ success: true, emailResponse: vendorChangesResponse }), {
         status: 200,
@@ -701,6 +711,7 @@ const handler = async (req: Request): Promise<Response> => {
       html: htmlContent,
     });
 
+    console.log("[ADMIN-NOTIFICATION] Email sent:", emailResponse);
 
     return new Response(JSON.stringify({ success: true, emailResponse }), {
       status: 200,

@@ -63,12 +63,12 @@ interface VendorProfile {
 }
 
 const statusConfig: Record<VerificationStatus, { label: string; color: string; icon: React.ReactNode }> = {
-  draft: { label: 'Draft', color: 'bg-gray-500', icon: <Clock className="h-3 w-3" /> },
-  pending: { label: 'Pending Review', color: 'bg-amber-500', icon: <Clock className="h-3 w-3" /> },
-  approved: { label: 'Approved', color: 'bg-green-500', icon: <CheckCircle className="h-3 w-3" /> },
-  rejected: { label: 'Rejected', color: 'bg-red-500', icon: <XCircle className="h-3 w-3" /> },
-  changes_requested: { label: 'Changes Requested', color: 'bg-orange-500', icon: <MessageSquare className="h-3 w-3" /> },
-  suspended: { label: 'Suspended', color: 'bg-red-800', icon: <AlertTriangle className="h-3 w-3" /> },
+  draft: { label: 'Draft', color: 'bg-neutral', icon: <Clock className="h-3 w-3" /> },
+  pending: { label: 'Pending Review', color: 'bg-warning', icon: <Clock className="h-3 w-3" /> },
+  approved: { label: 'Approved', color: 'bg-success', icon: <CheckCircle className="h-3 w-3" /> },
+  rejected: { label: 'Rejected', color: 'bg-danger', icon: <XCircle className="h-3 w-3" /> },
+  changes_requested: { label: 'Changes Requested', color: 'bg-brand', icon: <MessageSquare className="h-3 w-3" /> },
+  suspended: { label: 'Suspended', color: 'bg-danger-dark', icon: <AlertTriangle className="h-3 w-3" /> },
 };
 
 const VendorApprovals = () => {
@@ -178,7 +178,7 @@ const VendorApprovals = () => {
       <div className="min-h-screen bg-background">
         <div className="max-w-lg mx-auto px-4 py-8">
           <Card className="p-8 text-center">
-            <AlertTriangle className="h-12 w-12 mx-auto text-yellow-500 mb-4" />
+            <AlertTriangle className="h-12 w-12 mx-auto text-rating mb-4" />
             <h1 className="text-xl font-bold mb-2">Access Denied</h1>
             <p className="text-muted-foreground mb-6">
               You don't have permission to access vendor approvals. This page is only available to administrators.
@@ -194,39 +194,39 @@ const VendorApprovals = () => {
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-gradient-to-br from-emerald-600 to-teal-600 px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
+        <div className="bg-gradient-to-br from-mint-strong to-lagoon-strong px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={() => navigate('/admin/settings')}
-              className="p-2 rounded-xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all"
+              className="p-2 rounded-xl bg-paper/10 backdrop-blur-sm hover:bg-paper/20 transition-all"
             >
-              <ArrowLeft className="h-5 w-5 text-white" />
+              <ArrowLeft className="h-5 w-5 text-paper" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-white">Vendor Approvals</h1>
-              <p className="text-sm text-white/70">Review and approve vendor profiles</p>
+              <h1 className="text-xl font-bold text-paper">Vendor Approvals</h1>
+              <p className="text-sm text-paper/70">Review and approve vendor profiles</p>
             </div>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-2 mt-4">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-white">
+            <div className="bg-paper/10 backdrop-blur-sm rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-paper">
                 {vendors?.filter(v => v.verification_status === 'pending').length || 0}
               </p>
-              <p className="text-xs text-white/70">Pending</p>
+              <p className="text-xs text-paper/70">Pending</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-white">
+            <div className="bg-paper/10 backdrop-blur-sm rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-paper">
                 {vendors?.filter(v => v.verification_status === 'approved').length || 0}
               </p>
-              <p className="text-xs text-white/70">Approved</p>
+              <p className="text-xs text-paper/70">Approved</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-white">
+            <div className="bg-paper/10 backdrop-blur-sm rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-paper">
                 {vendors?.filter(v => v.verification_status === 'rejected').length || 0}
               </p>
-              <p className="text-xs text-white/70">Rejected</p>
+              <p className="text-xs text-paper/70">Rejected</p>
             </div>
           </div>
         </div>
@@ -298,7 +298,7 @@ const VendorApprovals = () => {
                             <h3 className="font-semibold truncate">{vendor.name}</h3>
                             <p className="text-sm text-muted-foreground">{vendor.category}</p>
                           </div>
-                          <Badge className={`${status.color} text-white flex items-center gap-1`}>
+                          <Badge className={`${status.color} text-paper flex items-center gap-1`}>
                             {status.icon}
                             {status.label}
                           </Badge>
@@ -317,7 +317,7 @@ const VendorApprovals = () => {
                             </span>
                           )}
                           <span className="flex items-center gap-1">
-                            <ShieldCheck className="h-3 w-3 text-blue-500" />
+                            <ShieldCheck className="h-3 w-3 text-info" />
                             Score: {vendor.trust_score}
                           </span>
                           {vendor.duration && (
@@ -335,7 +335,7 @@ const VendorApprovals = () => {
                         )}
 
                         {vendor.verification_notes && vendor.verification_status !== 'approved' && (
-                          <p className="text-xs text-orange-600 dark:text-orange-400 mt-2 italic">
+                          <p className="text-xs text-brand-strong dark:text-brand-light mt-2 italic">
                             Note: {vendor.verification_notes}
                           </p>
                         )}
@@ -359,7 +359,7 @@ const VendorApprovals = () => {
                           <Button
                             size="sm"
                             onClick={() => handleAction('approve', vendor)}
-                            className="gap-1 bg-green-600 hover:bg-green-700"
+                            className="gap-1 bg-success-strong hover:bg-success-deep"
                           >
                             <CheckCircle className="h-3 w-3" />
                             Approve
@@ -389,7 +389,7 @@ const VendorApprovals = () => {
                         <Button
                           size="sm"
                           onClick={() => handleAction('approve', vendor)}
-                          className="gap-1 bg-green-600 hover:bg-green-700"
+                          className="gap-1 bg-success-strong hover:bg-success-deep"
                         >
                           <CheckCircle className="h-3 w-3" />
                           Approve
@@ -412,7 +412,7 @@ const VendorApprovals = () => {
                         <Button
                           size="sm"
                           onClick={() => handleAction('approve', vendor)}
-                          className="gap-1 bg-green-600 hover:bg-green-700"
+                          className="gap-1 bg-success-strong hover:bg-success-deep"
                         >
                           <CheckCircle className="h-3 w-3" />
                           Reinstate
@@ -493,7 +493,7 @@ const VendorApprovals = () => {
                   <div>
                     <Label className="text-sm font-medium">Trust Score</Label>
                     <p className="text-sm text-muted-foreground flex items-center gap-1">
-                      <ShieldCheck className="h-3 w-3 text-blue-500" />
+                      <ShieldCheck className="h-3 w-3 text-info" />
                       {selectedVendor.trust_score}
                     </p>
                   </div>
@@ -510,19 +510,19 @@ const VendorApprovals = () => {
                       {selectedVendor.website_url && (
                         <p className="text-sm">
                           <span className="font-medium">Website: </span>
-                          <a href={selectedVendor.website_url} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">{selectedVendor.website_url}</a>
+                          <a href={selectedVendor.website_url} target="_blank" rel="noreferrer" className="text-info hover:underline">{selectedVendor.website_url}</a>
                         </p>
                       )}
                       {selectedVendor.linkedin_url && (
                         <p className="text-sm">
                           <span className="font-medium">LinkedIn: </span>
-                          <a href={selectedVendor.linkedin_url} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">{selectedVendor.linkedin_url}</a>
+                          <a href={selectedVendor.linkedin_url} target="_blank" rel="noreferrer" className="text-info hover:underline">{selectedVendor.linkedin_url}</a>
                         </p>
                       )}
                       {selectedVendor.business_registration_url && (
                         <p className="text-sm">
                           <span className="font-medium">Registration: </span>
-                          <a href={selectedVendor.business_registration_url} target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">{selectedVendor.business_registration_url}</a>
+                          <a href={selectedVendor.business_registration_url} target="_blank" rel="noreferrer" className="text-info hover:underline">{selectedVendor.business_registration_url}</a>
                         </p>
                       )}
                       {selectedVendor.ownership_evidence_urls && selectedVendor.ownership_evidence_urls.length > 0 && (
@@ -600,9 +600,9 @@ const VendorApprovals = () => {
               disabled={updateStatus.isPending || (actionDialog.type !== 'approve' && !notes.trim())}
               className={
                 actionDialog.type === 'approve'
-                  ? 'bg-green-600 hover:bg-green-700'
+                  ? 'bg-success-strong hover:bg-success-deep'
                   : actionDialog.type === 'reject'
-                  ? 'bg-red-600 hover:bg-red-700'
+                  ? 'bg-danger-strong hover:bg-danger-deep'
                   : ''
               }
             >

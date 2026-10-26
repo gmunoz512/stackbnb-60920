@@ -2,19 +2,10 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkRateLimit, createRateLimitResponse } from "../_shared/rateLimit.ts";
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:8080',
-  'https://stackbnb-60920.lovable.app',
-];
+import { corsHeadersFor } from "../_shared/http.ts";
 
-const getCorsHeaders = (origin: string | null) => {
-  const isAllowed = origin && (allowedOrigins.includes(origin) || origin.endsWith('.lovable.app'));
-  return {
-    'Access-Control-Allow-Origin': isAllowed ? origin : allowedOrigins[0],
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  };
-};
+const getCorsHeaders = (origin: string | null) =>
+  corsHeadersFor(new Request("https://stackd.local/", { headers: origin ? { origin } : {} }));
 
 serve(async (req) => {
   const origin = req.headers.get('origin');
@@ -75,6 +66,7 @@ serve(async (req) => {
       cleanUrl = `https://www.instagram.com/${cleanUrl.replace('@', '')}`;
     }
 
+    console.log('Scraping Instagram URL:', cleanUrl);
 
     const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
@@ -120,6 +112,7 @@ serve(async (req) => {
       return url.includes('1080') || url.includes('640') || url.includes('750') || !url.includes('150');
     }).slice(0, 12); // Limit to 12 photos
 
+    console.log(`Found ${allImages.length} total images, ${highQualityImages.length} high-quality`);
 
     return new Response(
       JSON.stringify({

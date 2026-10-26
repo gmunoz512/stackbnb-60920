@@ -107,7 +107,7 @@ const PlatformSettings = () => {
       <div className="min-h-screen bg-background">
         <div className="max-w-lg mx-auto px-4 py-8">
           <Card className="p-8 text-center">
-            <AlertTriangle className="h-12 w-12 mx-auto text-yellow-500 mb-4" />
+            <AlertTriangle className="h-12 w-12 mx-auto text-rating mb-4" />
             <h1 className="text-xl font-bold mb-2">Access Denied</h1>
             <p className="text-muted-foreground mb-6">
               You don't have permission to access platform settings. This page is only available to administrators.
@@ -123,17 +123,17 @@ const PlatformSettings = () => {
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
       <div className="max-w-lg mx-auto">
         {/* Header */}
-        <div className="bg-gradient-to-br from-violet-600 to-purple-600 px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
+        <div className="bg-gradient-to-br from-grape-strong to-iris-strong px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 rounded-xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all"
+              className="p-2 rounded-xl bg-paper/10 backdrop-blur-sm hover:bg-paper/20 transition-all"
             >
-              <ArrowLeft className="h-5 w-5 text-white" />
+              <ArrowLeft className="h-5 w-5 text-paper" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-white">Platform Settings</h1>
-              <p className="text-sm text-white/70">Configure commission rates</p>
+              <h1 className="text-xl font-bold text-paper">Platform Settings</h1>
+              <p className="text-sm text-paper/70">Configure commission rates</p>
             </div>
           </div>
         </div>
@@ -142,8 +142,8 @@ const PlatformSettings = () => {
           {/* Platform Fee Card */}
           <Card className="p-6">
             <div className="flex items-start gap-4 mb-6">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/20">
-                <Percent className="h-6 w-6 text-violet-500" />
+              <div className="p-3 rounded-xl bg-gradient-to-br from-grape/20 to-iris/20">
+                <Percent className="h-6 w-6 text-grape" />
               </div>
               <div className="flex-1">
                 <h2 className="font-semibold text-lg">Platform Fee</h2>
@@ -185,7 +185,7 @@ const PlatformSettings = () => {
                 <Button
                   onClick={handleSave}
                   disabled={!hasChanges || updateSettings.isPending}
-                  className="w-full gap-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+                  className="w-full gap-2 bg-gradient-to-r from-grape-strong to-iris-strong hover:from-grape-deep hover:to-iris-deep"
                 >
                   {updateSettings.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -202,8 +202,8 @@ const PlatformSettings = () => {
           <Link to="/admin/promo-codes">
             <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer group">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500/20 to-pink-500/20">
-                  <Tag className="h-6 w-6 text-orange-500" />
+                <div className="p-3 rounded-xl bg-gradient-to-br from-brand/20 to-hot/20">
+                  <Tag className="h-6 w-6 text-brand" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold">Promo Codes</h3>
@@ -220,8 +220,8 @@ const PlatformSettings = () => {
           <Link to="/admin/vendor-approvals">
             <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer group">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20">
-                  <ShieldCheck className="h-6 w-6 text-emerald-500" />
+                <div className="p-3 rounded-xl bg-gradient-to-br from-mint/20 to-lagoon/20">
+                  <ShieldCheck className="h-6 w-6 text-mint" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold">Vendor Approvals</h3>
@@ -238,8 +238,8 @@ const PlatformSettings = () => {
           <Link to="/admin/host-verifications">
             <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer group">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20">
-                  <UserCheck className="h-6 w-6 text-blue-500" />
+                <div className="p-3 rounded-xl bg-gradient-to-br from-info/20 to-indigo/20">
+                  <UserCheck className="h-6 w-6 text-info" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold">Host Verifications</h3>
@@ -256,8 +256,8 @@ const PlatformSettings = () => {
           <Link to="/admin/message-moderation">
             <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer group">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/20">
-                  <AlertTriangle className="h-6 w-6 text-red-500" />
+                <div className="p-3 rounded-xl bg-gradient-to-br from-danger/20 to-brand/20">
+                  <AlertTriangle className="h-6 w-6 text-danger" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold">Message Moderation</h3>
@@ -274,8 +274,8 @@ const PlatformSettings = () => {
           <Link to="/admin/fraud-alerts">
             <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer group">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500/20 to-yellow-500/20">
-                  <ShieldCheck className="h-6 w-6 text-amber-500" />
+                <div className="p-3 rounded-xl bg-gradient-to-br from-warning/20 to-rating/20">
+                  <ShieldCheck className="h-6 w-6 text-warning" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold">Fraud Alerts</h3>
@@ -292,8 +292,8 @@ const PlatformSettings = () => {
           <Link to="/admin/refund-requests">
             <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer group">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-cyan-500/20 to-teal-500/20">
-                  <Settings className="h-6 w-6 text-cyan-500" />
+                <div className="p-3 rounded-xl bg-gradient-to-br from-cyan/20 to-lagoon/20">
+                  <Settings className="h-6 w-6 text-cyan" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold">Refund Requests</h3>
@@ -310,8 +310,8 @@ const PlatformSettings = () => {
           <Link to="/admin/trust-scores">
             <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer group">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20">
-                  <ShieldCheck className="h-6 w-6 text-blue-500" />
+                <div className="p-3 rounded-xl bg-gradient-to-br from-info/20 to-indigo/20">
+                  <ShieldCheck className="h-6 w-6 text-info" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold">Trust Score Monitoring</h3>

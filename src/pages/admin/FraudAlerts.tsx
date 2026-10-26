@@ -21,10 +21,10 @@ interface FraudAlert {
 }
 
 const alertTypeLabels: Record<string, { label: string; color: string }> = {
-  multiple_listings: { label: "Multiple Listings", color: "bg-yellow-500" },
-  suspicious_pricing: { label: "Suspicious Pricing", color: "bg-orange-500" },
-  rapid_bookings: { label: "Rapid Bookings", color: "bg-red-500" },
-  multiple_accounts: { label: "Multiple Accounts", color: "bg-purple-500" },
+  multiple_listings: { label: "Multiple Listings", color: "bg-rating" },
+  suspicious_pricing: { label: "Suspicious Pricing", color: "bg-brand" },
+  rapid_bookings: { label: "Rapid Bookings", color: "bg-danger" },
+  multiple_accounts: { label: "Multiple Accounts", color: "bg-iris" },
 };
 
 const FraudAlerts = () => {
@@ -70,14 +70,14 @@ const FraudAlerts = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
       <div className="max-w-lg mx-auto">
-        <div className="bg-gradient-to-br from-amber-600 to-red-600 px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
+        <div className="bg-gradient-to-br from-warning-strong to-danger-strong px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
           <div className="flex items-center gap-3 mb-4">
-            <button onClick={() => navigate("/admin/settings")} className="p-2 rounded-xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all">
-              <ArrowLeft className="h-5 w-5 text-white" />
+            <button onClick={() => navigate("/admin/settings")} className="p-2 rounded-xl bg-paper/10 backdrop-blur-sm hover:bg-paper/20 transition-all">
+              <ArrowLeft className="h-5 w-5 text-paper" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-white">Fraud Alerts</h1>
-              <p className="text-sm text-white/70">{pendingAlerts.length} pending alerts</p>
+              <h1 className="text-xl font-bold text-paper">Fraud Alerts</h1>
+              <p className="text-sm text-paper/70">{pendingAlerts.length} pending alerts</p>
             </div>
           </div>
         </div>
@@ -87,7 +87,7 @@ const FraudAlerts = () => {
             <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
           ) : pendingAlerts.length === 0 && reviewedAlerts.length === 0 ? (
             <Card className="p-8 text-center">
-              <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4" />
+              <CheckCircle className="h-12 w-12 mx-auto text-success mb-4" />
               <h2 className="font-semibold mb-1">No Fraud Alerts</h2>
               <p className="text-sm text-muted-foreground">All clear</p>
             </Card>
@@ -103,8 +103,8 @@ const FraudAlerts = () => {
                         <div className="flex items-start justify-between">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
-                              <ShieldAlert className="h-4 w-4 text-amber-500" />
-                              <Badge className={`text-xs text-white ${typeInfo.color}`}>{typeInfo.label}</Badge>
+                              <ShieldAlert className="h-4 w-4 text-warning" />
+                              <Badge className={`text-xs text-paper ${typeInfo.color}`}>{typeInfo.label}</Badge>
                             </div>
                             <p className="text-xs text-muted-foreground">{new Date(alert.created_at).toLocaleDateString()}</p>
                           </div>

@@ -250,7 +250,7 @@ const Conversation = () => {
               className="flex-1"
               maxLength={2000}
             />
-            <Button type="submit" size="icon" disabled={!newMessage.trim() || isSending}>
+            <Button type="submit" size="icon" aria-label="Send message" disabled={!newMessage.trim() || isSending}>
               <Send className="h-4 w-4" />
             </Button>
           </form>

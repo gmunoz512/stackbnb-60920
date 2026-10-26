@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { SignInPrompt } from "@/components/SignInPrompt";
 import {
   DndContext,
   closestCenter,
@@ -64,6 +65,7 @@ export default function Itinerary() {
   const [sharedItinerary, setSharedItinerary] = useState<SharedItinerary | null>(null);
   const [isSharing, setIsSharing] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [needsSignIn, setNeedsSignIn] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -81,7 +83,8 @@ export default function Itinerary() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        navigate('/auth');
+        setNeedsSignIn(true);
+        setIsLoading(false);
         return;
       }
 
@@ -235,12 +238,21 @@ export default function Itinerary() {
     }
   };
 
+  if (needsSignIn) {
+    return (
+      <SignInPrompt
+        title="Sign in to see saved plans"
+        description="You can browse the trip planner without an account. Sign in to save an itinerary and open it here."
+      />
+    );
+  }
+
   return (
     <PageTransition>
       <div className="min-h-screen bg-background">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border sticky top-0 bg-background/95 backdrop-blur-sm z-10">
-          <Button variant="ghost" size="icon" onClick={handleBack}>
+          <Button variant="ghost" size="icon" aria-label="Go back" onClick={handleBack}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex items-center gap-2">
@@ -251,12 +263,13 @@ export default function Itinerary() {
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Share itinerary"
               onClick={handleShare}
               disabled={isSharing}
               className="relative"
             >
               {linkCopied ? (
-                <Check className="h-5 w-5 text-green-500" />
+                <Check className="h-5 w-5 text-success" />
               ) : (
                 <Share2 className="h-5 w-5" />
               )}

@@ -35,20 +35,20 @@ interface HostVerificationCardProps {
 const statusConfig: Record<VerificationStatus, { label: string; icon: React.ReactNode; badgeClass: string; description: string }> = {
   unverified: {
     label: "Not Verified",
-    icon: <AlertCircle className="h-5 w-5 text-yellow-500" />,
-    badgeClass: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
+    icon: <AlertCircle className="h-5 w-5 text-rating" />,
+    badgeClass: "bg-rating/10 text-rating-strong border-rating/20",
     description: "Upload your documents to get verified and unlock publishing.",
   },
   pending_verification: {
     label: "Under Review",
-    icon: <Clock className="h-5 w-5 text-blue-500" />,
-    badgeClass: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+    icon: <Clock className="h-5 w-5 text-info" />,
+    badgeClass: "bg-info/10 text-info-strong border-info/20",
     description: "Your documents are being reviewed. This usually takes 1-2 business days.",
   },
   verified: {
     label: "Verified",
-    icon: <CheckCircle2 className="h-5 w-5 text-green-500" />,
-    badgeClass: "bg-green-500/10 text-green-600 border-green-500/20",
+    icon: <CheckCircle2 className="h-5 w-5 text-success" />,
+    badgeClass: "bg-success/10 text-success-strong border-success/20",
     description: "You're verified! You can now publish experiences.",
   },
   rejected: {
@@ -153,10 +153,10 @@ const HostVerificationCard = ({
 
   if (verificationStatus === "verified") {
     return (
-      <Card className="p-4 rounded-2xl border border-green-500/20 bg-green-500/5 mb-6">
+      <Card className="p-4 rounded-2xl border border-success/20 bg-success/5 mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
-            <ShieldCheck className="w-5 h-5 text-green-500" />
+          <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center">
+            <ShieldCheck className="w-5 h-5 text-success" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -177,8 +177,8 @@ const HostVerificationCard = ({
   return (
     <Card className="p-6 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm mb-6">
       <div className="flex items-start gap-4">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-indigo-500 flex items-center justify-center flex-shrink-0">
-          <ShieldCheck className="w-6 h-6 text-white" />
+        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-info-strong to-indigo flex items-center justify-center flex-shrink-0">
+          <ShieldCheck className="w-6 h-6 text-paper" />
         </div>
 
         <div className="flex-1 min-w-0">
@@ -238,7 +238,7 @@ const HostVerificationCard = ({
                   {idFile ? idFile.name : existingIdUrl ? "Replace existing ID" : "Upload Government ID"}
                 </Button>
                 {(idFile || existingIdUrl) && (
-                  <p className="text-xs text-green-600 flex items-center gap-1">
+                  <p className="text-xs text-success-strong flex items-center gap-1">
                     <CheckCircle2 className="h-3 w-3" />
                     {idFile ? "File selected" : "Previously uploaded"}
                   </p>
@@ -271,7 +271,7 @@ const HostVerificationCard = ({
                   {selfieFile ? selfieFile.name : existingSelfieUrl ? "Replace existing selfie" : "Upload Selfie"}
                 </Button>
                 {(selfieFile || existingSelfieUrl) && (
-                  <p className="text-xs text-green-600 flex items-center gap-1">
+                  <p className="text-xs text-success-strong flex items-center gap-1">
                     <CheckCircle2 className="h-3 w-3" />
                     {selfieFile ? "File selected" : "Previously uploaded"}
                   </p>
@@ -314,10 +314,10 @@ const HostVerificationCard = ({
           )}
 
           {isExpanded && verificationStatus === "pending_verification" && (
-            <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20">
+            <div className="p-4 rounded-xl bg-info/5 border border-info/20">
               <div className="flex items-center gap-2 mb-2">
-                <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
-                <span className="text-sm font-medium text-blue-600">Review in progress</span>
+                <Loader2 className="h-4 w-4 animate-spin text-info" />
+                <span className="text-sm font-medium text-info-strong">Review in progress</span>
               </div>
               <p className="text-xs text-muted-foreground">
                 Our team is reviewing your documents. You'll receive a notification once the review is complete.

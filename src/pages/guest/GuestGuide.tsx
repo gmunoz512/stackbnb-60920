@@ -3,7 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Star, MapPin, Heart, Loader2, Sparkles } from "lucide-react";
+import { MapPin, Heart, Loader2, Sparkles } from "lucide-react";
+import { GoogleRating } from "@/components/GoogleRating";
 import { supabase } from "@/integrations/supabase/client";
 import { experiences } from "@/data/mockData";
 import { mockRestaurants } from "@/data/mockRestaurants";
@@ -227,20 +228,18 @@ const GuestGuide = () => {
                             alt={experience!.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
-                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                            <p className="text-white text-xs font-medium line-clamp-1">
+                          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/70 to-transparent p-2">
+                            <p className="text-paper text-xs font-medium line-clamp-1">
                               {experience!.name}
                             </p>
                           </div>
                         </div>
                         <div className="space-y-0.5">
-                          <div className="flex items-center gap-1">
-                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                            <span className="text-xs font-medium">{experience!.rating}</span>
-                            <span className="text-xs text-muted-foreground">
-                              ({experience!.reviewCount})
-                            </span>
-                          </div>
+                          <GoogleRating
+                            value={null}
+                            className="text-xs"
+                            starClassName="h-3 w-3"
+                          />
                           <p className="text-xs text-muted-foreground">
                             From ${experience!.price}
                           </p>
@@ -285,14 +284,14 @@ const GuestGuide = () => {
               category: exp!.category,
               vendor: exp!.vendor,
               price: exp!.price,
-              rating: exp!.rating,
+              rating: null,
               description: exp!.description,
               duration: exp!.duration,
               maxGuests: exp!.maxGuests,
               included: exp!.included,
             }))
           }}
-          className="flex items-center justify-center gap-2 w-full py-3 rounded-full bg-gradient-to-r from-orange-500 to-purple-600 text-white font-medium shadow-lg hover:scale-[1.02] transition-transform"
+          className="flex items-center justify-center gap-2 w-full py-3 rounded-full bg-gradient-to-r from-brand to-iris-strong text-paper font-medium shadow-lg hover:scale-[1.02] transition-transform"
         >
           <Sparkles className="h-5 w-5" />
           Plan your trip using AI

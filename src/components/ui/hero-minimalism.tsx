@@ -93,8 +93,6 @@ export default function MinimalHero() {
   return (
     <section className="minimal-root">
       <style>{`
-@import url('https://fonts.cdnfonts.com/css/hubot-sans');
-
 .minimal-root, .minimal-root * {
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
@@ -108,15 +106,15 @@ export default function MinimalHero() {
   height: 100vh;
   overflow: hidden;
 
-  --bg: #0a0a0a;
-  --fg: #fafafa;
-  --muted: #a1a1aa;
-  --border: #27272a;
-  --accent: #e5e7eb;
+  --bg: hsl(var(--ash-abyss));
+  --fg: hsl(var(--ash-wash));
+  --muted: hsl(var(--zinc-light));
+  --border: hsl(var(--zinc-dark));
+  --accent: hsl(var(--neutral-muted));
 
   background: var(--bg);
   color: var(--fg);
-  font-family: 'Hubot Sans', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
 }
 
 /* header */

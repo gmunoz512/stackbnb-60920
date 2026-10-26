@@ -25,8 +25,8 @@ const BookingLink = memo(function BookingLink({ href, text }: { href: string; te
     <Link
       to={href}
       className="inline-flex items-center gap-2 px-5 py-2.5 mt-3 mb-1 rounded-full font-medium text-sm no-underline
-        bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400
-        text-white
+        bg-gradient-to-r from-iris-strong via-hot to-brand-light
+        text-paper
         shadow-[0_4px_20px_rgba(168,85,247,0.4)]
         transition-all duration-300
         hover:shadow-[0_6px_30px_rgba(168,85,247,0.6)]

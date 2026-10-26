@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Share2, Star } from "lucide-react";
+import { Share2 } from "lucide-react";
+import { GoogleRating } from "@/components/GoogleRating";
 import { Link, useParams } from "react-router-dom";
 import { experiences } from "@/data/mockData";
 
@@ -23,15 +24,15 @@ const HostStorefront = () => {
     <div className="min-h-screen bg-background pb-8">
       <div className="max-w-[375px] mx-auto">
         {/* Header */}
-        <div className="bg-gradient-to-br from-orange-500 to-pink-500 text-white p-6 space-y-4">
+        <div className="bg-gradient-to-br from-brand to-hot text-paper p-6 space-y-4">
           <div className="space-y-2">
             <h1 className="text-2xl font-bold">{propertyName}</h1>
-            <p className="text-white/90">Hosted by {hostName}</p>
+            <p className="text-paper/90">Hosted by {hostName}</p>
           </div>
-          <p className="text-sm text-white/80 leading-relaxed">
+          <p className="text-sm text-paper/80 leading-relaxed">
             Welcome! I've personally selected these amazing local vendors to make your stay unforgettable.
           </p>
-          <Button variant="outline" size="sm" className="bg-white/10 border-white/20 text-white hover:bg-white/20">
+          <Button variant="outline" size="sm" className="bg-paper/10 border-paper/20 text-paper hover:bg-paper/20">
             <Share2 className="h-4 w-4 mr-2" />
             Share Storefront
           </Button>
@@ -76,16 +77,13 @@ const HostStorefront = () => {
                           </div>
                           <p className="text-sm text-muted-foreground">{experience.vendor}</p>
                         </div>
-                        <Badge variant="secondary" className="bg-gradient-to-r from-orange-500 to-pink-500 text-white text-sm flex-shrink-0">
+                        <Badge variant="secondary" className="bg-gradient-to-r from-brand to-hot text-paper text-sm flex-shrink-0">
                           ${experience.price}
                         </Badge>
                       </div>
                       
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                          <span>{experience.rating}</span>
-                        </div>
+                        <GoogleRating value={null} showCount={false} starClassName="h-3 w-3" />
                         <span>•</span>
                         <span>{experience.duration}</span>
                         <span>•</span>

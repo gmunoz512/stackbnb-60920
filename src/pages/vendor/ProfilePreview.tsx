@@ -17,8 +17,12 @@ import StackedPhotoGrid from '@/components/ui/stacked-photo-grid';
 import { Reorder } from 'framer-motion';
 import MeetTheHost from '@/components/MeetTheHost';
 import { VendorLocationMap } from '@/components/VendorLocationMap';
-import StackdVerifiedBadge from '@/components/StackdVerifiedBadge';
+import { VettedBadge } from '@/components/listing/VettedBadge';
+import { RefundPolicy } from '@/components/listing/RefundPolicy';
+import { GoogleRating } from '@/components/GoogleRating';
+import { resolveGoogleRating } from '@/lib/googleRating';
 import { GoogleReviewsPreview } from '@/components/GoogleReviewsPreview';
+import { VendorReviews } from '@/components/VendorReviews';
 
 // PriceTier interface
 interface PriceTier {
@@ -55,6 +59,8 @@ interface VendorProfile {
   meeting_point_description: string | null;
   google_place_id: string | null;
   city: string | null;
+  cancellation_hours: number | null;
+  verified_at: string | null;
 }
 
 const openExternalLink = (url: string) => {
@@ -278,7 +284,7 @@ const VendorProfilePreview = () => {
 
       <div className="max-w-[375px] mx-auto">
         {/* Preview Banner */}
-        <div className="sticky top-0 z-50 bg-amber-500 text-amber-950 px-4 py-2 flex items-center justify-between">
+        <div className="sticky top-0 z-50 bg-warning text-warning-abyss px-4 py-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Eye className="h-4 w-4" />
             <span className="text-sm font-medium">Preview - How Guests See You</span>
@@ -292,12 +298,12 @@ const VendorProfilePreview = () => {
         {profile.verification_status && profile.verification_status !== 'approved' && (
           <div className={`px-4 py-3 ${
             profile.verification_status === 'pending' 
-              ? 'bg-amber-100 dark:bg-amber-950/50 text-amber-800 dark:text-amber-200' 
+              ? 'bg-warning-tint dark:bg-warning-abyss/50 text-warning-dark dark:text-warning-muted' 
               : profile.verification_status === 'rejected' 
-              ? 'bg-red-100 dark:bg-red-950/50 text-red-800 dark:text-red-200'
+              ? 'bg-danger-tint dark:bg-danger-abyss/50 text-danger-dark dark:text-danger-muted'
               : profile.verification_status === 'changes_requested'
-              ? 'bg-orange-100 dark:bg-orange-950/50 text-orange-800 dark:text-orange-200'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
+              ? 'bg-brand-tint dark:bg-brand-abyss/50 text-brand-dark dark:text-brand-muted'
+              : 'bg-neutral-tint dark:bg-neutral-dark text-neutral-dark dark:text-neutral-muted'
           }`}>
             <div className="flex items-start gap-2">
               {profile.verification_status === 'pending' && (
@@ -341,7 +347,7 @@ const VendorProfilePreview = () => {
         )}
 
         {profile.verification_status === 'approved' && !profile.is_published && (
-          <div className="px-4 py-3 bg-green-100 dark:bg-green-950/50 text-green-800 dark:text-green-200">
+          <div className="px-4 py-3 bg-success-tint dark:bg-success-abyss/50 text-success-dark dark:text-success-muted">
             <div className="flex items-start gap-2">
               <ShieldCheck className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <div>
@@ -367,6 +373,7 @@ const VendorProfilePreview = () => {
               <Button
                 variant="ghost"
                 size="icon"
+                aria-label="Upload photo"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
                 className="h-9 w-9"
@@ -386,14 +393,14 @@ const VendorProfilePreview = () => {
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="w-full h-[280px] rounded-xl bg-gradient-to-br from-orange-500 to-purple-600 flex flex-col items-center justify-center gap-2 hover:from-orange-600 hover:to-purple-700 transition-colors cursor-pointer"
+              className="w-full h-[280px] rounded-xl bg-gradient-to-br from-brand to-iris-strong flex flex-col items-center justify-center gap-2 hover:from-brand-strong hover:to-iris-deep transition-colors cursor-pointer"
             >
               {isUploading ? (
-                <Loader2 className="h-12 w-12 text-white animate-spin" />
+                <Loader2 className="h-12 w-12 text-paper animate-spin" />
               ) : (
                 <>
-                  <ImagePlus className="h-12 w-12 text-white/80" />
-                  <span className="text-white font-medium">Add Photos</span>
+                  <ImagePlus className="h-12 w-12 text-paper/80" />
+                  <span className="text-paper font-medium">Add Photos</span>
                 </>
               )}
             </button>
@@ -408,14 +415,13 @@ const VendorProfilePreview = () => {
             <h1 className="text-2xl font-semibold leading-tight">{profile.name}</h1>
             <p className="text-[15px] text-muted-foreground">{profile.category}</p>
 
-            {profile.google_rating && (
-              <div className="flex items-center gap-1.5 pt-1">
-                <Star className="h-4 w-4 fill-foreground text-foreground" />
-                <span className="font-semibold text-[15px]">{profile.google_rating}</span>
-                <span className="text-muted-foreground text-[15px]">·</span>
-                <span className="text-[15px] text-muted-foreground underline underline-offset-2">Google Reviews</span>
-              </div>
-            )}
+            <div className="pt-1">
+              <GoogleRating
+                value={resolveGoogleRating({ googleRating: profile.google_rating })}
+                className="text-[15px]"
+                starClassName="h-4 w-4"
+              />
+            </div>
           </div>
 
           <Separator />
@@ -471,7 +477,7 @@ const VendorProfilePreview = () => {
           {/* Section: Affiliate Commission */}
           <>
             <div className="py-6">
-              <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+              <div className="rounded-xl border border-warning/30 bg-warning/5 p-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <p className="text-[15px] font-medium flex items-center gap-2">
@@ -482,7 +488,7 @@ const VendorProfilePreview = () => {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                    <p className="text-2xl font-bold text-warning-strong dark:text-warning-light">
                       {profile.commission_percentage ? `${profile.commission_percentage}%` : 'Not set'}
                     </p>
                   </div>
@@ -571,14 +577,24 @@ const VendorProfilePreview = () => {
           {profile.google_place_id && (
             <>
               <div className="py-6">
-                <GoogleReviewsPreview googlePlaceId={profile.google_place_id} />
+                <GoogleReviewsPreview googlePlaceId={profile.google_place_id} emptyLabel="No Google reviews yet." />
               </div>
               <Separator />
             </>
           )}
 
-          {/* Section: stackd Verified Badge */}
-          <StackdVerifiedBadge category={profile.category} />
+          <div className="py-6 space-y-4">
+            <h2 className="text-[22px] font-semibold">Reviews</h2>
+            <VendorReviews vendorProfileId={profile.id} />
+          </div>
+          <Separator />
+          <VettedBadge
+            verificationStatus={profile.verification_status}
+            verifiedAt={profile.verified_at}
+            category={profile.category}
+          />
+          <Separator />
+          <RefundPolicy cancellationHours={profile.cancellation_hours} />
           <Separator />
 
           {/* Section: External Links */}
@@ -668,22 +684,22 @@ const VendorProfilePreview = () => {
                     whileDrag={{ scale: 1.05, zIndex: 50, boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}
                   >
                     <img src={photo} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover pointer-events-none" />
-                    <div className="absolute inset-0 bg-black/0 group-hover/photo:bg-black/20 transition-colors" />
-                    <div className="absolute top-1 left-1 p-1 bg-black/50 rounded opacity-0 group-hover/photo:opacity-100 transition-opacity">
-                      <GripVertical className="h-3 w-3 text-white" />
+                    <div className="absolute inset-0 bg-ink/0 group-hover/photo:bg-ink/20 transition-colors" />
+                    <div className="absolute top-1 left-1 p-1 bg-ink/50 rounded opacity-0 group-hover/photo:opacity-100 transition-opacity">
+                      <GripVertical className="h-3 w-3 text-paper" />
                     </div>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDeletePhoto(photo, idx);
                       }}
-                      className="absolute top-1 right-1 p-1.5 bg-red-500/90 rounded-full opacity-0 group-hover/photo:opacity-100 transition-opacity"
+                      className="absolute top-1 right-1 p-1.5 bg-danger/90 rounded-full opacity-0 group-hover/photo:opacity-100 transition-opacity"
                     >
-                      <Trash2 className="h-3 w-3 text-white" />
+                      <Trash2 className="h-3 w-3 text-paper" />
                     </button>
                     {idx === 0 && (
                       <div className="absolute bottom-1 left-1">
-                        <Badge variant="secondary" className="text-[8px] px-1.5 py-0.5 bg-black/60 text-white">
+                        <Badge variant="secondary" className="text-[8px] px-1.5 py-0.5 bg-ink/60 text-paper">
                           Main
                         </Badge>
                       </div>
@@ -723,7 +739,7 @@ const VendorProfilePreview = () => {
             
             {profile.verification_status === 'approved' ? (
               <Button 
-                className="flex-1 gap-2 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-semibold"
+                className="flex-1 gap-2 rounded-full bg-gradient-to-r from-brand to-hot hover:from-brand-strong hover:to-hot-strong text-paper font-semibold"
                 onClick={handlePublish}
                 disabled={isPublishing}
               >
@@ -741,7 +757,7 @@ const VendorProfilePreview = () => {
               </Button>
             ) : (
               <Button 
-                className="flex-1 gap-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold"
+                className="flex-1 gap-2 rounded-full bg-gradient-to-r from-mint to-lagoon hover:from-mint-strong hover:to-lagoon-strong text-paper font-semibold"
                 onClick={handleSubmitForReview}
                 disabled={isSubmitting}
               >

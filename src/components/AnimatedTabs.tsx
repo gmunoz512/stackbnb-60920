@@ -82,7 +82,7 @@ export const AnimatedTabs = ({
           
           {/* Animated Underline */}
           <motion.div
-            className="absolute bottom-0 h-0.5 bg-gradient-to-r from-orange-500 to-purple-600 rounded-full"
+            className="absolute bottom-0 h-0.5 bg-gradient-to-r from-brand to-iris-strong rounded-full"
             initial={false}
             animate={{
               left: indicatorStyle.left,
@@ -163,15 +163,15 @@ export const AnimatedTabs = ({
             className={cn(
               "relative flex items-center gap-1.5 px-4 py-2 rounded-full border whitespace-nowrap text-sm transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]",
               isActive
-                ? "text-white border-transparent shadow-lg"
-                : "bg-card border-border/50 hover:border-purple-500/30 hover:shadow-md"
+                ? "text-paper border-transparent shadow-lg"
+                : "bg-card border-border/50 hover:border-iris/30 hover:shadow-md"
             )}
           >
             {/* Animated Gradient Background */}
             {isActive && (
               <motion.div
                 layoutId="activeTabBg"
-                className="absolute inset-0 bg-gradient-to-r from-orange-500 to-purple-600 rounded-full"
+                className="absolute inset-0 bg-gradient-to-r from-brand to-iris-strong rounded-full"
                 initial={false}
                 transition={{
                   type: "spring",

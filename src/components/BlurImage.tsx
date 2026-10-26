@@ -50,7 +50,7 @@ export const BlurImage = ({
         transition={{ duration: transitionDuration * 0.5 }}
       >
         {/* Shimmer effect while loading */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-paper/10 to-transparent animate-shimmer" />
       </motion.div>
 
       {/* Actual image with blur transition */}

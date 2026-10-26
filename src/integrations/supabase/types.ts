@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
@@ -1136,6 +1136,8 @@ export type Database = {
           price_tiers: Json | null
           trust_score: number | null
           website_url: string | null
+          verification_status: Database["public"]["Enums"]["vendor_verification_status"] | null
+          verified_at: string | null
         }
         Insert: {
           about_experience?: string | null
@@ -1168,6 +1170,8 @@ export type Database = {
           price_tiers?: Json | null
           trust_score?: number | null
           website_url?: string | null
+          verification_status?: Database["public"]["Enums"]["vendor_verification_status"] | null
+          verified_at?: string | null
         }
         Update: {
           about_experience?: string | null
@@ -1200,6 +1204,8 @@ export type Database = {
           price_tiers?: Json | null
           trust_score?: number | null
           website_url?: string | null
+          verification_status?: Database["public"]["Enums"]["vendor_verification_status"] | null
+          verified_at?: string | null
         }
         Relationships: []
       }

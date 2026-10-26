@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import { useBooking } from "@/contexts/BookingContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useRequireSignIn } from "@/hooks/useRequireSignIn";
 
 interface PriceTier {
   name: string;
@@ -48,6 +49,7 @@ const VendorBookingForm = () => {
   const navigate = useNavigate();
   const { updateBookingData } = useBooking();
   const { toast } = useToast();
+  const { requireSignIn } = useRequireSignIn();
   
   const [vendor, setVendor] = useState<VendorProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -171,6 +173,8 @@ const VendorBookingForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!requireSignIn("book")) return;
     
     if (!formData.date || !formData.time) {
       toast({
@@ -221,7 +225,7 @@ const VendorBookingForm = () => {
         <div className="bg-card border-b p-4">
           <div className="text-center text-sm text-muted-foreground mb-2">Step 1 of 3</div>
           <div className="flex gap-1">
-            <div className="h-1 flex-1 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full" />
+            <div className="h-1 flex-1 bg-gradient-to-r from-brand to-hot rounded-full" />
             <div className="h-1 flex-1 bg-muted rounded-full" />
             <div className="h-1 flex-1 bg-muted rounded-full" />
           </div>

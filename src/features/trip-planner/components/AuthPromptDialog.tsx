@@ -15,7 +15,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { Loader2, MapPin, Sparkles, Save, Apple } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 
@@ -112,10 +111,11 @@ export function AuthPromptDialog({ open, onOpenChange, onSkip }: AuthPromptDialo
     try {
       localStorage.setItem("pending_role", "user");
 
-      const { error } = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin + "/auth",
-        extraParams: {
-          prompt: "select_account",
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin + "/auth",
+          queryParams: { prompt: "select_account" },
         },
       });
       if (error) throw error;
@@ -134,8 +134,9 @@ export function AuthPromptDialog({ open, onOpenChange, onSkip }: AuthPromptDialo
     try {
       localStorage.setItem("pending_role", "user");
 
-      const { error } = await lovable.auth.signInWithOAuth("apple", {
-        redirect_uri: window.location.origin + "/auth",
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "apple",
+        options: { redirectTo: window.location.origin + "/auth" },
       });
       if (error) throw error;
     } catch (error) {

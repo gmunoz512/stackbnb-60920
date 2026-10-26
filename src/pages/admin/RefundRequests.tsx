@@ -84,14 +84,14 @@ const RefundRequests = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
       <div className="max-w-lg mx-auto">
-        <div className="bg-gradient-to-br from-green-600 to-emerald-600 px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
+        <div className="bg-gradient-to-br from-success-strong to-mint-strong px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
           <div className="flex items-center gap-3 mb-4">
-            <button onClick={() => navigate("/admin/settings")} className="p-2 rounded-xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all">
-              <ArrowLeft className="h-5 w-5 text-white" />
+            <button onClick={() => navigate("/admin/settings")} className="p-2 rounded-xl bg-paper/10 backdrop-blur-sm hover:bg-paper/20 transition-all">
+              <ArrowLeft className="h-5 w-5 text-paper" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-white">Refund Requests</h1>
-              <p className="text-sm text-white/70">{pending.length} pending</p>
+              <h1 className="text-xl font-bold text-paper">Refund Requests</h1>
+              <p className="text-sm text-paper/70">{pending.length} pending</p>
             </div>
           </div>
         </div>
@@ -101,7 +101,7 @@ const RefundRequests = () => {
             <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
           ) : requests.length === 0 ? (
             <Card className="p-8 text-center">
-              <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4" />
+              <CheckCircle className="h-12 w-12 mx-auto text-success mb-4" />
               <h2 className="font-semibold mb-1">No Refund Requests</h2>
               <p className="text-sm text-muted-foreground">All clear</p>
             </Card>
@@ -142,7 +142,7 @@ const RefundRequests = () => {
                       <div className="flex gap-2">
                         <Button
                           size="sm"
-                          className="gap-1 bg-green-600 hover:bg-green-700"
+                          className="gap-1 bg-success-strong hover:bg-success-deep"
                           onClick={() => processRefund.mutate({ requestId: req.id, action: "approved" })}
                           disabled={processRefund.isPending}
                         >

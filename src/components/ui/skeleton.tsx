@@ -9,7 +9,7 @@ function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>)
       )} 
       {...props}
     >
-      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-paper/20 to-transparent" />
     </div>
   );
 }

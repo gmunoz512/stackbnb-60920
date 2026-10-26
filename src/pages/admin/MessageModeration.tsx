@@ -78,14 +78,14 @@ const MessageModeration = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
       <div className="max-w-lg mx-auto">
-        <div className="bg-gradient-to-br from-red-600 to-orange-600 px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
+        <div className="bg-gradient-to-br from-danger-strong to-brand-strong px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
           <div className="flex items-center gap-3 mb-4">
-            <button onClick={() => navigate("/admin/settings")} className="p-2 rounded-xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all">
-              <ArrowLeft className="h-5 w-5 text-white" />
+            <button onClick={() => navigate("/admin/settings")} className="p-2 rounded-xl bg-paper/10 backdrop-blur-sm hover:bg-paper/20 transition-all">
+              <ArrowLeft className="h-5 w-5 text-paper" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-white">Message Moderation</h1>
-              <p className="text-sm text-white/70">{conversations.length} flagged conversations</p>
+              <h1 className="text-xl font-bold text-paper">Message Moderation</h1>
+              <p className="text-sm text-paper/70">{conversations.length} flagged conversations</p>
             </div>
           </div>
         </div>
@@ -95,7 +95,7 @@ const MessageModeration = () => {
             <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
           ) : conversations.length === 0 ? (
             <Card className="p-8 text-center">
-              <CheckCircle className="h-12 w-12 mx-auto text-green-500 mb-4" />
+              <CheckCircle className="h-12 w-12 mx-auto text-success mb-4" />
               <h2 className="font-semibold mb-1">All Clear</h2>
               <p className="text-sm text-muted-foreground">No flagged conversations</p>
             </Card>

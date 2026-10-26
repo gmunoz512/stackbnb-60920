@@ -59,10 +59,10 @@ interface HostProfile {
 }
 
 const statusConfig: Record<HostVerificationStatus, { label: string; color: string; icon: React.ReactNode }> = {
-  unverified: { label: "Unverified", color: "bg-gray-500", icon: <Clock className="h-3 w-3" /> },
-  pending_verification: { label: "Pending Review", color: "bg-amber-500", icon: <Clock className="h-3 w-3" /> },
-  verified: { label: "Verified", color: "bg-green-500", icon: <CheckCircle className="h-3 w-3" /> },
-  rejected: { label: "Rejected", color: "bg-red-500", icon: <XCircle className="h-3 w-3" /> },
+  unverified: { label: "Unverified", color: "bg-neutral", icon: <Clock className="h-3 w-3" /> },
+  pending_verification: { label: "Pending Review", color: "bg-warning", icon: <Clock className="h-3 w-3" /> },
+  verified: { label: "Verified", color: "bg-success", icon: <CheckCircle className="h-3 w-3" /> },
+  rejected: { label: "Rejected", color: "bg-danger", icon: <XCircle className="h-3 w-3" /> },
 };
 
 const HostVerifications = () => {
@@ -158,7 +158,7 @@ const HostVerifications = () => {
       <div className="min-h-screen bg-background">
         <div className="max-w-lg mx-auto px-4 py-8">
           <Card className="p-8 text-center">
-            <AlertTriangle className="h-12 w-12 mx-auto text-yellow-500 mb-4" />
+            <AlertTriangle className="h-12 w-12 mx-auto text-rating mb-4" />
             <h1 className="text-xl font-bold mb-2">Access Denied</h1>
             <p className="text-muted-foreground mb-6">This page is only available to administrators.</p>
             <Button onClick={() => navigate(-1)}>Go Back</Button>
@@ -172,38 +172,38 @@ const HostVerifications = () => {
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="bg-gradient-to-br from-blue-600 to-indigo-600 px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
+        <div className="bg-gradient-to-br from-info-strong to-indigo-strong px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={() => navigate("/admin/settings")}
-              className="p-2 rounded-xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all"
+              className="p-2 rounded-xl bg-paper/10 backdrop-blur-sm hover:bg-paper/20 transition-all"
             >
-              <ArrowLeft className="h-5 w-5 text-white" />
+              <ArrowLeft className="h-5 w-5 text-paper" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-white">Host Verifications</h1>
-              <p className="text-sm text-white/70">Review host identity documents</p>
+              <h1 className="text-xl font-bold text-paper">Host Verifications</h1>
+              <p className="text-sm text-paper/70">Review host identity documents</p>
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-2 mt-4">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-white">
+            <div className="bg-paper/10 backdrop-blur-sm rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-paper">
                 {hosts?.filter((h) => h.host_verification_status === "pending_verification").length || 0}
               </p>
-              <p className="text-xs text-white/70">Pending</p>
+              <p className="text-xs text-paper/70">Pending</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-white">
+            <div className="bg-paper/10 backdrop-blur-sm rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-paper">
                 {hosts?.filter((h) => h.host_verification_status === "verified").length || 0}
               </p>
-              <p className="text-xs text-white/70">Verified</p>
+              <p className="text-xs text-paper/70">Verified</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-white">
+            <div className="bg-paper/10 backdrop-blur-sm rounded-xl p-3 text-center">
+              <p className="text-2xl font-bold text-paper">
                 {hosts?.filter((h) => h.host_verification_status === "rejected").length || 0}
               </p>
-              <p className="text-xs text-white/70">Rejected</p>
+              <p className="text-xs text-paper/70">Rejected</p>
             </div>
           </div>
         </div>
@@ -257,7 +257,7 @@ const HostVerifications = () => {
                             <h3 className="font-semibold">{host.full_name || "Unnamed Host"}</h3>
                             <p className="text-sm text-muted-foreground">{host.email}</p>
                           </div>
-                          <Badge className={`${status.color} text-white flex items-center gap-1`}>
+                          <Badge className={`${status.color} text-paper flex items-center gap-1`}>
                             {status.icon}
                             {status.label}
                           </Badge>
@@ -300,7 +300,7 @@ const HostVerifications = () => {
                           <Button
                             size="sm"
                             onClick={() => setActionDialog({ type: "verify", host })}
-                            className="gap-1 bg-green-600 hover:bg-green-700"
+                            className="gap-1 bg-success-strong hover:bg-success-deep"
                           >
                             <CheckCircle className="h-3 w-3" />
                             Verify
@@ -441,7 +441,7 @@ const HostVerifications = () => {
                     </Button>
                     <Button
                       size="sm"
-                      className="bg-green-600 hover:bg-green-700"
+                      className="bg-success-strong hover:bg-success-deep"
                       onClick={() => {
                         setSelectedHost(null);
                         setActionDialog({ type: "verify", host: selectedHost });
@@ -491,7 +491,7 @@ const HostVerifications = () => {
             <Button
               onClick={confirmAction}
               disabled={reviewMutation.isPending || (actionDialog.type === "reject" && !notes.trim())}
-              className={actionDialog.type === "verify" ? "bg-green-600 hover:bg-green-700" : ""}
+              className={actionDialog.type === "verify" ? "bg-success-strong hover:bg-success-deep" : ""}
               variant={actionDialog.type === "reject" ? "destructive" : "default"}
             >
               {reviewMutation.isPending ? (

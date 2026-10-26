@@ -8,6 +8,9 @@ import { SkeletonCardGrid } from "@/components/ui/skeleton-card";
 import { AnimatedTabs } from "@/components/AnimatedTabs";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { GoogleRating } from "@/components/GoogleRating";
+import { resolveGoogleRating } from "@/lib/googleRating";
+import { useRequireSignIn } from "@/hooks/useRequireSignIn";
 import stackdLogo from "@/assets/stackd-logo-new.png";
 
 const categories = [
@@ -30,6 +33,7 @@ interface VendorExperience {
 }
 
 const AllExperiences = () => {
+  const { requireSignIn } = useRequireSignIn();
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -65,6 +69,7 @@ const AllExperiences = () => {
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!requireSignIn("save")) return;
     setFavorites((prev) => {
       const newFavorites = prev.includes(id)
         ? prev.filter((fav) => fav !== id)
@@ -165,27 +170,29 @@ const AllExperiences = () => {
                         }}
                       />
                     ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-purple-600 flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
-                        <Store className="h-10 w-10 text-white/80" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-brand to-iris-strong flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
+                        <Store className="h-10 w-10 text-paper/80" />
                       </div>
                     )}
                     
                     <button
+                      type="button"
+                      aria-label={favorites.includes(experience.id) ? `Remove ${experience.name} from saved` : `Save ${experience.name}`}
                       onClick={(e) => toggleFavorite(experience.id, e)}
                       className="absolute top-2 right-2 z-10 p-1.5 rounded-full hover:scale-110 active:scale-95 transition-transform"
                     >
                       <Heart
                         className={`h-5 w-5 transition-all drop-shadow-md ${
                           favorites.includes(experience.id)
-                            ? "fill-red-500 text-red-500"
-                            : "fill-black/50 text-white stroke-white stroke-2"
+                            ? "fill-danger text-danger"
+                            : "fill-ink/50 text-paper stroke-paper stroke-2"
                         }`}
                       />
                     </button>
 
                     {experience.google_rating && experience.google_rating >= 4.8 && (
                       <div className="absolute top-2 left-2 z-10">
-                        <Badge className="bg-white/95 text-foreground backdrop-blur-sm shadow-sm text-[10px] px-2 py-0.5 border-0">
+                        <Badge className="bg-paper/95 text-foreground backdrop-blur-sm shadow-sm text-[10px] px-2 py-0.5 border-0">
                           Guest favorite
                         </Badge>
                       </div>
@@ -195,12 +202,12 @@ const AllExperiences = () => {
                   <div className="space-y-0.5">
                     <h3 className="font-semibold text-sm line-clamp-2">{experience.name}</h3>
                     <p className="text-xs text-muted-foreground line-clamp-1">{experience.category}</p>
-                    {experience.google_rating && (
-                      <div className="flex items-center gap-1 text-xs">
-                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                        <span className="font-medium">{experience.google_rating}</span>
-                      </div>
-                    )}
+                    <GoogleRating
+                      value={resolveGoogleRating({ googleRating: experience.google_rating })}
+                      showCount={false}
+                      className="text-xs"
+                      starClassName="h-3 w-3"
+                    />
                     {experience.price_per_person && (
                       <div className="pt-0.5">
                         <span className="text-sm font-semibold">${experience.price_per_person}</span>

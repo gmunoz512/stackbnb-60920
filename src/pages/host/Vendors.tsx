@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
+import { GoogleRating } from "@/components/GoogleRating";
+import { resolveGoogleRating } from "@/lib/googleRating";
 import { Card } from "@/components/ui/card";
-import { Star, ArrowLeft, Store, Share2, Copy, Check, MessageCircle } from "lucide-react";
+import { ArrowLeft, Store, Share2, Copy, Check, MessageCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-beach.jpg";
 import { useMemo, useState, useEffect } from "react";
@@ -149,7 +151,7 @@ const HostVendors = () => {
           <div className="flex items-center justify-center gap-3 pt-2">
             <Link 
               to="/explore?mode=host"
-              className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-medium hover:scale-105 transition-all text-sm"
+              className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-gradient-to-r from-brand to-hot text-paper font-medium hover:scale-105 transition-all text-sm"
             >
               Explore Vendors
             </Link>
@@ -165,7 +167,7 @@ const HostVendors = () => {
                 <DropdownMenuContent align="center" className="w-48">
                   <DropdownMenuItem onClick={handleCopyLink} className="cursor-pointer">
                     {copied ? (
-                      <Check className="h-4 w-4 mr-2 text-green-500" />
+                      <Check className="h-4 w-4 mr-2 text-success" />
                     ) : (
                       <Copy className="h-4 w-4 mr-2" />
                     )}
@@ -176,7 +178,7 @@ const HostVendors = () => {
                     Share via Text
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleShareWhatsApp} className="cursor-pointer">
-                    <FaWhatsapp className="h-4 w-4 mr-2 text-green-500" />
+                    <FaWhatsapp className="h-4 w-4 mr-2 text-success" />
                     Share via WhatsApp
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -219,15 +221,15 @@ const HostVendors = () => {
                     {/* Commission Badge */}
                     {vendor.commission_percentage && (
                       <div className="absolute top-2 right-2 z-20">
-                        <Badge className="bg-green-500/90 text-white backdrop-blur-sm shadow-md text-xs px-1.5 py-0.5 font-semibold">
+                        <Badge className="bg-success/90 text-paper backdrop-blur-sm shadow-md text-xs px-1.5 py-0.5 font-semibold">
                           {vendor.commission_percentage}%
                         </Badge>
                       </div>
                     )}
 
                     {/* Gradient overlay with name */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                      <p className="text-white text-xs font-medium line-clamp-1">{vendor.name}</p>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/70 to-transparent p-2">
+                      <p className="text-paper text-xs font-medium line-clamp-1">{vendor.name}</p>
                     </div>
                   </div>
 
@@ -239,13 +241,15 @@ const HostVendors = () => {
 
                     {/* Stats */}
                     <div className="flex items-center gap-1 text-[10px]">
-                      {vendor.google_rating && (
-                        <>
-                          <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
-                          <span className="font-semibold">{vendor.google_rating}</span>
-                          <span className="text-muted-foreground">•</span>
-                        </>
-                      )}
+                      <GoogleRating
+                        value={resolveGoogleRating({ googleRating: vendor.google_rating })}
+                        showCount={false}
+                        className="text-[10px]"
+                        starClassName="h-2.5 w-2.5"
+                      />
+                      {resolveGoogleRating({ googleRating: vendor.google_rating }) ? (
+                        <span className="text-muted-foreground">•</span>
+                      ) : null}
                       {vendor.price_per_person && (
                         <span className="text-muted-foreground">${vendor.price_per_person}</span>
                       )}

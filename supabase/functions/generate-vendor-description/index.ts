@@ -1,4 +1,5 @@
 import { guardPaidApi } from "../_shared/paidApiGuard.ts";
+import { aiGatewayConfig } from "../_shared/aiGateway.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -18,10 +19,7 @@ serve(async (req) => {
   try {
     const { name, category, pricePerPerson, duration, maxGuests, includedItems } = await req.json();
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
-    }
+    const gateway = aiGatewayConfig();
 
     const prompt = `Write a compelling, professional description for a ${category} vendor called "${name}". 
 
@@ -38,16 +36,17 @@ Write 2-3 engaging paragraphs (about 150 words total) that:
 
 Don't include the price or specifics in the description - just paint a picture of the experience.`;
 
+    console.log('Generating description for:', name);
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch(gateway.url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${gateway.key}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         max_tokens: 800,
-        model: "google/gemini-2.5-flash",
+        model: gateway.model,
         messages: [
           { 
             role: "system", 
@@ -71,6 +70,7 @@ Don't include the price or specifics in the description - just paint a picture o
       throw new Error('No description generated');
     }
 
+    console.log('Description generated successfully');
 
     return new Response(
       JSON.stringify({ success: true, description }),

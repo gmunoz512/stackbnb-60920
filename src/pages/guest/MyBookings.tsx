@@ -118,15 +118,15 @@ END:VCALENDAR`;
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'confirmed':
-        return 'bg-blue-500';
+        return 'bg-info';
       case 'completed':
-        return 'bg-green-500';
+        return 'bg-success';
       case 'pending':
-        return 'bg-yellow-500';
+        return 'bg-rating';
       case 'cancelled':
-        return 'bg-red-500';
+        return 'bg-danger';
       case 'refunded':
-        return 'bg-orange-500';
+        return 'bg-brand';
       default:
         return 'bg-muted-foreground';
     }
@@ -197,7 +197,7 @@ END:VCALENDAR`;
                       )}
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className="font-bold text-lg bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
+                      <p className="font-bold text-lg bg-gradient-to-r from-brand to-hot bg-clip-text text-transparent">
                         ${booking.total_amount}
                       </p>
                     </div>

@@ -24,7 +24,7 @@ const GlassBottomNav = ({ items, maxWidth = "max-w-[375px] md:max-w-3xl lg:max-w
       {/* Glass effect container */}
       <div className="relative">
         {/* Frosted glass background */}
-        <div className="absolute inset-0 bg-card/80 backdrop-blur-xl border-t border-white/10 dark:border-white/5" />
+        <div className="absolute inset-0 bg-card/80 backdrop-blur-xl border-t border-paper/10 dark:border-paper/5" />
         
         {/* Gradient glow effect */}
         <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
@@ -70,7 +70,7 @@ const GlassBottomNav = ({ items, maxWidth = "max-w-[375px] md:max-w-3xl lg:max-w
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-2 h-4 min-w-4 px-1 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full text-[9px] text-white font-bold flex items-center justify-center"
+                      className="absolute -top-1 -right-2 h-4 min-w-4 px-1 bg-gradient-to-r from-brand to-hot rounded-full text-[9px] text-paper font-bold flex items-center justify-center"
                     >
                       {item.badge > 99 ? '99+' : item.badge}
                     </motion.div>

@@ -41,7 +41,7 @@ const StreamingBanner = memo(function StreamingBanner({ status, onRetry }: Strea
 
   if (status === "slow") {
     return (
-      <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 text-sm">
+      <div className="flex items-center justify-center gap-2 py-2 px-4 rounded-lg bg-warning/10 text-warning-strong dark:text-warning-light text-sm">
         <Clock className="w-4 h-4 animate-spin" />
         <span>Still thinking... This is taking longer than usual.</span>
       </div>

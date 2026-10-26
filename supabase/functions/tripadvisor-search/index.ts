@@ -1,22 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkRateLimit, createRateLimitResponse } from "../_shared/rateLimit.ts";
+import { corsHeadersFor } from "../_shared/http.ts";
 
 const TRIPADVISOR_API_KEY = Deno.env.get('TRIPADVISOR_API_KEY');
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:8080',
-  'https://stackbnb-60920.lovable.app',
-];
-
-const getCorsHeaders = (origin: string | null) => {
-  const isAllowed = origin && (allowedOrigins.includes(origin) || origin.endsWith('.lovable.app'));
-  return {
-    'Access-Control-Allow-Origin': isAllowed ? origin : allowedOrigins[0],
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  };
-};
+const getCorsHeaders = (origin: string | null) =>
+  corsHeadersFor(new Request("https://stackd.local/", { headers: origin ? { origin } : {} }));
 
 interface SearchRequest {
   action: 'search' | 'details' | 'photos' | 'reviews';
@@ -69,6 +59,7 @@ serve(async (req) => {
 
   try {
     const { action, query, lat, lng, locationId, limit = 10 }: SearchRequest = await req.json();
+    console.log(`TripAdvisor API - Action: ${action}, Query: ${query}, Lat: ${lat}, Lng: ${lng}, LocationId: ${locationId}`);
 
     const baseUrl = 'https://api.content.tripadvisor.com/api/v1';
     const headers = {
@@ -89,6 +80,7 @@ serve(async (req) => {
         }
 
         const searchUrl = `${baseUrl}/location/nearby_search?latLong=${lat},${lng}&category=restaurants&language=en&key=${TRIPADVISOR_API_KEY}`;
+        console.log('Fetching nearby restaurants from TripAdvisor');
         
         response = await fetch(searchUrl, { headers });
         
@@ -99,6 +91,7 @@ serve(async (req) => {
         }
         
         data = await response.json();
+        console.log(`Found ${data.data?.length || 0} restaurants`);
         
         // Fetch details for each restaurant to get ratings, photos, etc.
         const restaurants = data.data?.slice(0, limit) || [];
@@ -139,6 +132,7 @@ serve(async (req) => {
         }
 
         const detailsUrl = `${baseUrl}/location/${locationId}/details?language=en&currency=USD&key=${TRIPADVISOR_API_KEY}`;
+        console.log(`Fetching details for location ${locationId}`);
         
         response = await fetch(detailsUrl, { headers });
         
@@ -164,6 +158,7 @@ serve(async (req) => {
         }
 
         const photosUrl = `${baseUrl}/location/${locationId}/photos?language=en&key=${TRIPADVISOR_API_KEY}`;
+        console.log(`Fetching photos for location ${locationId}`);
         
         response = await fetch(photosUrl, { headers });
         
@@ -189,6 +184,7 @@ serve(async (req) => {
         }
 
         const reviewsUrl = `${baseUrl}/location/${locationId}/reviews?language=en&key=${TRIPADVISOR_API_KEY}`;
+        console.log(`Fetching reviews for location ${locationId}`);
         
         response = await fetch(reviewsUrl, { headers });
         

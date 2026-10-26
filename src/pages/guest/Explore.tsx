@@ -8,6 +8,8 @@ import heroImage from "@/assets/hero-beach.jpg";
 import stackdLogo from "@/assets/stackd-logo-new.png";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
+import { GoogleRating } from "@/components/GoogleRating";
+import { resolveGoogleRating } from "@/lib/googleRating";
 import { toast } from "@/hooks/use-toast";
 import { useProfile } from "@/contexts/ProfileContext";
 import {
@@ -80,20 +82,22 @@ function ExploreVendorCard({
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-orange-500/20 to-purple-600/20 flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-brand/20 to-iris-strong/20 flex items-center justify-center">
             <Store className="h-8 w-8 text-muted-foreground" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
 
         {isHostMode && (
           <button
+            type="button"
+            aria-label={isSaved ? `Remove ${vendor.name} from your vendor list` : `Save ${vendor.name} to your vendor list`}
             onClick={onAdd}
             disabled={isLoading}
             className={`absolute top-2 left-2 z-20 p-2 rounded-full shadow-lg transition-all duration-200 ${
               isSaved
-                ? "bg-green-500 text-white"
-                : "bg-gradient-to-r from-orange-500 to-pink-500 text-white hover:from-orange-600 hover:to-pink-600"
+                ? "bg-success text-paper"
+                : "bg-gradient-to-r from-brand to-hot text-paper hover:from-brand-strong hover:to-hot-strong"
             }`}
           >
             {isLoading ? (
@@ -107,15 +111,15 @@ function ExploreVendorCard({
         )}
 
         <div className="absolute bottom-2 left-2 right-2">
-          <p className="text-white text-xs font-medium line-clamp-1">{vendor.name}</p>
-          <div className="flex items-center gap-1 text-white/80 text-[10px]">
-            {vendor.google_rating && (
-              <>
-                <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
-                <span>{vendor.google_rating}</span>
-                <span>•</span>
-              </>
-            )}
+          <p className="text-paper text-xs font-medium line-clamp-1">{vendor.name}</p>
+          <div className="flex items-center gap-1 text-paper/80 text-[10px]">
+            <GoogleRating
+              value={resolveGoogleRating({ googleRating: vendor.google_rating })}
+              showCount={false}
+              className="text-[10px] text-inherit"
+              starClassName="h-2.5 w-2.5"
+            />
+            <span>•</span>
             <span>${vendor.price_per_person || 0}</span>
           </div>
         </div>
@@ -333,7 +337,7 @@ const Explore = () => {
                 </DropdownMenu>
                 <Link
                   to="/trip-planner"
-                  className="p-2 rounded-full bg-gradient-to-r from-orange-500 to-purple-600 text-white"
+                  className="p-2 rounded-full bg-gradient-to-r from-brand to-iris-strong text-paper"
                 >
                   <Sparkles className="h-4 w-4" />
                 </Link>
@@ -352,7 +356,7 @@ const Explore = () => {
 
               {/* Search Section - Single Bar */}
               <div className="relative md:max-w-2xl md:mx-auto">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500/20 to-purple-600/20 rounded-full blur-sm"></div>
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-brand/20 to-iris-strong/20 rounded-full blur-sm"></div>
                 <div className="relative bg-card/90 rounded-full border border-border/50 backdrop-blur-sm flex items-center px-3 py-2 gap-2">
                   <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
                   <Input
@@ -361,7 +365,7 @@ const Explore = () => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="border-0 bg-transparent text-sm h-6 shadow-none focus-visible:ring-0 px-0 placeholder:text-muted-foreground flex-1 min-w-0"
                   />
-                  <button aria-label="Search" className="bg-gradient-to-r from-orange-500 to-purple-600 text-white rounded-full p-1.5 flex-shrink-0">
+                  <button aria-label="Search" className="bg-gradient-to-r from-brand to-iris-strong text-paper rounded-full p-1.5 flex-shrink-0">
                     <Search className="h-3 w-3" />
                   </button>
                 </div>
@@ -398,7 +402,7 @@ const Explore = () => {
                       flex items-center gap-1.5 px-3 py-1.5 rounded-full border whitespace-nowrap text-xs
                       transition-all duration-300 
                       ${selectedExperienceCategory === category.id 
-                        ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white border-transparent shadow-lg' 
+                        ? 'bg-gradient-to-r from-brand to-hot text-paper border-transparent shadow-lg' 
                         : 'bg-card hover:border-primary/50 border-border'
                       }
                     `}
@@ -480,7 +484,7 @@ const Explore = () => {
                       flex items-center gap-1.5 px-3 py-1.5 rounded-full border whitespace-nowrap text-xs
                       transition-all duration-300 
                       ${selectedRestaurantCategory === category.id 
-                        ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white border-transparent shadow-lg' 
+                        ? 'bg-gradient-to-r from-brand to-hot text-paper border-transparent shadow-lg' 
                         : 'bg-card hover:border-primary/50 border-border'
                       }
                     `}

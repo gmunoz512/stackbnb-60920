@@ -1,19 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.78.0";
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:8080',
-  'https://stackbnb-60920.lovable.app',
-];
+import { corsHeadersFor } from "../_shared/http.ts";
 
-const getCorsHeaders = (origin: string | null) => {
-  const isAllowed = origin && (allowedOrigins.includes(origin) || origin.endsWith('.lovable.app'));
-  return {
-    'Access-Control-Allow-Origin': isAllowed ? origin : allowedOrigins[0],
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  };
-};
+const getCorsHeaders = (origin: string | null) =>
+  corsHeadersFor(new Request("https://stackd.local/", { headers: origin ? { origin } : {} }));
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

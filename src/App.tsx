@@ -223,7 +223,7 @@ const AppRoutes = () => (
     <Route path="/for-vendors" element={<ForVendors />} />
     <Route path="/trip-planner" element={<TripPlannerChat />} />
     <Route path="/trip-planner/itinerary" element={<TripItinerary />} />
-    <Route path="/itinerary" element={<ProtectedRoute><Itinerary /></ProtectedRoute>} />
+    <Route path="/itinerary" element={<Itinerary />} />
     <Route path="/itinerary/shared/:token" element={<SharedItinerary />} />
     <Route path="/shared/:token" element={<SharedItinerary />} />
     <Route path="/restaurant/:id" element={<RestaurantDetail />} />

@@ -60,10 +60,10 @@ const HostEarnings = () => {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-3">
-          <Card className="p-4 bg-gradient-to-br from-orange-500/10 to-pink-500/10 border-orange-500/20">
+          <Card className="p-4 bg-gradient-to-br from-brand/10 to-hot/10 border-brand/20">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-orange-500" />
+                <DollarSign className="h-4 w-4 text-brand" />
                 <p className="text-xs text-muted-foreground">Total Earnings</p>
               </div>
               {isLoading ? (
@@ -73,10 +73,10 @@ const HostEarnings = () => {
               )}
             </div>
           </Card>
-          <Card className="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-blue-500/20">
+          <Card className="p-4 bg-gradient-to-br from-info/10 to-iris/10 border-info/20">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-blue-500" />
+                <TrendingUp className="h-4 w-4 text-info" />
                 <p className="text-xs text-muted-foreground">Total Bookings</p>
               </div>
               {isLoading ? (
@@ -120,7 +120,7 @@ const HostEarnings = () => {
                         <p className="text-xs text-muted-foreground mt-1">{item.vendor}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="text-base font-bold bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
+                        <p className="text-base font-bold bg-gradient-to-r from-brand to-hot bg-clip-text text-transparent">
                           ${item.amount.toFixed(0)}
                         </p>
                       </div>

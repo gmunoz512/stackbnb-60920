@@ -68,9 +68,9 @@ const categoryIcons: Record<ItineraryItemCategory, typeof Utensils> = {
 };
 
 const categoryColors: Record<ItineraryItemCategory, string> = {
-  food: "text-orange-500 bg-orange-500/10 border-orange-500/20",
+  food: "text-brand bg-brand/10 border-brand/20",
   activity: "text-primary bg-primary/10 border-primary/20",
-  transport: "text-blue-500 bg-blue-500/10 border-blue-500/20",
+  transport: "text-info bg-info/10 border-info/20",
   free: "text-muted-foreground bg-muted border-border",
 };
 
@@ -229,7 +229,7 @@ function EditableItem({ item, index, onUpdate, onRemove }: EditableItemProps) {
                         {/* What's Included */}
                         <div className="space-y-1">
                           <div className="flex items-center gap-1.5 text-xs font-medium">
-                            <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                            <CheckCircle2 className="h-3.5 w-3.5 text-success" />
                             <span>What's Included (comma-separated)</span>
                           </div>
                           <Textarea
@@ -243,7 +243,7 @@ function EditableItem({ item, index, onUpdate, onRemove }: EditableItemProps) {
                         {/* What to Bring */}
                         <div className="space-y-1">
                           <div className="flex items-center gap-1.5 text-xs font-medium">
-                            <Backpack className="h-3.5 w-3.5 text-blue-500" />
+                            <Backpack className="h-3.5 w-3.5 text-info" />
                             <span>What to Bring (comma-separated)</span>
                           </div>
                           <Textarea
@@ -334,13 +334,13 @@ function EditableItem({ item, index, onUpdate, onRemove }: EditableItemProps) {
                   <div className="flex flex-wrap gap-1 mt-2">
                     {item.includes && item.includes.length > 0 && (
                       <Badge variant="outline" className="text-[10px] h-5 gap-1">
-                        <CheckCircle2 className="h-2.5 w-2.5 text-green-500" />
+                        <CheckCircle2 className="h-2.5 w-2.5 text-success" />
                         {item.includes.length} included
                       </Badge>
                     )}
                     {item.whatToBring && item.whatToBring.length > 0 && (
                       <Badge variant="outline" className="text-[10px] h-5 gap-1">
-                        <Backpack className="h-2.5 w-2.5 text-blue-500" />
+                        <Backpack className="h-2.5 w-2.5 text-info" />
                         {item.whatToBring.length} to bring
                       </Badge>
                     )}

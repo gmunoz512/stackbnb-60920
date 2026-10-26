@@ -102,7 +102,7 @@ const ActiveHosts = () => {
               >
                 <div className="flex items-start gap-3">
                   <Avatar className="h-12 w-12 flex-shrink-0">
-                    <AvatarFallback className="bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 text-white font-semibold">
+                    <AvatarFallback className="bg-gradient-to-br from-brand-light via-hot to-iris-strong text-paper font-semibold">
                       {host.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>

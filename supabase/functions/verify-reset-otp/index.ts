@@ -2,19 +2,10 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkRateLimit, createRateLimitResponse } from "../_shared/rateLimit.ts";
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:8080',
-  'https://stackbnb-60920.lovable.app',
-];
+import { corsHeadersFor } from "../_shared/http.ts";
 
-const getCorsHeaders = (origin: string | null) => {
-  const isAllowed = origin && (allowedOrigins.includes(origin) || origin.endsWith('.lovable.app'));
-  return {
-    'Access-Control-Allow-Origin': isAllowed ? origin : allowedOrigins[0],
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  };
-};
+const getCorsHeaders = (origin: string | null) =>
+  corsHeadersFor(new Request("https://stackd.local/", { headers: origin ? { origin } : {} }));
 
 serve(async (req) => {
   const origin = req.headers.get('origin');
@@ -87,7 +78,7 @@ serve(async (req) => {
       type: "recovery",
       email: email,
       options: {
-        redirectTo: `${req.headers.get("origin") || "https://stackbnb-60920.lovable.app"}/reset-password`,
+        redirectTo: `${req.headers.get("origin") || Deno.env.get("SITE_URL") || "http://localhost:8080"}/reset-password`,
       },
     });
 

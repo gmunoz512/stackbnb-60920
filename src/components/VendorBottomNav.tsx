@@ -29,7 +29,7 @@ const VendorBottomNav = () => {
       {/* Glass effect container */}
       <div className="relative">
         {/* Frosted glass background */}
-        <div className="absolute inset-0 bg-card/80 backdrop-blur-xl border-t border-white/10 dark:border-white/5" />
+        <div className="absolute inset-0 bg-card/80 backdrop-blur-xl border-t border-paper/10 dark:border-paper/5" />
         
         {/* Gradient glow effect */}
         <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />

@@ -154,11 +154,11 @@ const AllBookings = () => {
                       </p>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         booking.status === 'completed' 
-                          ? 'bg-green-500/10 text-green-600' 
+                          ? 'bg-success/10 text-success-strong' 
                           : booking.status === 'pending'
-                          ? 'bg-yellow-500/10 text-yellow-600'
+                          ? 'bg-rating/10 text-rating-strong'
                           : booking.status === 'cancelled'
-                          ? 'bg-red-500/10 text-red-600'
+                          ? 'bg-danger/10 text-danger-strong'
                           : 'bg-muted text-muted-foreground'
                       }`}>
                         {booking.status}
@@ -169,7 +169,7 @@ const AllBookings = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="w-full mt-2 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                      className="w-full mt-2 text-danger-strong border-danger-muted hover:bg-danger-wash hover:border-danger-soft"
                       onClick={() => handleCancelClick(booking)}
                     >
                       <X className="h-3 w-3 mr-1" />
@@ -204,7 +204,7 @@ const AllBookings = () => {
             <AlertDialogCancel onClick={() => setCancelReason("")}>Keep Booking</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmCancel}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-danger-strong hover:bg-danger-deep"
               disabled={cancelMutation.isPending}
             >
               {cancelMutation.isPending ? "Cancelling..." : "Cancel Booking"}

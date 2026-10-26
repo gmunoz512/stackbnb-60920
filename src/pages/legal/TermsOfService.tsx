@@ -19,7 +19,7 @@ const TermsOfService = () => {
           </button>
           <div className="flex items-center gap-2">
             <img src={stackdLogo} alt="Stackd" className="h-8 w-8" />
-            <span className="font-display text-xl font-bold bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 bg-clip-text text-transparent">
+            <span className="font-display text-xl font-bold bg-gradient-to-r from-brand via-hot to-iris-strong bg-clip-text text-transparent">
               stackd
             </span>
           </div>
@@ -111,7 +111,7 @@ const TermsOfService = () => {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">6. Cancellation Policy</h2>
+            <h2 id="cancellation" className="text-xl font-semibold mb-4">6. Cancellation Policy</h2>
             <p className="text-muted-foreground leading-relaxed">
               Cancellation policies vary by vendor and are displayed at the time of booking. 
               Generally, cancellations made within the specified cancellation window may be eligible 

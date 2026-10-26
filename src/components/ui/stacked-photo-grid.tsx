@@ -92,18 +92,18 @@ const StackedPhotoGrid = ({ photos, alt = 'Photo', className }: StackedPhotoGrid
 
       {/* Full-screen photo viewer */}
       <Dialog open={viewerOpen} onOpenChange={setViewerOpen}>
-        <DialogContent className="max-w-full h-full p-0 border-none bg-black/95 [&>button]:hidden">
+        <DialogContent className="max-w-full h-full p-0 border-none bg-ink/95 [&>button]:hidden">
           <div className="relative flex items-center justify-center w-full h-full">
             {/* Close button */}
             <button
               onClick={() => setViewerOpen(false)}
-              className="absolute top-4 left-4 z-50 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              className="absolute top-4 left-4 z-50 p-2 rounded-full bg-paper/10 hover:bg-paper/20 text-paper transition-colors"
             >
               <X className="h-5 w-5" />
             </button>
 
             {/* Photo counter */}
-            <div className="absolute top-4 right-4 z-50 text-white/70 text-sm font-medium">
+            <div className="absolute top-4 right-4 z-50 text-paper/70 text-sm font-medium">
               {activeIndex + 1} / {photos.length}
             </div>
 
@@ -111,7 +111,7 @@ const StackedPhotoGrid = ({ photos, alt = 'Photo', className }: StackedPhotoGrid
             {photos.length > 1 && (
               <button
                 onClick={goPrev}
-                className="absolute left-3 z-50 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                className="absolute left-3 z-50 p-2 rounded-full bg-paper/10 hover:bg-paper/20 text-paper transition-colors"
               >
                 <ChevronLeft className="h-6 w-6" />
               </button>
@@ -128,7 +128,7 @@ const StackedPhotoGrid = ({ photos, alt = 'Photo', className }: StackedPhotoGrid
             {photos.length > 1 && (
               <button
                 onClick={goNext}
-                className="absolute right-3 z-50 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+                className="absolute right-3 z-50 p-2 rounded-full bg-paper/10 hover:bg-paper/20 text-paper transition-colors"
               >
                 <ChevronRight className="h-6 w-6" />
               </button>
@@ -143,7 +143,7 @@ const StackedPhotoGrid = ({ photos, alt = 'Photo', className }: StackedPhotoGrid
                     onClick={() => setActiveIndex(i)}
                     className={cn(
                       'w-2 h-2 rounded-full transition-all',
-                      i === activeIndex ? 'bg-white w-4' : 'bg-white/40'
+                      i === activeIndex ? 'bg-paper w-4' : 'bg-paper/40'
                     )}
                   />
                 ))}

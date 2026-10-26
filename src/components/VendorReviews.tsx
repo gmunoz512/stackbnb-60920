@@ -107,7 +107,13 @@ export function VendorReviews({ vendorProfileId, className }: VendorReviewsProps
     );
   }
 
-  if (reviews.length === 0) return null;
+  if (reviews.length === 0) {
+    return (
+      <p className={cn("text-[15px] text-muted-foreground", className)}>
+        No guest reviews yet.
+      </p>
+    );
+  }
 
   const maxCount = Math.max(...ratingDistribution, 1);
 

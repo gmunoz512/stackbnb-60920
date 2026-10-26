@@ -85,7 +85,7 @@ const RevenueBreakdown = () => {
           <p className="text-sm text-muted-foreground">Detailed revenue by service</p>
         </div>
 
-        <Card className="p-4 bg-gradient-to-br from-orange-500/10 to-pink-500/10 border-orange-500/20">
+        <Card className="p-4 bg-gradient-to-br from-brand/10 to-hot/10 border-brand/20">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-muted-foreground">Total Revenue</p>
@@ -95,7 +95,7 @@ const RevenueBreakdown = () => {
                 <p className="text-2xl font-bold mt-1">${totalRevenue.toLocaleString()}</p>
               )}
             </div>
-            <div className="p-3 rounded-lg bg-gradient-to-br from-orange-500/20 to-pink-500/20">
+            <div className="p-3 rounded-lg bg-gradient-to-br from-brand/20 to-hot/20">
               <DollarSign className="h-6 w-6 text-primary" />
             </div>
           </div>
@@ -140,7 +140,7 @@ const RevenueBreakdown = () => {
                   </div>
                   <div className="w-full bg-muted rounded-full h-2">
                     <div 
-                      className="bg-gradient-to-r from-orange-500 to-pink-500 h-2 rounded-full transition-all duration-500"
+                      className="bg-gradient-to-r from-brand to-hot h-2 rounded-full transition-all duration-500"
                       style={{ width: `${totalRevenue > 0 ? (item.amount / totalRevenue) * 100 : 0}%` }}
                     />
                   </div>

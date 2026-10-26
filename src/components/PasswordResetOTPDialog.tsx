@@ -208,7 +208,7 @@ export function PasswordResetOTPDialog({
 
           {step === "success" && (
             <div className="flex flex-col items-center gap-4">
-              <CheckCircle2 className="h-12 w-12 text-green-500" />
+              <CheckCircle2 className="h-12 w-12 text-success" />
               <p className="text-sm text-muted-foreground">Opening password reset page...</p>
             </div>
           )}

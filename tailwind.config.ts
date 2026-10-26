@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import palette from "./palette.colors";
 
 export default {
   darkMode: ["class"],
@@ -15,10 +16,11 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
-        display: ['Orbitron', 'Roboto', 'sans-serif'],
+        display: ['Archivo Black', 'sans-serif'],
         headline: ['Archivo Black', 'sans-serif'],
       },
       colors: {
+        ...palette,
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

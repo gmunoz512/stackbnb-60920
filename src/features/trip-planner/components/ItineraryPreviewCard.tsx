@@ -241,7 +241,7 @@ export const ItineraryPreviewCard = memo(function ItineraryPreviewCard({
             <>
               <div className="w-px h-4 bg-border" />
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Utensils className="h-3 w-3 text-orange-500" />
+                <Utensils className="h-3 w-3 text-brand" />
                 <span className="font-medium text-foreground">{summary.categoryCounts.food}</span>
                 meals
               </div>
@@ -281,8 +281,8 @@ export const ItineraryPreviewCard = memo(function ItineraryPreviewCard({
         {itinerary.isConfirmed && (
           <div className="mt-3 pt-3 border-t border-border/50">
             <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full 
-              bg-green-500/10 text-xs text-green-600 font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+              bg-success/10 text-xs text-success-strong font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-success" />
               Confirmed
             </div>
           </div>

@@ -58,8 +58,8 @@ export function ChatHeader({ onOpenItinerary }: ChatHeaderProps) {
                   className={cn(
                     "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-all duration-300",
                     isSaving 
-                      ? "bg-blue-500/10 text-blue-600 dark:text-blue-400" 
-                      : "bg-green-500/10 text-green-600 dark:text-green-400"
+                      ? "bg-info/10 text-info-strong dark:text-info-light" 
+                      : "bg-success/10 text-success-strong dark:text-success-light"
                   )}
                 >
                   {isSaving ? (

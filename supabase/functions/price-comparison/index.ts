@@ -1,4 +1,5 @@
 import { guardPaidApi } from "../_shared/paidApiGuard.ts";
+import { aiGatewayConfig } from "../_shared/aiGateway.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -26,6 +27,7 @@ serve(async (req) => {
   try {
     const { category, experienceName, currentPrice, duration, location = 'Tulum' }: PriceComparisonRequest = await req.json();
 
+    console.log('Price comparison request:', { category, experienceName, currentPrice, duration, location });
 
     if (!category || !experienceName || currentPrice === undefined) {
       return new Response(
@@ -34,9 +36,11 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      console.error('LOVABLE_API_KEY not configured');
+    let gateway;
+    try {
+      gateway = aiGatewayConfig();
+    } catch (configError) {
+      console.error(configError);
       return new Response(
         JSON.stringify({ error: 'AI service not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -67,15 +71,15 @@ Format your response as JSON with this structure:
   "marketInsight": "1-2 sentence insight about the ${category} market in ${location}"
 }`;
 
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch(gateway.url, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${gateway.key}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         max_tokens: 800,
-        model: 'google/gemini-2.5-flash',
+        model: gateway.model,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -118,6 +122,7 @@ Format your response as JSON with this structure:
       );
     }
 
+    console.log('AI response content:', content);
 
     // Try to parse the JSON from the response
     let priceData;

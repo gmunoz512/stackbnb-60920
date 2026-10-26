@@ -58,6 +58,84 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 20 100% 40%;
     --sidebar-border: 0 0% 92%;
     --sidebar-ring: 20 100% 55%;
+
+    /* Palette tokens. Values match the previous Tailwind shades. */
+    --ash-abyss: 0 0% 3.9%;
+    --ash-wash: 0 0% 98%;
+    --brand: 24.6 95% 53.1%;
+    --brand-abyss: 13 81.1% 14.5%;
+    --brand-dark: 15 79.1% 33.7%;
+    --brand-light: 27 96% 61%;
+    --brand-muted: 32.1 97.7% 83.1%;
+    --brand-strong: 20.5 90.2% 48.2%;
+    --brand-tint: 34.3 100% 91.8%;
+    --cyan: 188.7 94.5% 42.7%;
+    --danger: 0 84.2% 60.2%;
+    --danger-abyss: 0 74.7% 15.5%;
+    --danger-dark: 0 70% 35.3%;
+    --danger-deep: 0 73.7% 41.8%;
+    --danger-light: 0 90.6% 70.8%;
+    --danger-muted: 0 96.3% 89.4%;
+    --danger-soft: 0 93.5% 81.8%;
+    --danger-strong: 0 72.2% 50.6%;
+    --danger-tint: 0 93.3% 94.1%;
+    --danger-wash: 0 85.7% 97.3%;
+    --grape: 258.3 89.5% 66.3%;
+    --grape-deep: 263.4 70% 50.4%;
+    --grape-strong: 262.1 83.3% 57.8%;
+    --hot: 330.4 81.2% 60.4%;
+    --hot-light: 328.6 85.5% 70.2%;
+    --hot-strong: 333.3 71.4% 50.6%;
+    --indigo: 238.7 83.5% 66.7%;
+    --indigo-strong: 243.4 75.4% 58.6%;
+    --info: 217.2 91.2% 59.8%;
+    --info-abyss: 226.2 57% 21%;
+    --info-deep: 224.3 76.3% 48%;
+    --info-light: 213.1 93.9% 67.8%;
+    --info-strong: 221.2 83.2% 53.3%;
+    --info-wash: 213.8 100% 96.9%;
+    --ink: 0 0% 0%;
+    --iris: 270.7 91% 65.1%;
+    --iris-deep: 272.1 71.7% 47.1%;
+    --iris-strong: 271.5 81.3% 55.9%;
+    --lagoon: 173.4 80.4% 40%;
+    --lagoon-abyss: 178.6 84.3% 10%;
+    --lagoon-strong: 174.7 83.9% 31.6%;
+    --lagoon-wash: 166.2 76.5% 96.7%;
+    --mint: 160.1 84.1% 39.4%;
+    --mint-light: 158.1 64.4% 51.6%;
+    --mint-strong: 161.4 93.5% 30.4%;
+    --neutral: 220 8.9% 46.1%;
+    --neutral-dark: 215 27.9% 16.9%;
+    --neutral-muted: 220 13% 91%;
+    --neutral-strong: 215 13.8% 34.1%;
+    --neutral-tint: 220 14.3% 95.9%;
+    --paper: 0 0% 100%;
+    --rating: 45.4 93.4% 47.5%;
+    --rating-light: 47.9 95.8% 53.1%;
+    --rating-strong: 40.6 96.1% 40.4%;
+    --rose: 349.7 89.2% 60.2%;
+    --rose-strong: 346.8 77.2% 49.8%;
+    --slate-inkish: 222.2 47.4% 11.2%;
+    --slate-tint: 210 40% 96.1%;
+    --success: 142.1 70.6% 45.3%;
+    --success-abyss: 144.9 80.4% 10%;
+    --success-dark: 142.8 64.2% 24.1%;
+    --success-deep: 142.4 71.8% 29.2%;
+    --success-light: 141.9 69.2% 58%;
+    --success-muted: 141 78.9% 85.1%;
+    --success-strong: 142.1 76.2% 36.3%;
+    --success-tint: 140.6 84.2% 92.5%;
+    --surface-raised: 0 0% 6.7%;
+    --warning: 37.7 92.1% 50.2%;
+    --warning-abyss: 20.9 91.7% 14.1%;
+    --warning-dark: 22.7 82.5% 31.4%;
+    --warning-light: 43.3 96.4% 56.3%;
+    --warning-muted: 48 96.6% 76.7%;
+    --warning-strong: 32.1 94.6% 43.7%;
+    --warning-tint: 48 96.5% 88.8%;
+    --zinc-dark: 240 3.7% 15.9%;
+    --zinc-light: 240 5% 64.9%;
   }
 
   .dark {
@@ -161,7 +239,7 @@ All colors MUST be HSL.
   }
   
   .font-display {
-    font-family: 'Orbitron', 'Roboto', sans-serif;
+    font-family: 'Archivo Black', sans-serif;
     letter-spacing: 0.05em;
   }
   

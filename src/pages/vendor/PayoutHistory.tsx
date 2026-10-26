@@ -99,13 +99,13 @@ const VendorPayoutHistory = () => {
       case 'completed':
       case 'paid':
       case 'processed':
-        return <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20">Paid</Badge>;
+        return <Badge variant="outline" className="bg-success/10 text-success-strong border-success/20">Paid</Badge>;
       case 'pending':
-        return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">Pending</Badge>;
+        return <Badge variant="outline" className="bg-rating/10 text-rating-strong border-rating/20">Pending</Badge>;
       case 'failed':
-        return <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-500/20">Failed</Badge>;
+        return <Badge variant="outline" className="bg-danger/10 text-danger-strong border-danger/20">Failed</Badge>;
       default:
-        return <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20">Processing</Badge>;
+        return <Badge variant="outline" className="bg-info/10 text-info-strong border-info/20">Processing</Badge>;
     }
   };
 
@@ -199,7 +199,7 @@ const VendorPayoutHistory = () => {
                     <div className="text-sm text-muted-foreground">
                       Booking: {formatCurrency(payout.total_amount, payout.currency)}
                     </div>
-                    <div className="flex items-center gap-1 font-semibold text-green-600">
+                    <div className="flex items-center gap-1 font-semibold text-success-strong">
                       <DollarSign className="h-4 w-4" />
                       <span>+{formatCurrency(payout.vendor_payout_amount || 0, payout.currency)}</span>
                     </div>

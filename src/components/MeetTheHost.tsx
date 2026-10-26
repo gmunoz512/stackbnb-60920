@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Star } from 'lucide-react';
+import { GoogleRating } from '@/components/GoogleRating';
+import { resolveGoogleRating } from '@/lib/googleRating';
 
 interface MeetTheHostProps {
   name: string;
@@ -31,7 +32,7 @@ const MeetTheHost = ({ name, category, bio, avatarUrl, googleRating }: MeetTheHo
             {avatarUrl ? (
               <AvatarImage src={avatarUrl} alt={name} />
             ) : null}
-            <AvatarFallback className="text-lg font-semibold bg-gradient-to-br from-pink-500 to-rose-500 text-white">
+            <AvatarFallback className="text-lg font-semibold bg-gradient-to-br from-hot to-rose text-paper">
               {initials}
             </AvatarFallback>
           </Avatar>
@@ -39,13 +40,14 @@ const MeetTheHost = ({ name, category, bio, avatarUrl, googleRating }: MeetTheHo
           <div className="flex-1 min-w-0">
             <h3 className="text-[18px] font-semibold truncate">{name}</h3>
             <p className="text-[14px] text-muted-foreground">{category}</p>
-            {googleRating && (
-              <div className="flex items-center gap-1 mt-1">
-                <Star className="h-3.5 w-3.5 fill-foreground text-foreground" />
-                <span className="text-[13px] font-medium">{googleRating}</span>
-                <span className="text-[13px] text-muted-foreground">rating</span>
-              </div>
-            )}
+            <div className="mt-1">
+              <GoogleRating
+                value={resolveGoogleRating({ googleRating })}
+                showCount={false}
+                className="text-[13px]"
+                starClassName="h-3.5 w-3.5"
+              />
+            </div>
           </div>
         </div>
 

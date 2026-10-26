@@ -2,22 +2,12 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { checkRateLimit, createRateLimitResponse } from "../_shared/rateLimit.ts";
+import { corsHeadersFor } from "../_shared/http.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:8080',
-  'https://stackbnb-60920.lovable.app',
-];
-
-const getCorsHeaders = (origin: string | null) => {
-  const isAllowed = origin && (allowedOrigins.includes(origin) || origin.endsWith('.lovable.app'));
-  return {
-    'Access-Control-Allow-Origin': isAllowed ? origin : allowedOrigins[0],
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  };
-};
+const getCorsHeaders = (origin: string | null) =>
+  corsHeadersFor(new Request("https://stackd.local/", { headers: origin ? { origin } : {} }));
 
 // SECURITY: Use crypto.getRandomValues() instead of Math.random()
 function generateOTP(): string {
@@ -73,6 +63,7 @@ serve(async (req) => {
     
     if (userError || !userData?.user) {
       // Don't reveal whether user exists
+      console.log("User not found for email (or error):", email);
       return new Response(
         JSON.stringify({ success: true, message: "If an account exists, an OTP has been sent." }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -110,6 +101,7 @@ serve(async (req) => {
       );
     }
 
+    console.log(`OTP generated for ${email}`);
 
     // Send OTP via email using Resend
     const emailResponse = await resend.emails.send({
@@ -129,6 +121,7 @@ serve(async (req) => {
       `,
     });
 
+    console.log("Email response:", emailResponse);
 
     if (emailResponse.error) {
       console.error("Resend error:", emailResponse.error);

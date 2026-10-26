@@ -68,7 +68,7 @@ export const AddToItineraryButton = memo(function AddToItineraryButton({
           inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium
           transition-all duration-200
           ${showAdded
-            ? "bg-green-500/20 text-green-600 dark:text-green-400 cursor-default"
+            ? "bg-success/20 text-success-strong dark:text-success-light cursor-default"
             : "bg-primary/10 text-primary hover:bg-primary/20 active:scale-95"
           }
         `}
@@ -110,7 +110,7 @@ export const AddToItineraryButton = memo(function AddToItineraryButton({
         inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium
         transition-all duration-300 mt-2
         ${showAdded
-          ? "bg-green-500/20 text-green-600 dark:text-green-400 border border-green-500/30 cursor-default"
+          ? "bg-success/20 text-success-strong dark:text-success-light border border-success/30 cursor-default"
           : "bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:border-primary/40 active:scale-95"
         }
       `}

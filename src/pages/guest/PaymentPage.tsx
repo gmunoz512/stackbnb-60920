@@ -2,7 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Loader2, Lock, Tag, Check, X } from "lucide-react";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { signInPath } from "@/lib/authGate";
 import { useState } from "react";
 import { useBooking } from "@/contexts/BookingContext";
 import { useToast } from "@/hooks/use-toast";
@@ -13,6 +14,7 @@ const PaymentPage = () => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { bookingData, updateBookingData } = useBooking();
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading, user } = useAuthContext();
@@ -95,7 +97,7 @@ const PaymentPage = () => {
         description: "Please log in to complete your booking",
         variant: "destructive",
       });
-      navigate(`/auth?redirect=/vendor/${id}/payment`);
+      navigate(signInPath(`${location.pathname}${location.search}`));
       return;
     }
 
@@ -184,8 +186,8 @@ const PaymentPage = () => {
         <div className="bg-card border-b p-4">
           <div className="text-center text-sm text-muted-foreground mb-2">Step 2 of 3</div>
           <div className="flex gap-1">
-            <div className="h-1 flex-1 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full" />
-            <div className="h-1 flex-1 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full" />
+            <div className="h-1 flex-1 bg-gradient-to-r from-brand to-hot rounded-full" />
+            <div className="h-1 flex-1 bg-gradient-to-r from-brand to-hot rounded-full" />
             <div className="h-1 flex-1 bg-muted rounded-full" />
           </div>
         </div>
@@ -236,7 +238,7 @@ const PaymentPage = () => {
                 </div>
                 
                 {promoApplied && bookingData.discountAmount && (
-                  <div className="flex justify-between text-green-600">
+                  <div className="flex justify-between text-success-strong">
                     <span className="flex items-center gap-1">
                       <Tag className="h-3 w-3" />
                       Promo ({bookingData.promoCode})
@@ -251,7 +253,7 @@ const PaymentPage = () => {
                     {promoApplied && bookingData.discountAmount ? (
                       <>
                         <span className="text-muted-foreground line-through text-sm mr-2">${bookingData.totalPrice}</span>
-                        <span className="font-bold text-lg text-green-600">${displayPrice.toFixed(2)}</span>
+                        <span className="font-bold text-lg text-success-strong">${displayPrice.toFixed(2)}</span>
                       </>
                     ) : (
                       <span className="font-bold text-lg">${bookingData.totalPrice}</span>
@@ -270,10 +272,10 @@ const PaymentPage = () => {
             </h3>
             
             {promoApplied ? (
-              <div className="flex items-center justify-between bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+              <div className="flex items-center justify-between bg-success/10 border border-success/30 rounded-lg p-3">
                 <div className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-600" />
-                  <span className="font-medium text-green-600">{bookingData.promoCode}</span>
+                  <Check className="h-4 w-4 text-success-strong" />
+                  <span className="font-medium text-success-strong">{bookingData.promoCode}</span>
                   <span className="text-sm text-muted-foreground">
                     (-${bookingData.discountAmount?.toFixed(2)})
                   </span>
@@ -365,10 +367,10 @@ const PaymentPage = () => {
 
           {/* Not logged in prompt */}
           {!isAuthenticated && (
-            <Card className="p-4 border-orange-500/30 bg-orange-500/5">
+            <Card className="p-4 border-brand/30 bg-brand/5">
               <p className="text-sm text-center">
                 Please{" "}
-                <Link to={`/auth?redirect=/vendor/${id}/payment`} className="text-primary underline font-medium">
+                <Link to={signInPath(`${location.pathname}${location.search}`)} className="text-primary underline font-medium">
                   log in
                 </Link>{" "}
                 to complete your booking

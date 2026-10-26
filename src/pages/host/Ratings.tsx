@@ -78,10 +78,10 @@ const HostRatings = () => {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-3 gap-3">
-          <Card className="p-4 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border-yellow-500/20 col-span-2">
+          <Card className="p-4 bg-gradient-to-br from-rating/10 to-brand/10 border-rating/20 col-span-2">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                <Star className="h-4 w-4 text-rating fill-rating" />
                 <p className="text-xs text-muted-foreground">Average Rating</p>
               </div>
               {isLoading ? (
@@ -94,10 +94,10 @@ const HostRatings = () => {
               )}
             </div>
           </Card>
-          <Card className="p-4 bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/20">
+          <Card className="p-4 bg-gradient-to-br from-success/10 to-mint/10 border-success/20">
             <div className="space-y-2">
               <div className="flex items-center gap-1">
-                <ThumbsUp className="h-3.5 w-3.5 text-green-500" />
+                <ThumbsUp className="h-3.5 w-3.5 text-success" />
               </div>
               {isLoading ? (
                 <Skeleton className="h-8 w-12" />
@@ -125,7 +125,7 @@ const HostRatings = () => {
                     <span className="text-xs w-12">{stars} {stars === 1 ? 'star' : 'stars'}</span>
                     <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all duration-500"
+                        className="h-full bg-gradient-to-r from-rating-light to-brand transition-all duration-500"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
@@ -173,7 +173,7 @@ const HostRatings = () => {
                         </h3>
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
-                        <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                        <Star className="h-4 w-4 text-rating fill-rating" />
                         <span className="font-bold text-sm">{review.rating}</span>
                       </div>
                     </div>

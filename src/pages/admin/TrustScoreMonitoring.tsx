@@ -48,7 +48,7 @@ const TrustScoreMonitoring = () => {
   if (isCheckingAdmin) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
   if (!isAdmin) return (
     <div className="min-h-screen p-8 text-center">
-      <AlertTriangle className="h-12 w-12 mx-auto text-yellow-500 mb-4" />
+      <AlertTriangle className="h-12 w-12 mx-auto text-rating mb-4" />
       <p>Access Denied</p>
     </div>
   );
@@ -56,14 +56,14 @@ const TrustScoreMonitoring = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-gradient-to-br from-blue-600 to-indigo-600 px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
+        <div className="bg-gradient-to-br from-info-strong to-indigo-strong px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
           <div className="flex items-center gap-3 mb-4">
-            <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all">
-              <ArrowLeft className="h-5 w-5 text-white" />
+            <button onClick={() => navigate(-1)} className="p-2 rounded-xl bg-paper/10 hover:bg-paper/20 transition-all">
+              <ArrowLeft className="h-5 w-5 text-paper" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-white">Trust Score Monitoring</h1>
-              <p className="text-sm text-white/70">Monitor vendor health and reliability</p>
+              <h1 className="text-xl font-bold text-paper">Trust Score Monitoring</h1>
+              <p className="text-sm text-paper/70">Monitor vendor health and reliability</p>
             </div>
           </div>
         </div>

@@ -247,7 +247,7 @@ export function ItinerarySheet({ open, onOpenChange }: ItinerarySheetProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/80"
+              className="fixed inset-0 z-50 bg-ink/80"
               onClick={() => onOpenChange(false)}
             />
             <SheetPrimitive.Content asChild forceMount>

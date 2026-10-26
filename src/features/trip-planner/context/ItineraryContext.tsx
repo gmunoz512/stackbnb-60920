@@ -811,6 +811,7 @@ export function ItineraryProvider({ children }: ItineraryProviderProps) {
       }
       
       // Anonymous users cannot create share links - prompt them to sign in
+      console.log("[ItineraryContext] Anonymous user cannot generate share link");
       toast.error("Please sign in to share your itinerary");
       return null;
     } catch (error) {

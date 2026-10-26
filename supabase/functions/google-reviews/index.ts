@@ -68,6 +68,7 @@ serve(async (req) => {
 
     // If no placeId provided, search for the place first using legacy Find Place API
     if (!googlePlaceId && searchQuery) {
+      console.log('Searching for place:', searchQuery);
       
       let searchUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(searchQuery)}&inputtype=textquery&fields=place_id,name,formatted_address&key=${apiKey}`;
       
@@ -78,10 +79,13 @@ serve(async (req) => {
 
       const searchResponse = await fetch(searchUrl);
       const searchData = await searchResponse.json();
+      console.log('Place search response:', JSON.stringify(searchData));
 
       if (searchData.status === 'OK' && searchData.candidates && searchData.candidates.length > 0) {
         googlePlaceId = searchData.candidates[0].place_id;
+        console.log('Found place_id:', googlePlaceId);
       } else {
+        console.log('No places found for query:', searchQuery, 'Status:', searchData.status);
         return new Response(
           JSON.stringify({ 
             error: 'Place not found',
@@ -102,11 +106,13 @@ serve(async (req) => {
     }
 
     // Fetch place details with reviews AND photos using legacy Places API
+    console.log('Fetching place details for:', googlePlaceId);
     
     const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${googlePlaceId}&fields=place_id,name,rating,user_ratings_total,reviews,url,photos&key=${apiKey}`;
     
     const detailsResponse = await fetch(detailsUrl);
     const detailsData = await detailsResponse.json();
+    console.log('Place details response status:', detailsData.status);
 
     if (detailsData.status !== 'OK') {
       console.error('Place details error:', JSON.stringify(detailsData));
@@ -142,8 +148,10 @@ serve(async (req) => {
           photos.push(photoUrl);
         }
       }
+      console.log(`Found ${photos.length} photos for place`);
     }
 
+    console.log(`Found ${reviews.length} reviews for place`);
     
     return new Response(
       JSON.stringify({

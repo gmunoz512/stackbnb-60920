@@ -17,7 +17,11 @@ import PriceComparison from '@/components/PriceComparison';
 import { VendorReviews } from '@/components/VendorReviews';
 import MeetTheHost from '@/components/MeetTheHost';
 import { VendorLocationMap } from '@/components/VendorLocationMap';
-import StackdVerifiedBadge from '@/components/StackdVerifiedBadge';
+import { VettedBadge } from '@/components/listing/VettedBadge';
+import { RefundPolicy } from '@/components/listing/RefundPolicy';
+import { GoogleRating } from '@/components/GoogleRating';
+import { resolveGoogleRating } from '@/lib/googleRating';
+import { useRequireSignIn } from '@/hooks/useRequireSignIn';
 import { GoogleReviewsPreview } from '@/components/GoogleReviewsPreview';
 
 // --- Types ---
@@ -57,6 +61,9 @@ interface VendorProfile {
   meeting_point_description: string | null;
   google_place_id: string | null;
   city: string | null;
+  cancellation_hours: number | null;
+  verification_status: string | null;
+  verified_at: string | null;
 }
 
 // --- Helpers ---
@@ -68,6 +75,7 @@ const VendorPublicProfile = () => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const { role, isAuthenticated } = useAuthContext();
+  const { requireSignIn } = useRequireSignIn();
   const [profile, setProfile] = useState<VendorProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -110,7 +118,7 @@ const VendorPublicProfile = () => {
           airbnbReviews = data.airbnb_reviews.map((review: unknown) => {
             const r = review as { reviewerName?: string; date?: string; comment?: string };
             return { reviewerName: r.reviewerName || '', date: r.date || '', comment: r.comment || '' };
-          });
+          }).filter((review) => review.comment.trim().length > 0);
         }
         
         setProfile({
@@ -139,6 +147,7 @@ const VendorPublicProfile = () => {
   };
 
   const toggleFavorite = () => {
+    if (!requireSignIn("save")) return;
     const favorites = JSON.parse(localStorage.getItem('vendorFavorites') || '[]');
     let newFavorites;
     if (favorites.includes(id)) {
@@ -161,6 +170,7 @@ const VendorPublicProfile = () => {
   };
 
   const handleBook = () => {
+    if (!requireSignIn("book")) return;
     const params = new URLSearchParams();
     if (profile?.price_tiers && profile.price_tiers.length > 0) {
       params.set('tier', selectedTierIndex.toString());
@@ -229,7 +239,7 @@ const VendorPublicProfile = () => {
                 onClick={toggleFavorite}
                 className="p-2 rounded-full hover:bg-muted transition-colors"
               >
-                <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+                <Heart className={`h-5 w-5 ${isFavorite ? 'fill-danger text-danger' : ''}`} />
               </button>
             </div>
           </div>
@@ -241,8 +251,8 @@ const VendorPublicProfile = () => {
           {photos.length > 0 ? (
             <StackedPhotoGrid photos={photos} alt={profile.name} />
           ) : (
-            <div className="w-full h-[280px] rounded-xl bg-gradient-to-br from-orange-500 to-purple-600 flex items-center justify-center">
-              <Store className="h-16 w-16 text-white/60" />
+            <div className="w-full h-[280px] rounded-xl bg-gradient-to-br from-brand to-iris-strong flex items-center justify-center">
+              <Store className="h-16 w-16 text-paper/60" />
             </div>
           )}
         </div>
@@ -255,14 +265,13 @@ const VendorPublicProfile = () => {
             <h1 className="text-2xl font-semibold leading-tight">{profile.name}</h1>
             <p className="text-[15px] text-muted-foreground">{profile.category}</p>
 
-            {profile.google_rating && (
-              <div className="flex items-center gap-1.5 pt-1">
-                <Star className="h-4 w-4 fill-foreground text-foreground" />
-                <span className="font-semibold text-[15px]">{profile.google_rating}</span>
-                <span className="text-muted-foreground text-[15px]">·</span>
-                <span className="text-[15px] text-muted-foreground underline underline-offset-2">Google Reviews</span>
-              </div>
-            )}
+            <div className="pt-1">
+              <GoogleRating
+                value={resolveGoogleRating({ googleRating: profile.google_rating })}
+                className="text-[15px]"
+                starClassName="h-4 w-4"
+              />
+            </div>
           </div>
 
           <Separator />
@@ -411,20 +420,16 @@ const VendorPublicProfile = () => {
           </div>
           <Separator />
 
-          {/* Section: Guest Reviews (Airbnb-style horizontal scroll) */}
-          <div className="py-6">
+          <div className="py-6 space-y-4">
+            <h2 className="text-[22px] font-semibold">Reviews</h2>
             <VendorReviews vendorProfileId={profile.id} />
+            {profile.google_place_id ? (
+              <GoogleReviewsPreview
+                googlePlaceId={profile.google_place_id}
+                emptyLabel="No Google reviews yet."
+              />
+            ) : null}
           </div>
-
-          {/* Section: Google Reviews Preview */}
-          {profile.google_place_id && (
-            <>
-              <Separator />
-              <div className="py-6">
-                <GoogleReviewsPreview googlePlaceId={profile.google_place_id} />
-              </div>
-            </>
-          )}
 
           {/* Section: Airbnb Reviews */}
           {profile.airbnb_reviews && profile.airbnb_reviews.length > 0 && (
@@ -463,9 +468,14 @@ const VendorPublicProfile = () => {
             </>
           )}
 
-          {/* Section: stackd Verified Badge */}
           <Separator />
-          <StackdVerifiedBadge category={profile.category} />
+          <VettedBadge
+            verificationStatus={profile.verification_status}
+            verifiedAt={profile.verified_at}
+            category={profile.category}
+          />
+          <Separator />
+          <RefundPolicy cancellationHours={profile.cancellation_hours} />
 
           {/* Section: External Links */}
           {(profile.instagram_url || profile.menu_url || profile.airbnb_experience_url || profile.google_place_id) && (
@@ -525,7 +535,7 @@ const VendorPublicProfile = () => {
             <>
               <Separator />
               <div className="py-6">
-                <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+                <div className="rounded-xl border border-warning/30 bg-warning/5 p-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
                       <p className="text-[15px] font-medium flex items-center gap-2">
@@ -535,7 +545,7 @@ const VendorPublicProfile = () => {
                         Partner with this vendor
                       </p>
                     </div>
-                    <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                    <p className="text-2xl font-bold text-warning-strong dark:text-warning-light">
                       {profile.commission_percentage}%
                     </p>
                   </div>
@@ -562,7 +572,7 @@ const VendorPublicProfile = () => {
             </div>
             <Button 
               size="lg"
-              className="rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white px-8 font-semibold"
+              className="rounded-xl bg-gradient-to-r from-hot to-rose hover:from-hot-strong hover:to-rose-strong text-paper px-8 font-semibold"
               onClick={handleBook}
             >
               Book

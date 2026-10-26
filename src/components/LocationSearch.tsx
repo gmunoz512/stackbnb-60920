@@ -137,8 +137,8 @@ const LocationSearch = ({
   return (
     <div ref={wrapperRef} className="relative group">
       {/* Shadow layers for 3D effect */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full blur opacity-25 group-hover:opacity-40 transition duration-300"></div>
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-400 to-pink-400 rounded-full blur-sm opacity-20 group-hover:opacity-30 transition duration-300"></div>
+      <div className="absolute -inset-1 bg-gradient-to-r from-brand to-hot rounded-full blur opacity-25 group-hover:opacity-40 transition duration-300"></div>
+      <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-light to-hot-light rounded-full blur-sm opacity-20 group-hover:opacity-30 transition duration-300"></div>
 
       {/* Main search container */}
       <div className="relative bg-card rounded-full shadow-2xl border border-border/50 backdrop-blur-sm overflow-hidden hover:shadow-3xl transition-all duration-300">
@@ -185,7 +185,7 @@ const LocationSearch = ({
 
           <button aria-label="Search" 
             onClick={handleSearchClick}
-            className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white rounded-full p-2 flex-shrink-0 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg"
+            className="bg-gradient-to-r from-brand to-hot hover:from-brand-strong hover:to-hot-strong text-paper rounded-full p-2 flex-shrink-0 transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg"
           >
             <Search className="h-4 w-4" />
           </button>
@@ -207,13 +207,13 @@ const LocationSearch = ({
                   onClick={() => selectSuggestion(suggestion)}
                   className="w-full px-4 py-3 text-left hover:bg-muted flex items-start gap-3 transition-colors border-b border-border/50 last:border-0"
                 >
-                  <div className="p-2 rounded-full bg-orange-500/10 flex-shrink-0">
-                    <Utensils className="h-4 w-4 text-orange-500" />
+                  <div className="p-2 rounded-full bg-brand/10 flex-shrink-0">
+                    <Utensils className="h-4 w-4 text-brand" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium truncate">{suggestion.name}</p>
                     <p className="text-xs text-muted-foreground truncate">
-                      {suggestion.cuisine && <span className="text-orange-500">{suggestion.cuisine}</span>}
+                      {suggestion.cuisine && <span className="text-brand">{suggestion.cuisine}</span>}
                       {suggestion.cuisine && suggestion.description && ' • '}
                       {suggestion.description}
                     </p>

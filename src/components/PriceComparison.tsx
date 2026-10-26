@@ -139,12 +139,12 @@ const PriceComparison = ({ category, experienceName, currentPrice, duration }: P
     if (!priceData) return null;
     switch (priceData.priceAssessment) {
       case 'below_average':
-        return <TrendingUp className="h-4 w-4 text-green-500" />;
+        return <TrendingUp className="h-4 w-4 text-success" />;
       case 'above_average':
       case 'premium':
-        return <TrendingDown className="h-4 w-4 text-amber-500" />;
+        return <TrendingDown className="h-4 w-4 text-warning" />;
       default:
-        return <Minus className="h-4 w-4 text-blue-500" />;
+        return <Minus className="h-4 w-4 text-info" />;
     }
   };
 
@@ -152,13 +152,13 @@ const PriceComparison = ({ category, experienceName, currentPrice, duration }: P
     if (!priceData) return 'bg-muted';
     switch (priceData.priceAssessment) {
       case 'below_average':
-        return 'bg-green-500/10 text-green-600 border-green-500/20';
+        return 'bg-success/10 text-success-strong border-success/20';
       case 'above_average':
-        return 'bg-amber-500/10 text-amber-600 border-amber-500/20';
+        return 'bg-warning/10 text-warning-strong border-warning/20';
       case 'premium':
-        return 'bg-purple-500/10 text-purple-600 border-purple-500/20';
+        return 'bg-iris/10 text-iris-strong border-iris/20';
       default:
-        return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
+        return 'bg-info/10 text-info-strong border-info/20';
     }
   };
 
@@ -274,25 +274,25 @@ const PriceComparison = ({ category, experienceName, currentPrice, duration }: P
           {/* Price Range Bar */}
           <div className="space-y-3">
             <div className="flex justify-between text-xs text-muted-foreground font-medium">
-              <span className="text-green-600">${priceData.priceRange.low}</span>
+              <span className="text-success-strong">${priceData.priceRange.low}</span>
               <span className="uppercase tracking-wider text-[10px]">Market Range</span>
-              <span className="text-amber-600">${priceData.priceRange.high}</span>
+              <span className="text-warning-strong">${priceData.priceRange.high}</span>
             </div>
             <div className="relative h-3 rounded-full overflow-hidden shadow-inner bg-gradient-to-r from-muted/80 via-muted to-muted/80">
               {/* Gradient track with shimmer */}
               <div 
-                className="absolute inset-0 bg-gradient-to-r from-green-500/90 via-emerald-400/80 via-40% via-blue-400/80 via-60% to-amber-500/90 rounded-full"
+                className="absolute inset-0 bg-gradient-to-r from-success/90 via-mint-light/80 via-40% via-info-light/80 via-60% to-warning/90 rounded-full"
               />
               {/* Shimmer effect */}
               <div className="absolute inset-0 overflow-hidden rounded-full">
-                <div className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer" />
+                <div className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-paper/40 to-transparent animate-shimmer" />
               </div>
               {/* Shine overlay */}
-              <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent rounded-full" />
+              <div className="absolute inset-0 bg-gradient-to-b from-paper/20 to-transparent rounded-full" />
               {/* Tick marks */}
               <div className="absolute inset-0 flex justify-between px-1 items-center">
                 {[...Array(5)].map((_, i) => (
-                  <div key={i} className="w-px h-1.5 bg-white/40 rounded-full" />
+                  <div key={i} className="w-px h-1.5 bg-paper/40 rounded-full" />
                 ))}
               </div>
               {/* Current price marker */}

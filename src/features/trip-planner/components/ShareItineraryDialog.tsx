@@ -199,7 +199,7 @@ export function ShareItineraryDialog({
                     className="shrink-0"
                   >
                     {copied ? (
-                      <Check className="h-4 w-4 text-green-600" />
+                      <Check className="h-4 w-4 text-success-strong" />
                     ) : (
                       <Copy className="h-4 w-4" />
                     )}
@@ -215,7 +215,7 @@ export function ShareItineraryDialog({
                   >
                     {copied ? (
                       <>
-                        <Check className="h-4 w-4 mr-2 text-green-600" />
+                        <Check className="h-4 w-4 mr-2 text-success-strong" />
                         Copied!
                       </>
                     ) : (
@@ -234,7 +234,7 @@ export function ShareItineraryDialog({
                       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
                     }}
                   >
-                    <MessageCircle className="h-4 w-4 mr-2 text-green-600" />
+                    <MessageCircle className="h-4 w-4 mr-2 text-success-strong" />
                     WhatsApp
                   </Button>
 
@@ -247,7 +247,7 @@ export function ShareItineraryDialog({
                       window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
                     }}
                   >
-                    <Mail className="h-4 w-4 mr-2 text-blue-500" />
+                    <Mail className="h-4 w-4 mr-2 text-info" />
                     Email
                   </Button>
 

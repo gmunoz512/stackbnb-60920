@@ -139,19 +139,17 @@ const ForHosts = () => {
   return (
     <div className="minimal-page">
       <style>{`
-        @import url('https://fonts.cdnfonts.com/css/hubot-sans');
-        
         .minimal-page {
-          --bg: #0a0a0a;
-          --fg: #fafafa;
-          --muted: #a1a1aa;
-          --border: #27272a;
-          --card-bg: #111111;
+          --bg: hsl(var(--ash-abyss));
+          --fg: hsl(var(--ash-wash));
+          --muted: hsl(var(--zinc-light));
+          --border: hsl(var(--zinc-dark));
+          --card-bg: hsl(var(--surface-raised));
           
           min-height: 100vh;
           background: var(--bg);
           color: var(--fg);
-          font-family: 'Hubot Sans', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial, sans-serif;
+          font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
           position: relative;
           overflow-x: hidden;
         }
@@ -181,7 +179,7 @@ const ForHosts = () => {
           align-items: center;
           justify-content: space-between;
           border-bottom: 1px solid var(--border);
-          background: rgba(10, 10, 10, 0.9);
+          background: hsl(var(--ash-abyss) / 0.9);
           backdrop-filter: blur(12px);
         }
         
@@ -206,13 +204,13 @@ const ForHosts = () => {
           text-decoration: none;
         }
         .brand-link img {
-          filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+          filter: drop-shadow(0 4px 6px hsl(var(--ink) / 0.3));
         }
         .brand-text {
-          font-family: 'Orbitron', sans-serif;
+          font-family: 'Archivo Black', sans-serif;
           font-size: 20px;
           font-weight: 700;
-          background: linear-gradient(135deg, #f97316, #ec4899, #a855f7);
+          background: linear-gradient(135deg, hsl(var(--brand)), hsl(var(--hot)), hsl(var(--iris)));
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -277,7 +275,7 @@ const ForHosts = () => {
           height: 48px;
           padding: 0 24px;
           border-radius: 12px;
-          background: linear-gradient(135deg, #f97316, #ec4899);
+          background: linear-gradient(135deg, hsl(var(--brand)), hsl(var(--hot)));
           color: white;
           font-size: 15px;
           font-weight: 500;
@@ -403,7 +401,7 @@ const ForHosts = () => {
         .step-num {
           font-size: 14px;
           font-weight: 600;
-          color: #f97316;
+          color: hsl(var(--brand));
           min-width: 32px;
         }
         

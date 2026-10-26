@@ -107,7 +107,7 @@ const HostBookings = () => {
                         <p className="text-sm text-muted-foreground">{booking.vendor_name || 'Unknown Vendor'}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="font-bold text-lg bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
+                        <p className="font-bold text-lg bg-gradient-to-r from-brand to-hot bg-clip-text text-transparent">
                           ${(booking.host_payout_amount || 0).toFixed(0)}
                         </p>
                       </div>
@@ -126,14 +126,14 @@ const HostBookings = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <div className={`h-2 w-2 rounded-full ${
-                          booking.status === 'completed' ? 'bg-green-500' :
-                          booking.status === 'cancelled' ? 'bg-red-500' :
-                          'bg-yellow-500'
+                          booking.status === 'completed' ? 'bg-success' :
+                          booking.status === 'cancelled' ? 'bg-danger' :
+                          'bg-rating'
                         }`}></div>
                         <p className={`text-xs font-medium ${
-                          booking.status === 'completed' ? 'text-green-600' :
-                          booking.status === 'cancelled' ? 'text-red-600' :
-                          'text-yellow-600'
+                          booking.status === 'completed' ? 'text-success-strong' :
+                          booking.status === 'cancelled' ? 'text-danger-strong' :
+                          'text-rating-strong'
                         }`}>
                           {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                         </p>

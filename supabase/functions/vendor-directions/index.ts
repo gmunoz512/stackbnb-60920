@@ -51,6 +51,7 @@ serve(async (req) => {
 
     // If we have a placeId, get the exact location
     if (placeId) {
+      console.log('Fetching place details for placeId:', placeId);
       const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=geometry,formatted_address,name&key=${apiKey}`;
       const detailsResponse = await fetch(detailsUrl);
       const detailsData = await detailsResponse.json();
@@ -61,12 +62,14 @@ serve(async (req) => {
           lng: detailsData.result.geometry?.location?.lng
         };
         destination = detailsData.result.formatted_address || detailsData.result.name || destination;
+        console.log('Found vendor location:', vendorLocation);
       }
     }
 
     // If no placeId, search for the place
     if (!vendorLocation && (vendorName || vendorAddress)) {
       const searchQuery = vendorAddress || `${vendorName} Tulum Mexico`;
+      console.log('Searching for place:', searchQuery);
       
       const searchUrl = `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(searchQuery)}&inputtype=textquery&fields=place_id,geometry,formatted_address,name&locationbias=circle:20000@${TULUM_CENTRO.lat},${TULUM_CENTRO.lng}&key=${apiKey}`;
       
@@ -80,6 +83,7 @@ serve(async (req) => {
           lng: candidate.geometry?.location?.lng
         };
         destination = candidate.formatted_address || candidate.name || destination;
+        console.log('Found place via search:', vendorLocation);
       }
     }
 
@@ -89,6 +93,7 @@ serve(async (req) => {
       ? `${vendorLocation.lat},${vendorLocation.lng}` 
       : encodeURIComponent(destination + ' Tulum Mexico');
     
+    console.log('Getting directions from', origin, 'to', destinationCoords);
     
     const directionsUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destinationCoords}&mode=driving&key=${apiKey}`;
     
@@ -123,6 +128,7 @@ serve(async (req) => {
       arrivalTips
     };
 
+    console.log('Directions result:', result);
     
     return new Response(
       JSON.stringify(result),

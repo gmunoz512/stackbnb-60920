@@ -23,7 +23,7 @@ const Booking = () => {
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2">
               <img src={stackdLogo} alt="stackd logo" className="h-8 w-8 drop-shadow-lg" />
-              <span className="text-xl font-bold font-display bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 bg-clip-text text-transparent">
+              <span className="text-xl font-bold font-display bg-gradient-to-r from-brand via-hot to-iris-strong bg-clip-text text-transparent">
                 stackd
               </span>
             </Link>
@@ -83,6 +83,7 @@ const Booking = () => {
                     <Button
                       variant="outline"
                       size="icon"
+                      aria-label="Remove a guest"
                       onClick={() => setGuests(Math.max(1, guests - 1))}
                     >
                       -
@@ -94,6 +95,7 @@ const Booking = () => {
                     <Button
                       variant="outline"
                       size="icon"
+                      aria-label="Add a guest"
                       onClick={() => setGuests(Math.min(6, guests + 1))}
                     >
                       +

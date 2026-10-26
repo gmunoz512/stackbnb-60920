@@ -12,6 +12,7 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VendorOnboardingWizard } from "@/components/onboarding";
 import HostVerificationCard from "@/components/onboarding/HostVerificationCard";
+import { resolveGoogleRating } from "@/lib/googleRating";
 
 const VendorDashboard = () => {
   const navigate = useNavigate();
@@ -58,7 +59,8 @@ const VendorDashboard = () => {
         .select('*', { count: 'exact', head: true })
         .eq('vendor_profile_id', vendorProfile.id);
 
-      const rating = vendorProfile.google_rating ? vendorProfile.google_rating.toFixed(1) : "N/A";
+      const resolved = resolveGoogleRating({ googleRating: vendorProfile.google_rating });
+      const rating = resolved ? resolved.rating.toFixed(1) : "No rating yet";
 
       return [
         { label: "Total Revenue", value: `$${totalRevenue.toLocaleString()}`, icon: "DollarSign" },
@@ -215,27 +217,27 @@ const VendorDashboard = () => {
       <PageTransition className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 pb-24">
         <div className="max-w-[375px] mx-auto">
         {/* Hero Header with Gradient */}
-        <div className="bg-gradient-to-br from-orange-500 to-pink-500 px-4 pt-6 pb-20 rounded-b-3xl shadow-lg relative overflow-hidden">
+        <div className="bg-gradient-to-br from-brand to-hot px-4 pt-6 pb-20 rounded-b-3xl shadow-lg relative overflow-hidden">
           <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,black)]" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-6">
               <div className="space-y-1">
-                <h1 className="text-2xl font-bold text-white">Welcome Back</h1>
-                <p className="text-sm text-white/80">Your business overview today</p>
+                <h1 className="text-2xl font-bold text-paper">Welcome Back</h1>
+                <p className="text-sm text-paper/80">Your business overview today</p>
               </div>
               <button
                 onClick={() => navigate('/signout')}
-                className="p-2 rounded-xl bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all active:scale-95"
+                className="p-2 rounded-xl bg-paper/10 backdrop-blur-sm hover:bg-paper/20 transition-all active:scale-95"
                 aria-label="Sign out"
               >
-                <LogOut className="h-5 w-5 text-white" />
+                <LogOut className="h-5 w-5 text-paper" />
               </button>
             </div>
             
             {/* Preview Profile Button */}
             <Button
               onClick={() => navigate('/vendor/preview')}
-              className="w-full bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border-white/30 gap-2"
+              className="w-full bg-paper/20 backdrop-blur-sm hover:bg-paper/30 text-paper border-paper/30 gap-2"
               variant="outline"
             >
               <Eye className="h-4 w-4" />
@@ -243,21 +245,21 @@ const VendorDashboard = () => {
             </Button>
 
             {/* Stripe Connect Status Card */}
-            <Card className="mt-4 p-4 bg-white/10 backdrop-blur-sm border-white/20">
+            <Card className="mt-4 p-4 bg-paper/10 backdrop-blur-sm border-paper/20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${connectStatus?.onboardingComplete ? 'bg-green-500/20' : 'bg-yellow-500/20'}`}>
+                  <div className={`p-2 rounded-lg ${connectStatus?.onboardingComplete ? 'bg-success/20' : 'bg-rating/20'}`}>
                     {connectStatus?.onboardingComplete ? (
-                      <CheckCircle2 className="h-5 w-5 text-green-400" />
+                      <CheckCircle2 className="h-5 w-5 text-success-light" />
                     ) : (
-                      <AlertCircle className="h-5 w-5 text-yellow-400" />
+                      <AlertCircle className="h-5 w-5 text-rating-light" />
                     )}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-white">
+                    <p className="text-sm font-medium text-paper">
                       {connectStatus?.onboardingComplete ? 'Payments Active' : 'Set Up Payments'}
                     </p>
-                    <p className="text-xs text-white/70">
+                    <p className="text-xs text-paper/70">
                       {connectStatus?.onboardingComplete 
                         ? 'Receive payouts directly to your bank' 
                         : 'Connect your bank to receive earnings'}
@@ -269,7 +271,7 @@ const VendorDashboard = () => {
                     onClick={handleConnectStripe}
                     disabled={isConnecting}
                     size="sm"
-                    className="bg-white text-orange-600 hover:bg-white/90 gap-1"
+                    className="bg-paper text-brand-strong hover:bg-paper/90 gap-1"
                   >
                     {isConnecting ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -345,12 +347,12 @@ const VendorDashboard = () => {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-gradient-to-br from-orange-500/20 to-pink-500/20 ring-1 ring-orange-500/20">
-                          <Icon className="h-6 w-6 text-orange-500" />
+                        <div className="p-3 rounded-2xl bg-gradient-to-br from-brand/20 to-hot/20 ring-1 ring-brand/20">
+                          <Icon className="h-6 w-6 text-brand" />
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
-                          <p className="text-3xl font-bold mt-1 bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
+                          <p className="text-3xl font-bold mt-1 bg-gradient-to-r from-brand to-hot bg-clip-text text-transparent">
                             {stat.value}
                           </p>
                         </div>
@@ -370,7 +372,7 @@ const VendorDashboard = () => {
         <div className="px-4 mt-8 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-orange-500" />
+              <TrendingUp className="h-5 w-5 text-brand" />
               <h2 className="text-xl font-bold">Upcoming Bookings</h2>
             </div>
             <button 
@@ -405,11 +407,11 @@ const VendorDashboard = () => {
               bookings.map((booking, index) => (
                 <Card
                   key={index}
-                  className="p-4 hover:shadow-lg transition-all duration-200 hover:scale-[1.01] active:scale-95 group border-l-4 border-l-transparent hover:border-l-orange-500"
+                  className="p-4 hover:shadow-lg transition-all duration-200 hover:scale-[1.01] active:scale-95 group border-l-4 border-l-transparent hover:border-l-brand"
                 >
                   <div className="space-y-2">
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-semibold text-base leading-tight group-hover:text-orange-500 transition-colors">{booking.service}</h3>
+                      <h3 className="font-semibold text-base leading-tight group-hover:text-brand transition-colors">{booking.service}</h3>
                       <span className="text-xs text-muted-foreground whitespace-nowrap">{booking.date}</span>
                     </div>
                     <div className="space-y-1">

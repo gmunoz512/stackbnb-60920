@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { GoogleRating } from "@/components/GoogleRating";
+import { resolveGoogleRating } from "@/lib/googleRating";
+import { useRequireSignIn } from "@/hooks/useRequireSignIn";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -73,6 +76,7 @@ interface FavoriteVendor {
 const Wishlists = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuthContext();
+  const { requireSignIn } = useRequireSignIn();
   const [wishlists, setWishlists] = useState<Wishlist[]>([]);
   const [favoriteRestaurants, setFavoriteRestaurants] = useState<FavoriteRestaurant[]>([]);
   const [favoriteVendors, setFavoriteVendors] = useState<FavoriteVendor[]>([]);
@@ -206,6 +210,7 @@ const Wishlists = () => {
   };
 
   const createWishlist = async () => {
+    if (!requireSignIn("save")) return;
     if (!newWishlistName.trim()) {
       toast.error("Please enter a wishlist name");
       return;
@@ -306,7 +311,7 @@ const Wishlists = () => {
       <PageTransition className="min-h-screen bg-background">
         <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
           <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => setSelectedWishlist(null)}>
+            <Button variant="ghost" size="icon" aria-label="Back to wishlists" onClick={() => setSelectedWishlist(null)}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <h1 className="text-xl font-semibold flex-1">{selectedWishlist.name}</h1>
@@ -337,9 +342,10 @@ const Wishlists = () => {
                     />
                     <button
                       onClick={() => removeFromWishlist(exp.itemId)}
-                      className="absolute top-3 right-3 p-2 rounded-full bg-white/90 hover:bg-white transition-colors"
+                      aria-label={`Remove ${exp.name} from this wishlist`}
+                      className="absolute top-3 right-3 p-2 rounded-full bg-paper/90 hover:bg-paper transition-colors"
                     >
-                      <Heart className="h-5 w-5 fill-red-500 text-red-500" />
+                      <Heart className="h-5 w-5 fill-danger text-danger" />
                     </button>
                   </div>
                   <div className="p-4">
@@ -361,7 +367,7 @@ const Wishlists = () => {
     <PageTransition className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={handleBack}>
+          <Button variant="ghost" size="icon" aria-label="Go back" onClick={handleBack}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-xl font-semibold flex-1">Favorites</h1>
@@ -451,9 +457,10 @@ const Wishlists = () => {
                               e.stopPropagation();
                               removeVendorFavorite(vendor.id);
                             }}
-                            className="absolute top-3 right-3 p-2 rounded-full bg-white/90 hover:bg-white transition-colors"
+                            aria-label={`Remove ${vendor.name} from favorites`}
+                            className="absolute top-3 right-3 p-2 rounded-full bg-paper/90 hover:bg-paper transition-colors"
                           >
-                            <Heart className="h-5 w-5 fill-red-500 text-red-500" />
+                            <Heart className="h-5 w-5 fill-danger text-danger" />
                           </button>
                         </div>
                         <div className="p-4">
@@ -461,12 +468,14 @@ const Wishlists = () => {
                           <p className="text-sm text-muted-foreground line-clamp-1">
                             {vendor.category}
                           </p>
-                          {vendor.google_rating !== null && (
-                            <div className="flex items-center gap-1 mt-2">
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                              <span className="text-sm font-medium">{vendor.google_rating.toFixed(1)}</span>
-                            </div>
-                          )}
+                          <div className="mt-2">
+                            <GoogleRating
+                              value={resolveGoogleRating({ googleRating: vendor.google_rating })}
+                              showCount={false}
+                              className="text-sm"
+                              starClassName="h-4 w-4"
+                            />
+                          </div>
                           {vendor.price_per_person !== null && (
                             <p className="mt-1 text-sm font-medium">
                               ${vendor.price_per_person} <span className="font-normal text-muted-foreground">per person</span>
@@ -522,7 +531,7 @@ const Wishlists = () => {
                             <div className="absolute top-2 right-2">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                  <Button variant="secondary" size="icon" className="h-8 w-8 bg-white/90 hover:bg-white">
+                                  <Button variant="secondary" size="icon" aria-label="Wishlist actions" className="h-8 w-8 bg-paper/90 hover:bg-paper">
                                     <MoreHorizontal className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
@@ -585,9 +594,10 @@ const Wishlists = () => {
                           e.stopPropagation();
                           removeRestaurantFavorite(restaurant.id);
                         }}
-                        className="absolute top-3 right-3 p-2 rounded-full bg-white/90 hover:bg-white transition-colors"
+                        aria-label={`Remove ${restaurant.name} from favorites`}
+                        className="absolute top-3 right-3 p-2 rounded-full bg-paper/90 hover:bg-paper transition-colors"
                       >
-                        <Heart className="h-5 w-5 fill-red-500 text-red-500" />
+                        <Heart className="h-5 w-5 fill-danger text-danger" />
                       </button>
                     </div>
                     <div className="p-4">
@@ -595,15 +605,19 @@ const Wishlists = () => {
                       <p className="text-sm text-muted-foreground line-clamp-1">
                         {restaurant.cuisine} • {restaurant.neighborhood || restaurant.city}
                       </p>
-                      {restaurant.rating !== undefined && (
-                        <div className="flex items-center gap-1 mt-2">
-                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                          <span className="text-sm font-medium">{restaurant.rating.toFixed(1)}</span>
-                          {restaurant.reviewCount !== undefined && (
-                            <span className="text-sm text-muted-foreground">({restaurant.reviewCount})</span>
-                          )}
-                        </div>
-                      )}
+                      <div className="mt-2">
+                        <GoogleRating
+                          value={resolveGoogleRating({
+                            place: {
+                              rating: restaurant.rating,
+                              reviewCount: restaurant.reviewCount,
+                              isFromApi: restaurant.isFromApi,
+                            },
+                          })}
+                          className="text-sm"
+                          starClassName="h-4 w-4"
+                        />
+                      </div>
                     </div>
                   </Card>
                 ))}

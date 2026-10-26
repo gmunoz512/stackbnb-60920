@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Star, Clock, Users, CheckCircle, Share, Heart } from "lucide-react";
+import { ArrowLeft, Clock, Users, CheckCircle, Share, Heart } from "lucide-react";
+import { GoogleRating } from "@/components/GoogleRating";
+import { RefundPolicy } from "@/components/listing/RefundPolicy";
+import { useRequireSignIn } from "@/hooks/useRequireSignIn";
 import { useNavigate, useParams } from "react-router-dom";
 import { experiences } from "@/data/mockData";
 import { GuestGuideButton } from "@/components/GuestGuideButton";
@@ -72,12 +75,13 @@ const ExperienceDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
+  const { requireSignIn } = useRequireSignIn();
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
 
   const experience = experiences.find(exp => exp.id === Number(id));
   useEffect(() => {
     if (!experience) return;
-    const data = { "@context": "https://schema.org", "@type": "TouristAttraction", name: experience.name, description: experience.description, image: getPhotos(experience.id), offers: { "@type": "Offer", price: experience.price, priceCurrency: "USD", availability: "https://schema.org/InStock" }, aggregateRating: experience.rating ? { "@type": "AggregateRating", ratingValue: experience.rating, bestRating: 5 } : undefined };
+    const data = { "@context": "https://schema.org", "@type": "TouristAttraction", name: experience.name, description: experience.description, image: getPhotos(experience.id), offers: { "@type": "Offer", price: experience.price, priceCurrency: "USD", availability: "https://schema.org/InStock" } };
     const script = document.createElement("script"); script.type = "application/ld+json"; script.textContent = JSON.stringify(data); document.head.appendChild(script);
     return () => script.remove();
   }, [experience]);
@@ -91,6 +95,7 @@ const ExperienceDetails = () => {
   };
 
   const toggleFavorite = () => {
+    if (!requireSignIn("save")) return;
     setIsFavorite(!isFavorite);
     toast({ title: isFavorite ? "Removed from favorites" : "Added to favorites", duration: 2000 });
   };
@@ -145,11 +150,11 @@ const ExperienceDetails = () => {
               <button aria-label="Share this experience" onClick={handleShare} className="p-2 rounded-full hover:bg-muted transition-colors">
                 <Share className="h-5 w-5" />
               </button>
-              <button aria-label="Toggle favorite"
+              <button aria-label={isFavorite ? "Remove from saved" : "Save this experience"}
                 onClick={toggleFavorite}
                 className="p-2 rounded-full hover:bg-muted transition-colors"
               >
-                <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+                <Heart className={`h-5 w-5 ${isFavorite ? 'fill-danger text-danger' : ''}`} />
               </button>
             </div>
           </div>
@@ -169,11 +174,9 @@ const ExperienceDetails = () => {
             <h1 className="text-2xl font-semibold leading-tight">{experience.name}</h1>
             <p className="text-[15px] text-muted-foreground">{experience.vendor}</p>
 
-            <div className="flex items-center gap-1.5 pt-1">
-              <Star className="h-4 w-4 fill-foreground text-foreground" />
-              <span className="font-semibold text-[15px]">{experience.rating}</span>
-              <span className="text-muted-foreground text-[15px]">·</span>
-              <span className="text-[15px] text-muted-foreground">{experience.reviewCount} reviews</span>
+            <div className="pt-1 space-y-2">
+              <GoogleRating value={null} className="text-[15px]" starClassName="h-4 w-4" />
+              <p className="text-[15px] text-muted-foreground">No reviews yet.</p>
             </div>
           </div>
 
@@ -235,6 +238,8 @@ const ExperienceDetails = () => {
           </div>
 
           <Separator />
+          <RefundPolicy />
+          <Separator />
 
           {/* Host Vendor List Button */}
           <div className="py-6">
@@ -254,9 +259,12 @@ const ExperienceDetails = () => {
               <p className="text-xl font-semibold">${experience.price}<span className="text-[14px] font-normal text-muted-foreground"> /person</span></p>
             </div>
             <Button 
-              className="rounded-full px-8 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-semibold"
+              className="rounded-full px-8 bg-gradient-to-r from-brand to-hot hover:from-brand-strong hover:to-hot-strong text-paper font-semibold"
               size="lg"
-              onClick={() => navigate(`/booking/${experience.id}`)}
+              onClick={() => {
+                if (!requireSignIn("book")) return;
+                navigate(`/booking/${experience.id}`);
+              }}
             >
               Book Now
             </Button>

@@ -16,6 +16,8 @@ import {
 import { useNearbyPlaces } from "@/hooks/useNearbyPlaces";
 import { type GeoapifyPlace, type AutocompleteSuggestion } from "@/services/googleMapsService";
 import { supabase } from "@/integrations/supabase/client";
+import { GoogleRating } from "@/components/GoogleRating";
+import { resolveGoogleRating } from "@/lib/googleRating";
 
 interface VendorRestaurant {
   id: string;
@@ -30,8 +32,8 @@ const convertApiPlaceToRestaurant = (place: GeoapifyPlace): Restaurant => ({
   id: place.id,
   name: place.name,
   cuisine: place.cuisine || 'Restaurant',
-  rating: place.rating || 4.0,
-  reviewCount: place.reviewCount || 0,
+  rating: place.rating && place.rating > 0 ? place.rating : undefined,
+  reviewCount: place.reviewCount && place.reviewCount > 0 ? place.reviewCount : undefined,
   priceRange: place.priceRange || '$$',
   address: place.address,
   neighborhood: place.city,
@@ -143,7 +145,7 @@ const AllRestaurants = () => {
       restaurants = restaurants.filter(r => isRestaurantOpen(r));
     }
     if (filters.topRated) {
-      restaurants = restaurants.filter(r => r.rating >= 4.5);
+      restaurants = restaurants.filter(r => r.isFromApi && typeof r.rating === "number" && r.rating >= 4.5);
     }
     if (filters.priceRange.length > 0) {
       restaurants = restaurants.filter(r => r.priceRange && filters.priceRange.includes(r.priceRange));
@@ -207,20 +209,20 @@ const AllRestaurants = () => {
                     {vendor.photos?.[0] ? (
                       <img src={vendor.photos[0]} alt={vendor.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-orange-500 to-purple-600 flex items-center justify-center">
-                        <Store className="h-8 w-8 text-white/80" />
+                      <div className="w-full h-full bg-gradient-to-br from-brand to-iris-strong flex items-center justify-center">
+                        <Store className="h-8 w-8 text-paper/80" />
                       </div>
                     )}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                      <p className="text-white text-xs font-medium line-clamp-1">{vendor.name}</p>
-                      <div className="flex items-center gap-1 text-white/80 text-[10px]">
-                        {vendor.google_rating && (
-                          <>
-                            <Star className="h-2.5 w-2.5 fill-yellow-400 text-yellow-400" />
-                            <span>{vendor.google_rating}</span>
-                            <span>•</span>
-                          </>
-                        )}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/70 to-transparent p-2">
+                      <p className="text-paper text-xs font-medium line-clamp-1">{vendor.name}</p>
+                      <div className="flex items-center gap-1 text-paper/80 text-[10px]">
+                        <GoogleRating
+                          value={resolveGoogleRating({ googleRating: vendor.google_rating })}
+                          showCount={false}
+                          className="text-[10px] text-inherit"
+                          starClassName="h-2.5 w-2.5"
+                        />
+                        <span>•</span>
                         <span>{vendor.category}</span>
                       </div>
                     </div>

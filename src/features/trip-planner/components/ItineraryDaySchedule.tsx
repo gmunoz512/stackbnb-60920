@@ -36,9 +36,9 @@ const categoryIcons: Record<ItineraryItemCategory, typeof Utensils> = {
 };
 
 const categoryColors: Record<ItineraryItemCategory, string> = {
-  food: "text-orange-500 bg-orange-500/10 border-orange-500/20",
+  food: "text-brand bg-brand/10 border-brand/20",
   activity: "text-primary bg-primary/10 border-primary/20",
-  transport: "text-blue-500 bg-blue-500/10 border-blue-500/20",
+  transport: "text-info bg-info/10 border-info/20",
   free: "text-muted-foreground bg-muted border-border",
 };
 
@@ -264,7 +264,7 @@ function ScheduleItem({ item, index, isLast, onEdit, onRemove }: ScheduleItemPro
                     {item.includes && item.includes.length > 0 && (
                       <div className="space-y-2">
                         <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-                          <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                          <CheckCircle2 className="h-3.5 w-3.5 text-success" />
                           <span>What's Included</span>
                         </div>
                         <ul className="grid gap-1.5 pl-5">
@@ -281,7 +281,7 @@ function ScheduleItem({ item, index, isLast, onEdit, onRemove }: ScheduleItemPro
                     {item.whatToBring && item.whatToBring.length > 0 && (
                       <div className="space-y-2">
                         <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-                          <Backpack className="h-3.5 w-3.5 text-blue-500" />
+                          <Backpack className="h-3.5 w-3.5 text-info" />
                           <span>What to Bring</span>
                         </div>
                         <ul className="grid gap-1.5 pl-5">

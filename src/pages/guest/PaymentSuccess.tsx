@@ -297,8 +297,8 @@ END:VCALENDAR`;
 
           <div className="px-4 py-8 space-y-6">
             <div className="text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-red-400 to-red-600">
-                <XCircle className="h-12 w-12 text-white" />
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-danger-light to-danger-strong">
+                <XCircle className="h-12 w-12 text-paper" />
               </div>
               <div className="space-y-2">
                 <h1 className="text-2xl font-medium">Booking Cancelled</h1>
@@ -341,17 +341,17 @@ END:VCALENDAR`;
         <div className="bg-card/80 border-b border-border p-4">
           <div className="text-center text-xs uppercase tracking-widest text-muted-foreground mb-2">Confirmed</div>
           <div className="flex gap-1">
-            <div className="h-1 flex-1 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full" />
-            <div className="h-1 flex-1 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full" />
-            <div className="h-1 flex-1 bg-gradient-to-r from-orange-500 to-pink-500 rounded-full" />
+            <div className="h-1 flex-1 bg-gradient-to-r from-brand to-hot rounded-full" />
+            <div className="h-1 flex-1 bg-gradient-to-r from-brand to-hot rounded-full" />
+            <div className="h-1 flex-1 bg-gradient-to-r from-brand to-hot rounded-full" />
           </div>
         </div>
 
         <div className={`px-4 py-8 space-y-6 transition-all duration-500 ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           {/* Success Icon */}
           <div className="text-center space-y-4">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-green-600 animate-scale-in">
-              <CheckCircle className="h-12 w-12 text-white" />
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-success-light to-success-strong animate-scale-in">
+              <CheckCircle className="h-12 w-12 text-paper" />
             </div>
             <div className="space-y-2">
               <h1 className="text-2xl">
@@ -412,7 +412,7 @@ END:VCALENDAR`;
                 <div className="pt-4 mt-4 border-t">
                   <div className="flex justify-between items-center">
                     <span className="font-semibold">{sessionId ? 'Total paid' : 'Total'}</span>
-                    <span className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
+                    <span className="text-2xl font-bold bg-gradient-to-r from-brand to-hot bg-clip-text text-transparent">
                       ${bookingData.totalPrice}
                     </span>
                   </div>
@@ -425,17 +425,17 @@ END:VCALENDAR`;
           {bookingData.bookingId && (
             <Card className="p-5 space-y-3">
               <h3 className="font-semibold flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-500" />
+                <AlertTriangle className="h-4 w-4 text-warning" />
                 Cancellation Policy
               </h3>
               <p className="text-sm text-muted-foreground">
                 Free cancellation up to {bookingData.cancellationHours ?? 24} hours before your booking.
                 {canCancel() ? (
-                  <span className="block mt-1 text-green-600 dark:text-green-400">
+                  <span className="block mt-1 text-success-strong dark:text-success-light">
                     You have {getHoursUntilBooking()} hours left to cancel.
                   </span>
                 ) : (
-                  <span className="block mt-1 text-red-600 dark:text-red-400">
+                  <span className="block mt-1 text-danger-strong dark:text-danger-light">
                     Cancellation window has passed ({getHoursUntilBooking()} hours until booking).
                   </span>
                 )}

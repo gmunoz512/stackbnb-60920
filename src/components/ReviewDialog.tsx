@@ -125,7 +125,7 @@ export function ReviewDialog({
                   className={cn(
                     "h-10 w-10 transition-colors",
                     star <= displayRating
-                      ? "fill-amber-400 text-amber-400"
+                      ? "fill-warning-light text-warning-light"
                       : "text-muted-foreground/30"
                   )}
                 />

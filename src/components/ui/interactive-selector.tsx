@@ -14,11 +14,11 @@ interface InteractiveSelectorProps {
 }
 
 const defaultIcons = [
-  <FaUtensils size={20} className="text-white" />,
-  <FaStar size={20} className="text-white" />,
-  <FaCamera size={20} className="text-white" />,
-  <FaGlassCheers size={20} className="text-white" />,
-  <FaLeaf size={20} className="text-white" />,
+  <FaUtensils size={20} className="text-paper" />,
+  <FaStar size={20} className="text-paper" />,
+  <FaCamera size={20} className="text-paper" />,
+  <FaGlassCheers size={20} className="text-paper" />,
+  <FaLeaf size={20} className="text-paper" />,
 ];
 
 const InteractiveSelector = ({ photos, titles, icons }: InteractiveSelectorProps) => {
@@ -140,12 +140,12 @@ const InteractiveSelector = ({ photos, titles, icons }: InteractiveSelectorProps
             {/* Label with icon and info */}
             <div className="absolute left-0 right-0 bottom-3 flex items-center justify-start h-10 z-10 pointer-events-none px-3 gap-2 w-full">
               <div 
-                className="min-w-[36px] max-w-[36px] h-[36px] flex items-center justify-center rounded-full backdrop-blur-sm shadow-md border border-white/20 flex-shrink-0 transition-all duration-200"
+                className="min-w-[36px] max-w-[36px] h-[36px] flex items-center justify-center rounded-full backdrop-blur-sm shadow-md border border-paper/20 flex-shrink-0 transition-all duration-200"
                 style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
               >
                 {icons?.[index] || defaultIcons[index % defaultIcons.length]}
               </div>
-              <div className="text-white whitespace-pre relative overflow-hidden">
+              <div className="text-paper whitespace-pre relative overflow-hidden">
                 <div 
                   className="font-semibold text-sm transition-all duration-700 ease-in-out drop-shadow-lg"
                   style={{

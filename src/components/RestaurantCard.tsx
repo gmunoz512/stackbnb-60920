@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Star, Heart, MapPin, Navigation, Plus, Check, Loader2 } from "lucide-react";
+import { Heart, MapPin, Navigation, Plus, Check, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { isRestaurantOpen, type Restaurant } from "@/data/mockRestaurants";
 import { toast } from "@/hooks/use-toast";
@@ -8,7 +8,9 @@ import { formatDistance } from "@/services/googleMapsService";
 import { useProfile } from "@/contexts/ProfileContext";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { BlurImage } from "@/components/BlurImage";
+import { GoogleRating } from "@/components/GoogleRating";
 import { useGoogleReviews } from "@/hooks/useGoogleReviews";
+import { resolveGoogleRating } from "@/lib/googleRating";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -32,6 +34,14 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
   });
 
   const coverPhoto = googleData?.photos?.[0] ?? restaurant.photos[0];
+  const rating = resolveGoogleRating({
+    google: googleData ? { rating: googleData.rating, totalReviews: googleData.totalReviews } : null,
+    place: {
+      rating: restaurant.rating,
+      reviewCount: restaurant.reviewCount,
+      isFromApi: restaurant.isFromApi,
+    },
+  });
 
   const isSmall = size === 'small';
   
@@ -116,8 +126,8 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
               <Heart
                 className={`h-4 w-4 drop-shadow-md ${
                   isFavorite
-                    ? "fill-red-500 text-red-500"
-                    : "fill-black/50 text-white stroke-white stroke-2"
+                    ? "fill-danger text-danger"
+                    : "fill-ink/50 text-paper stroke-paper stroke-2"
                 }`}
               />
             </button>
@@ -142,15 +152,7 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
               {restaurant.priceRange && ` • ${restaurant.priceRange}`}
             </p>
             
-            {restaurant.rating !== undefined && (
-              <div className="flex items-center gap-1 text-xs">
-                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                <span className="font-medium">{restaurant.rating.toFixed(1)}</span>
-                {restaurant.reviewCount !== undefined && (
-                  <span className="text-muted-foreground">({restaurant.reviewCount})</span>
-                )}
-              </div>
-            )}
+            <GoogleRating value={rating} className="text-xs" starClassName="h-3 w-3" />
             
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <MapPin className="h-3 w-3" />
@@ -194,8 +196,8 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
               disabled={isAdding}
               className={`absolute top-2 left-2 z-20 p-2 rounded-full shadow-lg transition-all duration-200 ${
                 isSaved 
-                  ? 'bg-green-500 text-white' 
-                  : 'bg-white/95 text-foreground dark:bg-primary dark:text-white hover:bg-primary hover:text-white'
+                  ? 'bg-success text-paper' 
+                  : 'bg-paper/95 text-foreground dark:bg-primary dark:text-paper hover:bg-primary hover:text-paper'
               }`}
             >
               {isAdding ? (
@@ -215,8 +217,8 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
               <Heart
                 className={`${isSmall ? 'h-3.5 w-3.5' : 'h-5 w-5'} drop-shadow-md ${
                   isFavorite
-                    ? "fill-red-500 text-red-500"
-                    : "fill-black/50 text-white stroke-white stroke-2"
+                    ? "fill-danger text-danger"
+                    : "fill-ink/50 text-paper stroke-paper stroke-2"
                 }`}
               />
             </button>
@@ -227,8 +229,8 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
             <Badge 
               className={`absolute top-2 left-2 text-[10px] px-2 py-0.5 ${
                 isOpen 
-                  ? 'bg-green-500/90 text-white border-0' 
-                  : 'bg-black/70 text-white border-0'
+                  ? 'bg-success/90 text-paper border-0' 
+                  : 'bg-ink/70 text-paper border-0'
               }`}
             >
               {isOpen ? "Open Now" : "Closed"}
@@ -247,16 +249,11 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
             </p>
           )}
           <div className={`flex items-center ${isSmall ? 'gap-0.5' : 'justify-between pt-0.5'}`}>
-            <div className="flex items-center gap-0.5">
-              {restaurant.rating !== undefined ? (
-                <>
-                  <Star className={`${isSmall ? 'h-2.5 w-2.5' : 'h-3.5 w-3.5'} fill-yellow-400 text-yellow-400`} />
-                  <span className={`${isSmall ? 'text-[10px]' : 'text-xs'} font-medium`}>{restaurant.rating.toFixed(1)}</span>
-                </>
-              ) : (
-                <span className={`${isSmall ? 'text-[10px]' : 'text-xs'} text-muted-foreground`}>No ratings</span>
-              )}
-            </div>
+            <GoogleRating
+              value={rating}
+              className={isSmall ? "text-[10px]" : "text-xs"}
+              starClassName={isSmall ? "h-2.5 w-2.5" : "h-3.5 w-3.5"}
+            />
             {!isSmall && (
               <div className="flex items-center gap-1">
                 {restaurant.distance && (

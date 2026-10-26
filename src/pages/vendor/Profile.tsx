@@ -178,7 +178,7 @@ const VendorProfile = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-16 w-16 flex-shrink-0">
-                  <AvatarFallback className="bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 text-white text-xl font-semibold">
+                  <AvatarFallback className="bg-gradient-to-br from-brand-light via-hot to-iris-strong text-paper text-xl font-semibold">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
@@ -215,7 +215,7 @@ const VendorProfile = () => {
           ) : (
             <div className="flex items-center gap-3">
               <Avatar className="h-16 w-16 flex-shrink-0">
-                <AvatarFallback className="bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 text-white text-xl font-semibold">
+                <AvatarFallback className="bg-gradient-to-br from-brand-light via-hot to-iris-strong text-paper text-xl font-semibold">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -248,7 +248,7 @@ const VendorProfile = () => {
                 w-full flex items-center justify-between p-4 
                 hover:bg-muted/30 active:bg-muted/50 transition-all
                 ${index !== menuItems.length - 1 ? 'border-b' : ''}
-                ${item.gradient ? 'bg-gradient-to-r from-orange-500/5 to-pink-500/5' : ''}
+                ${item.gradient ? 'bg-gradient-to-r from-brand/5 to-hot/5' : ''}
               `}
             >
               <div className="flex items-center gap-3">

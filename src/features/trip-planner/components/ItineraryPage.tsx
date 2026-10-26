@@ -253,7 +253,7 @@ export function ItineraryPage({ messages = [] }: ItineraryPageProps) {
               </p>
             </div>
             {isConfirmed && (
-              <span className="text-xs font-medium text-emerald-600 bg-emerald-500/10 px-2 py-1 rounded-full flex items-center gap-1">
+              <span className="text-xs font-medium text-mint-strong bg-mint/10 px-2 py-1 rounded-full flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3" />
                 Confirmed
               </span>
@@ -264,7 +264,7 @@ export function ItineraryPage({ messages = [] }: ItineraryPageProps) {
               </span>
             )}
             {hasUserEdits && !isEditMode && !isConfirmed && (
-              <span className="text-xs font-medium text-green-600 bg-green-500/10 px-2 py-1 rounded-full">
+              <span className="text-xs font-medium text-success-strong bg-success/10 px-2 py-1 rounded-full">
                 Customized
               </span>
             )}

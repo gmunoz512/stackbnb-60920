@@ -7,6 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { GoogleRating } from "@/components/GoogleRating";
+import { resolveGoogleRating } from "@/lib/googleRating";
 
 const VendorRatings = () => {
   const goBack = useSmartBack("/vendor/dashboard");
@@ -30,7 +32,8 @@ const VendorRatings = () => {
     enabled: !!user,
   });
 
-  const googleRating = vendorProfile?.google_rating;
+  const resolvedRating = resolveGoogleRating({ googleRating: vendorProfile?.google_rating });
+  const googleRating = resolvedRating?.rating;
   const googleReviewsUrl = vendorProfile?.google_reviews_url;
 
   return (
@@ -56,11 +59,15 @@ const VendorRatings = () => {
             <Skeleton className="h-4 w-32 mx-auto" />
           </Card>
         ) : googleRating ? (
-          <Card className="p-6 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border-yellow-500/20">
+          <Card className="p-6 bg-gradient-to-br from-rating/10 to-brand/10 border-rating/20">
             <div className="text-center space-y-3">
-              <div className="flex items-center justify-center gap-2">
-                <Star className="h-8 w-8 text-yellow-500 fill-yellow-500" />
-                <span className="text-5xl font-bold">{googleRating.toFixed(1)}</span>
+              <div className="flex items-center justify-center">
+                <GoogleRating
+                  value={resolvedRating}
+                  showCount={false}
+                  className="text-5xl font-bold"
+                  starClassName="h-8 w-8"
+                />
               </div>
               <p className="text-sm text-muted-foreground">
                 Rating from Google/Airbnb
@@ -81,7 +88,7 @@ const VendorRatings = () => {
         ) : (
           <Card className="p-6 text-center">
             <Star className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground text-sm">No rating available</p>
+            <p className="text-muted-foreground text-sm">No rating yet</p>
             <p className="text-xs text-muted-foreground mt-1">
               Add your Google Place ID in your profile to display your rating
             </p>
@@ -101,7 +108,7 @@ const VendorRatings = () => {
                       key={star}
                       className={`h-4 w-4 ${
                         star <= Math.round(googleRating)
-                          ? 'text-yellow-500 fill-yellow-500'
+                          ? 'text-rating fill-rating'
                           : 'text-muted-foreground'
                       }`}
                     />
@@ -110,12 +117,12 @@ const VendorRatings = () => {
               </div>
               <div className="h-3 bg-muted rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-yellow-400 to-orange-500 transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-rating-light to-brand transition-all duration-500"
                   style={{ width: `${(googleRating / 5) * 100}%` }}
                 />
               </div>
               <div className="flex items-center gap-2">
-                <ThumbsUp className={`h-4 w-4 ${googleRating >= 4.5 ? 'text-green-500' : 'text-muted-foreground'}`} />
+                <ThumbsUp className={`h-4 w-4 ${googleRating >= 4.5 ? 'text-success' : 'text-muted-foreground'}`} />
                 <span className="text-xs text-muted-foreground">
                   {googleRating >= 4.5 
                     ? 'Excellent! Your rating is outstanding.'

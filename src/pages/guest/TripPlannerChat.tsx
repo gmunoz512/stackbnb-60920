@@ -16,14 +16,12 @@ import {
   ItinerarySheet,
 } from "@/features/trip-planner/components";
 import { useItineraryContext } from "@/features/trip-planner/context/ItineraryContext";
-import { useAuthContext } from "@/contexts/AuthContext";
 import { detectConfirmedActivities } from "@/features/trip-planner/utils";
 
 const AUTH_PROMPT_STORAGE_KEY = "tripPlannerAuthPromptShown";
 
 function TripPlannerChatContent() {
   const { messages } = useTripPlannerChatContext();
-  const { isAuthenticated, isLoading } = useAuthContext();
   const { syncTripFromChat, addActivityToItinerary, itinerary } = useItineraryContext();
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [showItinerarySheet, setShowItinerarySheet] = useState(false);
@@ -96,20 +94,6 @@ function TripPlannerChatContent() {
       existingTitles.add(activity.title.toLowerCase());
     }
   }, [messages, addActivityToItinerary, itinerary]);
-
-  // Show auth prompt for non-authenticated users on first visit
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      const hasSeenPrompt = sessionStorage.getItem(AUTH_PROMPT_STORAGE_KEY);
-      if (!hasSeenPrompt) {
-        // Small delay to let the page load first
-        const timer = setTimeout(() => {
-          setShowAuthPrompt(true);
-        }, 500);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [isAuthenticated, isLoading]);
 
   const handleAuthPromptSkip = () => {
     sessionStorage.setItem(AUTH_PROMPT_STORAGE_KEY, "true");
