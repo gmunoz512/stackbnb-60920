@@ -206,7 +206,7 @@ const AllExperiences = () => {
                     <p className="text-xs text-muted-foreground line-clamp-1">{experience.category}</p>
                     <VendorGoogleRating
                       vendor={experience}
-                      showCount={false}
+                      showCount
                       className="text-xs"
                       starClassName="h-3 w-3"
                     />

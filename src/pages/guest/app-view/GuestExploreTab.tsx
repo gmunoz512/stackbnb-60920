@@ -1,3 +1,4 @@
+import { RestaurantGoogleRating } from "@/components/RestaurantGoogleRating";
 import { VendorGoogleRating } from "@/components/VendorGoogleRating";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
@@ -331,11 +332,11 @@ export function GuestExploreTab({
                                 <div className="flex items-center gap-1 text-paper/80 text-[10px]">
                                   <VendorGoogleRating
                                     vendor={vendor}
-                                    showCount={false}
+                                    showCount
                                     className="text-[10px] text-inherit"
                                     starClassName="h-2.5 w-2.5"
                                   />
-                                  <span>•</span>
+                                  <span aria-hidden="true" className="-ml-1">,</span>
                                   <span>{vendor.category}</span>
                                 </div>
                               </div>
@@ -371,15 +372,13 @@ export function GuestExploreTab({
                                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/70 to-transparent p-2">
                                   <p className="text-paper text-xs font-medium line-clamp-1">{restaurant.name}</p>
                                   <div className="flex items-center gap-1 text-paper/80 text-[10px]">
-                                    <GoogleRating
-                                      value={resolveGoogleRating({
-                                        place: { rating: restaurant.rating, reviewCount: restaurant.reviewCount, isFromApi: restaurant.isFromApi },
-                                      })}
+                                    <RestaurantGoogleRating
+                                      restaurant={restaurant}
                                       showCount={false}
                                       className="text-[10px] text-inherit"
                                       starClassName="h-2.5 w-2.5"
                                     />
-                                    <span>•</span>
+                                    <span aria-hidden="true" className="-ml-1">,</span>
                                     <span>{restaurant.priceRange}</span>
                                   </div>
                                 </div>
@@ -460,11 +459,11 @@ export function GuestExploreTab({
                                 <div className="flex items-center gap-1 text-paper/80 text-[10px]">
                                   <VendorGoogleRating
                                     vendor={vendor}
-                                    showCount={false}
+                                    showCount
                                     className="text-[10px] text-inherit"
                                     starClassName="h-2.5 w-2.5"
                                   />
-                                  {vendor.price_per_person && <><span>•</span><span>${vendor.price_per_person}</span></>}
+                                  {vendor.price_per_person && <><span aria-hidden="true" className="-ml-1">,</span><span>${vendor.price_per_person}</span></>}
                                 </div>
                               </div>
                             </div>
@@ -524,7 +523,7 @@ export function GuestExploreTab({
                             <div className="flex items-center gap-1 text-[10px]">
                               <VendorGoogleRating
                                 vendor={vendor}
-                                showCount={false}
+                                showCount
                                 className="text-[10px]"
                                 starClassName="h-2.5 w-2.5"
                               />

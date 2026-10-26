@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, MapPin, ArrowLeft, User, Sparkles, LogIn, UserPlus, Star, Store, Plus, Check, Loader2, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import heroImage from "@/assets/hero-beach.jpg";
 import stackdLogo from "@/assets/stackd-logo-new.png";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
@@ -99,7 +98,7 @@ function ExploreVendorCard({
             className={`absolute top-2 left-2 z-20 p-2 rounded-full shadow-lg transition-all duration-200 ${
  isSaved
  ? "bg-success text-paper"
- : "bg-brand text-paper hover:bg-brand-strong "
+ : "bg-primary text-primary-foreground hover:bg-primary/90 "
  }`}
           >
             {isLoading ? (
@@ -117,12 +116,11 @@ function ExploreVendorCard({
           <div className="flex items-center gap-1 text-paper/80 text-[10px]">
             <VendorGoogleRating
               vendor={vendor}
-              showCount={false}
+              showCount
               className="text-[10px] text-inherit"
               starClassName="h-2.5 w-2.5"
             />
-            <span>•</span>
-            <span>${vendor.price_per_person || 0}</span>
+            {vendor.price_per_person ? <span>, ${vendor.price_per_person}</span> : null}
           </div>
         </div>
       </div>
@@ -266,26 +264,22 @@ const Explore = () => {
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 lg:overflow-visible lg:pb-8">
           {/* Hero Section */}
-          <div className="relative">
-            {/* Background image */}
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ 
-                backgroundImage: `url(${heroImage})`,
-                filter: 'blur(1px)',
-              }}
-            />
-            <div className="absolute inset-0 bg-background/70" />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
-
+          <div className="relative overflow-hidden caustics">
             {/* Header */}
-            <div className="relative z-10 flex items-center justify-between px-4 pt-3 pb-2">
-              <button
-                onClick={() => isHostMode ? navigate('/host/vendors') : navigate(-1)}
-                className="p-2 rounded-full bg-background/80 border border-border text-foreground hover:bg-accent transition-colors"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </button>
+            <div className="relative z-10 flex items-center justify-between px-4 pt-4 pb-2 md:px-6">
+              <div className="flex items-center gap-3">
+                <button
+                  aria-label="Go back"
+                  onClick={() => isHostMode ? navigate('/host/vendors') : navigate(-1)}
+                  className="p-2 rounded-full border border-white/15 text-foreground hover:bg-white/5 transition-colors"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </button>
+                <Link to="/" className="flex items-center gap-2">
+                  <img src={stackdLogo} alt="" className="h-7 w-7" />
+                  <span className="font-display text-lg text-foreground">stackd</span>
+                </Link>
+              </div>
               <div className="flex items-center gap-2">
                 <ThemeToggle />
                 <DropdownMenu>
@@ -339,40 +333,36 @@ const Explore = () => {
                 </DropdownMenu>
                 <Link
                   to="/trip-planner"
-                  className="p-2 rounded-full bg-brand text-paper"
+                  className="rounded-full bg-primary px-3.5 py-1.5 text-sm font-semibold text-primary-foreground"
                 >
-                  <Sparkles className="h-4 w-4" />
+                  Plan a trip
                 </Link>
               </div>
             </div>
 
             {/* Hero Content */}
-            <div className="relative z-10 px-4 pb-4 pt-4 text-center">
-              <img src={stackdLogo} alt="stackd" className="h-40 w-40 mx-auto mb-3" />
-              <h1 className="text-xl font-bold text-foreground mb-1">
-                {isHostMode ? "Explore Vendors" : "Discover Experiences"}
+            <div className="relative z-10 px-4 pb-8 pt-8 md:px-6 lg:pt-14">
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-secondary">
+                {isHostMode ? "For hosts" : "Tulum"}
+              </p>
+              <h1 className="mt-2 max-w-2xl font-display text-3xl leading-tight text-foreground lg:text-5xl">
+                {isHostMode ? "Pick the vendors you'd send your own friends to." : "Everything worth doing in Tulum, in one place."}
               </h1>
-              <p className="text-xs text-muted-foreground mb-3">
-                {isHostMode ? "Add vendors to your guest guide by tapping the +" : "Find amazing experiences nearby"}
+              <p className="mt-3 max-w-xl text-sm text-muted-foreground lg:text-base">
+                {isHostMode ? "Tap + on a vendor to add it to your guest guide." : "Cenote dives, boat trips and tables, rated live from Google."}
               </p>
 
-              {/* Search Section - Single Bar */}
-              <div className="relative md:max-w-2xl md:mx-auto">
-                <div className="absolute -inset-0.5 bg-brand/20 rounded-full blur-sm"></div>
-                <div className="relative bg-card/90 rounded-full border border-border/50 backdrop-blur-sm flex items-center px-3 py-2 gap-2">
-                  <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
-                  <Input
-                    placeholder="Search vendors..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="border-0 bg-transparent text-sm h-6 shadow-none focus-visible:ring-0 px-0 placeholder:text-muted-foreground flex-1 min-w-0"
-                  />
-                  <button aria-label="Search" className="bg-brand text-paper rounded-full p-1.5 flex-shrink-0">
-                    <Search className="h-3 w-3" />
-                  </button>
-                </div>
+              <div className="mt-6 flex max-w-xl items-center gap-2 rounded-full border border-white/15 bg-card px-4 py-2.5 focus-within:border-primary">
+                <Search className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                <Input
+                  placeholder={isHostMode ? "Search vendors" : "Search experiences and restaurants"}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-6 min-w-0 flex-1 border-0 bg-transparent px-0 text-sm shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
+                />
               </div>
             </div>
+            <div className="horizon-line relative z-10" />
           </div>
 
           {/* Tabs for Experiences and Restaurants */}
@@ -404,7 +394,7 @@ const Explore = () => {
  flex items-center gap-1.5 px-3 py-1.5 rounded-full border whitespace-nowrap text-xs
  transition-all duration-300 
  ${selectedExperienceCategory === category.id 
- ? 'bg-brand text-paper border-transparent shadow-lg' 
+ ? 'bg-primary text-primary-foreground border-transparent' 
  : 'bg-card hover:border-primary/50 border-border'
  }
  `}
@@ -486,7 +476,7 @@ const Explore = () => {
  flex items-center gap-1.5 px-3 py-1.5 rounded-full border whitespace-nowrap text-xs
  transition-all duration-300 
  ${selectedRestaurantCategory === category.id 
- ? 'bg-brand text-paper border-transparent shadow-lg' 
+ ? 'bg-primary text-primary-foreground border-transparent' 
  : 'bg-card hover:border-primary/50 border-border'
  }
  `}

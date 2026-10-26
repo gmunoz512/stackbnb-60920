@@ -1,11 +1,9 @@
 import { VendorGoogleRating } from "@/components/VendorGoogleRating";
 import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DollarSign, CalendarCheck, Users, StarIcon, LogOut, TrendingUp, ArrowUpRight, Handshake, Store, CreditCard, CheckCircle2, AlertCircle, Loader2, Calendar } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Loader2 } from "lucide-react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import HostBottomNav from "@/components/HostBottomNav";
 import { PageTransition } from "@/components/PageTransition";
@@ -14,101 +12,71 @@ import { toast } from "sonner";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { HostOnboardingCard, HostVerificationCard } from "@/components/onboarding";
 import { TrustScoreBadge } from "@/components/TrustScoreBadge";
-import { GoogleRating } from "@/components/GoogleRating";
-import { resolveGoogleRating } from "@/lib/googleRating";
+import { formatDay, formatMoney } from "@/lib/format";
+import {
+  DashboardFrame, DashboardHeader, DashboardSection, FigureList, FigureRow, Notice,
+} from "@/components/dashboard/DashboardParts";
 
-interface VendorWithCommission {
+interface StorefrontVendor {
   id: string;
   name: string;
   category: string;
   commission_percentage: number | null;
   photos: string[] | null;
   google_rating: number | null;
-  google_place_id?: string | null;
+  google_place_id: string | null;
 }
 
 const HostDashboard = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [vendors, setVendors] = useState<VendorWithCommission[]>([]);
-  const [isLoadingVendors, setIsLoadingVendors] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
   const { user } = useAuthContext();
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // Fetch real dashboard stats
-  const { data: dashboardStats = [], isLoading: isLoadingStats } = useQuery({
-    queryKey: ['hostDashboardStats', user?.id],
+  // One query feeds every number on the page, so "vendors" always means the same list.
+  const { data, isLoading } = useQuery({
+    queryKey: ["hostDashboard", user?.id],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user) return null;
+      const [{ data: bookings }, { data: links }] = await Promise.all([
+        supabase.from("bookings")
+          .select("id, experience_name, vendor_name, booking_date, status, host_payout_amount, created_at")
+          .eq("host_user_id", user.id)
+          .order("created_at", { ascending: false }),
+        supabase.from("host_vendor_links").select("vendor_profile_id").eq("host_user_id", user.id),
+      ]);
+      const vendorIds = [...new Set((links ?? []).map((l) => l.vendor_profile_id))];
 
-      // Fetch bookings where this host referred the customer
-      const { data: bookings } = await supabase
-        .from('bookings')
-        .select('total_amount, host_payout_amount')
-        .eq('host_user_id', user.id)
-        .eq('status', 'completed');
+      const [{ data: storefront }, { data: reviews }] = vendorIds.length
+        ? await Promise.all([
+            supabase.from("vendor_profiles")
+              .select("id, name, category, commission_percentage, photos, google_rating, google_place_id")
+              .in("id", vendorIds),
+            supabase.from("reviews").select("rating").in("vendor_profile_id", vendorIds),
+          ])
+        : [{ data: [] as StorefrontVendor[] }, { data: [] as { rating: number }[] }];
 
-      const totalEarnings = bookings?.reduce((sum, b) => sum + (b.host_payout_amount || 0), 0) || 0;
-      const bookingCount = bookings?.length || 0;
+      const all = bookings ?? [];
+      const completed = all.filter((b) => b.status === "completed");
+      const earnings = completed.reduce((sum, b) => sum + (Number(b.host_payout_amount) || 0), 0);
+      const pending = all
+        .filter((b) => b.status !== "completed" && b.status !== "cancelled")
+        .reduce((sum, b) => sum + (Number(b.host_payout_amount) || 0), 0);
+      const reviewAvg = reviews?.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : null;
 
-      // Count linked vendors
-      const { count: vendorCount } = await supabase
-        .from('host_vendor_links')
-        .select('*', { count: 'exact', head: true })
-        .eq('host_user_id', user.id);
-
-      // Calculate average rating from reviews on linked vendors
-      const { data: linkedVendors } = await supabase
-        .from('host_vendor_links')
-        .select('vendor_profile_id')
-        .eq('host_user_id', user.id);
-
-      let avgRating = 'N/A';
-      if (linkedVendors && linkedVendors.length > 0) {
-        const vendorIds = linkedVendors.map(v => v.vendor_profile_id);
-        const { data: reviews } = await supabase
-          .from('reviews')
-          .select('rating')
-          .in('vendor_profile_id', vendorIds);
-        
-        if (reviews && reviews.length > 0) {
-          const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
-          avgRating = avg.toFixed(1) + '★';
-        }
-      }
-
-      return [
-        { label: "Total Earnings", value: `$${totalEarnings.toLocaleString()}`, icon: "DollarSign" },
-        { label: "Bookings", value: bookingCount.toString(), icon: "Calendar" },
-        { label: "Active Vendors", value: (vendorCount || 0).toString(), icon: "Users" },
-        { label: "Avg Rating", value: avgRating, icon: "Star" },
-      ];
-    },
-    enabled: !!user,
-  });
-
-  // Fetch real recent bookings
-  const { data: recentBookings = [], isLoading: isLoadingBookings } = useQuery({
-    queryKey: ['hostRecentBookings', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-
-      const { data } = await supabase
-        .from('bookings')
-        .select('experience_name, vendor_name, booking_date, host_payout_amount')
-        .eq('host_user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      return data?.map(b => ({
-        service: b.experience_name,
-        vendor: b.vendor_name || 'Unknown Vendor',
-        date: new Date(b.booking_date).toLocaleDateString('en-US', { 
-          month: 'short', day: 'numeric', year: 'numeric' 
-        }),
-        amount: `$${(b.host_payout_amount || 0).toFixed(0)}`,
-      })) || [];
+      return {
+        earnings,
+        pending,
+        completedCount: completed.length,
+        bookingCount: all.length,
+        recent: all.slice(0, 6),
+        storefront: ((storefront ?? []) as StorefrontVendor[]).sort(
+          (a, b) => (b.commission_percentage ?? 0) - (a.commission_percentage ?? 0),
+        ),
+        reviewAvg,
+        reviewCount: reviews?.length ?? 0,
+      };
     },
     enabled: !!user,
   });
@@ -190,333 +158,161 @@ const HostDashboard = () => {
     }
   };
   
-  const iconMap = {
-    DollarSign,
-    Calendar: CalendarCheck,
-    Users,
-    Star: StarIcon,
-  };
-
-  useEffect(() => {
-    fetchVendorsWithCommission();
-  }, []);
-
-  const fetchVendorsWithCommission = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('vendor_profiles')
-        .select('id, name, category, commission_percentage, photos, google_rating')
-        .eq('is_published', true)
-        .not('commission_percentage', 'is', null)
-        .order('commission_percentage', { ascending: false });
-
-      if (error) throw error;
-      setVendors(data || []);
-    } catch (error) {
-      console.error('Error fetching vendors:', error);
-    } finally {
-      setIsLoadingVendors(false);
-    }
-  };
+  const payoutsReady = Boolean(connectStatus?.onboardingComplete);
+  const firstName = profileData?.full_name?.split(" ")[0];
+  const verified = profileData?.host_verification_status === "verified";
 
   return (
-    <PageTransition className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 pb-24">
-      <div className="max-w-[375px] mx-auto">
-        {/* Hero Header with Gradient */}
-        <div className="bg-brand px-4 pt-6 pb-20 rounded-b-3xl shadow-lg relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,black)]" />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-6">
-              <div className="space-y-1">
-                <h1 className="text-2xl font-bold text-paper">Welcome Back</h1>
-                <p className="text-sm text-paper/80">Here's your performance today</p>
-                {profileData && typeof profileData.host_trust_score === 'number' && (
-                  <div className="mt-2">
-                    <TrustScoreBadge score={profileData.host_trust_score} size="sm" />
-                  </div>
+    <>
+      <PageTransition>
+        <DashboardFrame>
+          <DashboardHeader
+            eyebrow="Host dashboard"
+            title={firstName ? `${firstName}'s storefront` : "Your storefront"}
+            subtitle="What your guests booked, what you earned, and who you recommend."
+            actions={
+              <>
+                {profileData && typeof profileData.host_trust_score === "number" && (
+                  <TrustScoreBadge score={profileData.host_trust_score} size="sm" />
                 )}
-              </div>
-              <button
-                onClick={() => navigate('/signout')}
-                className="p-2 rounded-xl bg-paper/10 backdrop-blur-sm hover:bg-paper/20 transition-all active:scale-95"
-                aria-label="Sign out"
-              >
-                <LogOut className="h-5 w-5 text-paper" />
-              </button>
-            </div>
+                <Button variant="outline" onClick={() => navigate("/host/vendors")}>Manage vendors</Button>
+                <Button variant="ghost" onClick={() => navigate("/signout")}>Sign out</Button>
+              </>
+            }
+          />
 
-            {/* Stripe Connect Status Card */}
-            <Card className="mt-4 p-4 bg-paper/10 backdrop-blur-sm border-paper/20">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${connectStatus?.onboardingComplete ? 'bg-success/20' : 'bg-rating/20'}`}>
-                    {connectStatus?.onboardingComplete ? (
-                      <CheckCircle2 className="h-5 w-5 text-success-light" />
-                    ) : (
-                      <AlertCircle className="h-5 w-5 text-rating-light" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-paper">
-                      {connectStatus?.onboardingComplete ? 'Commissions Active' : 'Set Up Payouts'}
-                    </p>
-                    <p className="text-xs text-paper/70">
-                      {connectStatus?.onboardingComplete 
-                        ? 'Receive commissions directly to your bank' 
-                        : 'Connect your bank to receive commissions'}
-                    </p>
-                  </div>
-                </div>
-                {!connectStatus?.onboardingComplete && (
-                  <Button
-                    onClick={handleConnectStripe}
-                    disabled={isConnecting}
-                    size="sm"
-                    className="bg-paper text-brand-strong hover:bg-paper/90 gap-1"
-                  >
-                    {isConnecting ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <CreditCard className="h-4 w-4" />
-                    )}
-                    {isConnecting ? 'Loading...' : 'Connect'}
-                  </Button>
-                )}
-              </div>
-            </Card>
-          </div>
-        </div>
-
-        {/* Host Onboarding Card */}
-        {showOnboarding && (
-          <div className="px-4 -mt-12 relative z-20 mb-3">
-            <HostOnboardingCard onComplete={() => {
-              setShowOnboarding(false);
-              refetchProfile();
-            }} />
-          </div>
-        )}
-
-        {/* Host Verification Card */}
-        {profileData && (
-          <div className={`px-4 ${showOnboarding ? '' : '-mt-12'} relative z-20 mb-3`}>
-            <HostVerificationCard
-              verificationStatus={(profileData.host_verification_status as any) || 'unverified'}
-              verificationNotes={profileData.host_verification_notes}
-              existingIdUrl={profileData.government_id_url}
-              existingSelfieUrl={profileData.selfie_url}
-              onStatusChange={() => refetchProfile()}
+          {!payoutsReady && (
+            <Notice
+              title="Payouts aren't set up yet"
+              body="Connect Stripe so your commission from each booking reaches your bank."
+              action={
+                <Button onClick={handleConnectStripe} disabled={isConnecting} className="shrink-0">
+                  {isConnecting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isConnecting ? "Opening Stripe" : "Connect Stripe"}
+                </Button>
+              }
             />
-          </div>
-        )}
-
-        {/* Stats Cards - Overlapping Hero */}
-        <div className={`px-4 ${(showOnboarding || profileData) ? '' : '-mt-12'} relative z-20 space-y-3`}>
-          {isLoadingStats ? (
-            <>
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton key={i} className="h-24 w-full rounded-xl" />
-              ))}
-            </>
-          ) : (
-            dashboardStats.map((stat) => {
-              const Icon = iconMap[stat.icon as keyof typeof iconMap];
-              
-              // Define navigation routes for each stat
-              const getNavigationRoute = () => {
-                switch(stat.label) {
-                  case "Total Earnings":
-                    return "/host/earnings";
-                  case "Bookings":
-                    return "/host/bookings";
-                  case "Active Vendors":
-                    return "/host/vendors/active";
-                  case "Avg Rating":
-                    return "/host/ratings";
-                  default:
-                    return null;
-                }
-              };
-              
-              const route = getNavigationRoute();
-              const CardWrapper = route ? 'button' : 'div';
-              
-              return (
-                <Card 
-                  key={stat.label} 
-                  className="p-5 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] active:scale-95 bg-card/80 backdrop-blur-sm border-2"
-                >
-                  <CardWrapper
-                    onClick={route ? () => navigate(route) : undefined}
-                    className={route ? 'w-full text-left' : ''}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-brand/20 ring-1 ring-brand/20">
-                          <Icon className="h-6 w-6 text-brand" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
-                          <p className="text-3xl font-bold mt-1 text-brand ">
-                            {stat.value}
-                          </p>
-                        </div>
-                      </div>
-                      {route && (
-                        <ArrowUpRight className="h-5 w-5 text-muted-foreground" />
-                      )}
-                    </div>
-                  </CardWrapper>
-                </Card>
-              );
-            })
           )}
-        </div>
 
-        {/* Recent Activity Section */}
-        <div className="px-4 mt-8 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-brand" />
-              <h2 className="text-xl font-bold">Recent Activity</h2>
+          {showOnboarding && (
+            <div className="mt-6">
+              <HostOnboardingCard onComplete={() => { setShowOnboarding(false); refetchProfile(); }} />
             </div>
-            <button 
-              onClick={() => navigate('/host/bookings')}
-              className="text-sm font-medium text-primary hover:text-primary/80 active:scale-95 flex items-center gap-1"
-            >
-              View All
-              <ArrowUpRight className="h-4 w-4" />
-            </button>
-          </div>
-          
-          {isLoadingBookings ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-20 w-full rounded-xl" />
-              ))}
-            </div>
-          ) : recentBookings.length === 0 ? (
-            <Card className="p-8 text-center">
-              <Calendar className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-              <p className="font-medium text-foreground">No bookings yet</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Your earnings will appear here once guests book through your referrals
-              </p>
-            </Card>
-          ) : (
-            <div className="space-y-3">
-              {recentBookings.map((booking, index) => (
-                <Card
-                  key={index}
-                  className="p-4 hover:shadow-lg transition-all duration-200 hover:scale-[1.01] active:scale-95 group border-l-4 border-l-transparent hover:border-l-brand"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-base truncate group-hover:text-brand transition-colors">
-                        {booking.service}
-                      </p>
-                      <p className="text-sm text-muted-foreground truncate mt-1">{booking.vendor}</p>
-                      <p className="text-xs text-muted-foreground mt-2">{booking.date}</p>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <div className="px-3 py-1.5 rounded-full bg-brand ">
-                        <p className="font-bold text-sm text-paper">{booking.amount}</p>
-                      </div>
-                    </div>
+          )}
+
+          <div className="grid gap-x-14 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+            <div>
+              <section className="mt-10 grid gap-8 sm:grid-cols-2">
+                <div>
+                  <p className="text-sm text-muted-foreground">Commission earned</p>
+                  {isLoading ? <Skeleton className="mt-2 h-14 w-48" /> : (
+                    <p className="mt-1 font-display text-5xl tabular-nums text-foreground lg:text-6xl">{formatMoney(data?.earnings)}</p>
+                  )}
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    From {data?.completedCount ?? 0} completed booking{data?.completedCount === 1 ? "" : "s"}.{" "}
+                    <Link to="/host/earnings" className="text-primary hover:underline">Earnings</Link>
+                  </p>
+                </div>
+                <div className="sm:border-l sm:border-white/10 sm:pl-8">
+                  <p className="text-sm text-muted-foreground">Still to pay out</p>
+                  {isLoading ? <Skeleton className="mt-2 h-10 w-32" /> : (
+                    <p className="mt-1 font-display text-3xl tabular-nums text-foreground/80">{formatMoney(data?.pending)}</p>
+                  )}
+                  <p className="mt-2 text-sm text-muted-foreground">From bookings that haven't happened yet.</p>
+                </div>
+              </section>
+
+              <DashboardSection title="Recent bookings" action={{ label: "All bookings", to: "/host/bookings" }}>
+                {isLoading ? (
+                  <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
+                ) : !data?.recent.length ? (
+                  <p className="rounded-xl border border-dashed border-white/15 p-6 text-sm text-muted-foreground">
+                    No bookings yet. Share your storefront link with guests and their bookings land here.
+                  </p>
+                ) : (
+                  <ul className="divide-y divide-white/10 border-y border-white/10">
+                    {data.recent.map((b) => (
+                      <li key={b.id} className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-0.5 py-3.5 sm:grid-cols-[7rem_1fr_6rem_6rem] sm:items-center">
+                        <span className="order-2 col-span-1 text-xs text-muted-foreground sm:order-none sm:text-sm">{formatDay(b.booking_date)}</span>
+                        <span className="order-1 min-w-0 sm:order-none">
+                          <span className="block truncate font-medium text-foreground">{b.experience_name}</span>
+                          <span className="block truncate text-xs text-muted-foreground">{b.vendor_name || "Vendor"}</span>
+                        </span>
+                        <span className="hidden text-sm capitalize text-muted-foreground sm:block">{b.status}</span>
+                        <span className="order-1 row-span-2 self-center text-right tabular-nums text-foreground sm:order-none sm:row-span-1">
+                          {formatMoney(b.host_payout_amount)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </DashboardSection>
+
+              <DashboardSection title="Vendors in your storefront" action={{ label: "Manage", to: "/host/vendors" }}>
+                {isLoading ? <Skeleton className="h-40 w-full" /> : !data?.storefront.length ? (
+                  <p className="rounded-xl border border-dashed border-white/15 p-6 text-sm text-muted-foreground">
+                    You haven't added any vendors. <Link to="/host/vendors" className="text-primary hover:underline">Browse vendors</Link> to start earning commission.
+                  </p>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {data.storefront.map((v) => (
+                      <button
+                        key={v.id}
+                        onClick={() => navigate(`/vendor/${v.id}`)}
+                        className="group flex gap-4 rounded-xl border border-white/10 p-3 text-left transition-colors hover:border-white/25"
+                      >
+                        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
+                          {v.photos?.[0] && <img src={v.photos[0]} alt="" className="h-full w-full object-cover" />}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-medium text-foreground group-hover:text-primary">{v.name}</p>
+                          <p className="text-xs text-muted-foreground">{v.category}</p>
+                          <VendorGoogleRating vendor={v} className="mt-1 text-sm" starClassName="h-3.5 w-3.5" />
+                          {v.commission_percentage != null && (
+                            <p className="mt-1 text-sm text-secondary">{v.commission_percentage}% commission</p>
+                          )}
+                        </div>
+                      </button>
+                    ))}
                   </div>
-                </Card>
-              ))}
+                )}
+              </DashboardSection>
             </div>
-          )}
-        </div>
 
-        {/* Vendor Commission Rates Section */}
-        <div className="px-4 mt-8 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Handshake className="h-5 w-5 text-warning" />
-              <h2 className="text-xl font-bold">Partner Commissions</h2>
-            </div>
+            <aside className="lg:pt-10">
+              <DashboardSection title="Key figures" className="lg:mt-0">
+                <FigureList>
+                  <FigureRow label="Bookings" hint="All statuses" value={data?.bookingCount ?? 0} to="/host/bookings" />
+                  <FigureRow label="Vendors in storefront" value={data?.storefront.length ?? 0} to="/host/vendors" />
+                  <FigureRow
+                    label="Guest reviews"
+                    hint={data?.reviewCount ? `${data.reviewCount} on stackd for your vendors` : "None yet"}
+                    value={data?.reviewAvg != null ? data.reviewAvg.toFixed(1) : "None"}
+                    to="/host/ratings"
+                  />
+                  <FigureRow label="Payouts" value={<span className="font-sans text-sm">{payoutsReady ? "Active" : "Not connected"}</span>} to="/host/payment-settings" />
+                </FigureList>
+              </DashboardSection>
+
+              {profileData && !verified && (
+                <div className="mt-8">
+                  <HostVerificationCard
+                    verificationStatus={(profileData.host_verification_status as any) || "unverified"}
+                    verificationNotes={profileData.host_verification_notes}
+                    existingIdUrl={profileData.government_id_url}
+                    existingSelfieUrl={profileData.selfie_url}
+                    onStatusChange={() => refetchProfile()}
+                  />
+                </div>
+              )}
+              {verified && <p className="mt-6 text-sm text-muted-foreground">Identity verified.</p>}
+            </aside>
           </div>
-          
-          <p className="text-sm text-muted-foreground">
-            Earn commissions when you refer guests to these vendors
-          </p>
-
-          {isLoadingVendors ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-20 w-full rounded-xl" />
-              ))}
-            </div>
-          ) : vendors.length === 0 ? (
-            <Card className="p-6 text-center rounded-2xl">
-              <Store className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-              <p className="text-sm font-medium mb-1">No partner rates yet</p>
-              <p className="text-sm text-muted-foreground mb-4">
-                Published vendors with a commission % will show here after you apply the demo seed.
-              </p>
-              <Button variant="outline" size="sm" className="rounded-full" onClick={() => navigate('/explore?mode=host')}>
-                Browse vendors
-              </Button>
-            </Card>
-          ) : (
-            <div className="space-y-3">
-              {vendors.map((vendor) => (
-                <Card
-                  key={vendor.id}
-                  className="p-4 rounded-2xl border-border/80 hover:shadow-lg transition-all duration-200 hover:scale-[1.01] active:scale-95 cursor-pointer group"
-                  onClick={() => navigate(`/vendor/${vendor.id}?mode=host`)}
-                >
-                  <div className="flex items-center gap-3">
-                    {/* Vendor Photo */}
-                    <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-brand/20 ring-1 ring-border/60">
-                      {vendor.photos && vendor.photos.length > 0 ? (
-                        <img
-                          src={vendor.photos[0]}
-                          alt={vendor.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Store className="h-6 w-6 text-muted-foreground" />
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Vendor Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate group-hover:text-brand transition-colors">
-                        {vendor.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">{vendor.category}</p>
-                      <div className="mt-1">
-                        <VendorGoogleRating
-                          vendor={vendor}
-                          showCount={false}
-                          className="text-xs text-muted-foreground"
-                          starClassName="h-3 w-3"
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Commission Badge */}
-                    <div className="flex-shrink-0 text-right">
-                      <Badge className="bg-gradient-to-r from-warning to-brand text-paper text-lg px-3 py-1 font-bold">
-                        {vendor.commission_percentage}%
-                      </Badge>
-                      <p className="text-[10px] text-muted-foreground mt-1">per booking</p>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
+        </DashboardFrame>
+      </PageTransition>
+      {/* Outside PageTransition: a transformed ancestor would turn position:fixed into position:absolute. */}
       <HostBottomNav />
-    </PageTransition>
+    </>
   );
 };
 

@@ -8,7 +8,7 @@ export interface RatedVendor {
 
 /**
  * Experiences store their Google listing as google_place_id; google_rating is rarely filled in.
- * Use the stored number when there is one, otherwise read the live Google Places rating
+ * Live Google Places rating first; the stored google_rating is only a fallback
  * (same cached query the detail page uses, so cards and detail pages always agree).
  */
 export function useVendorRating(vendor: RatedVendor | null | undefined): ResolvedGoogleRating | null {

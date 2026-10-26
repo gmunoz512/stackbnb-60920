@@ -1,3 +1,4 @@
+import { useRestaurantRating } from "@/hooks/useRestaurantRating";
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
 import { BlurImage } from "@/components/BlurImage";
@@ -21,22 +22,8 @@ export const RestaurantCardWithGoogleRating = ({
   onToggleFavorite,
   showFavoriteButton = false,
 }: RestaurantCardWithGoogleRatingProps) => {
-  const { data: googleData } = useGoogleReviews({
-    id: restaurant.id,
-    searchQuery: `${restaurant.name} restaurant ${restaurant.address} ${restaurant.city}`,
-    lat: restaurant.coordinates?.lat,
-    lng: restaurant.coordinates?.lng,
-  });
-
-  const rating = resolveGoogleRating({
-    google: googleData ? { rating: googleData.rating, totalReviews: googleData.totalReviews } : null,
-    place: {
-      rating: restaurant.rating,
-      reviewCount: restaurant.reviewCount,
-      isFromApi: restaurant.isFromApi,
-    },
-  });
-  const displayPhoto = googleData?.photos?.[0] ?? restaurant.photos[0];
+  const { rating, photo } = useRestaurantRating(restaurant);
+  const displayPhoto = photo ?? restaurant.photos[0];
 
   return (
     <Link
@@ -74,7 +61,7 @@ export const RestaurantCardWithGoogleRating = ({
           <p className="text-paper text-xs font-medium line-clamp-1">{restaurant.name}</p>
           <div className="flex items-center gap-1 text-paper/80 text-[10px]">
             <GoogleRating value={rating} showCount={false} className="text-[10px] text-inherit" starClassName="h-2.5 w-2.5" />
-            <span>•</span>
+            <span aria-hidden="true" className="-ml-1">,</span>
             <span>{restaurant.priceRange}</span>
           </div>
         </div>

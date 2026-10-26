@@ -82,12 +82,8 @@ const HostStorefront = () => {
                         </Badge>
                       </div>
                       
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <GoogleRating value={null} showCount={false} starClassName="h-3 w-3" />
-                        <span>•</span>
-                        <span>{experience.duration}</span>
-                        <span>•</span>
-                        <span>Up to {experience.maxGuests}</span>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <span>{experience.duration}, up to {experience.maxGuests} guests</span>
                       </div>
                     </div>
                   </Card>

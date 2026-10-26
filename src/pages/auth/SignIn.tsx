@@ -1,3 +1,4 @@
+import { AuthSidePanel, AuthMobileMark } from "@/components/auth/AuthSidePanel";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -121,8 +122,9 @@ const SignIn = () => {
         onOpenChange={setShowOTPDialog} 
         email={resetEmail} 
       />
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-4">
+      <div className="min-h-screen bg-background lg:grid lg:grid-cols-2">
+      <AuthSidePanel />
+      <div className="mx-auto w-full max-w-md space-y-6 px-6 py-10 lg:self-center">
         <Link 
           to="/" 
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors active:scale-95"
@@ -131,15 +133,10 @@ const SignIn = () => {
           Back to Home
         </Link>
         
-        <Card className="w-full p-8 space-y-6">
-        <div className="text-center space-y-2">
-          <Link to="/" className="inline-flex items-center gap-3 mb-4">
-            <img src={stackdLogo} alt="stackd logo" className="h-10 w-10 drop-shadow-lg" />
-            <h1 className="text-3xl font-bold font-display text-brand ">
-              stackd
-            </h1>
-          </Link>
-          <h2 className="text-2xl font-semibold">Welcome Back</h2>
+        <div className="w-full space-y-6">
+        <div className="space-y-2">
+          <AuthMobileMark />
+          <h1 className="pt-4 font-display text-3xl text-foreground">Welcome back</h1>
           <p className="text-muted-foreground">
             Sign in to your account
           </p>
@@ -195,19 +192,19 @@ const SignIn = () => {
           </div>
         </form>
 
-        <div className="text-center text-sm text-muted-foreground space-y-2">
+        <div className="border-t border-white/10 pt-6 text-sm text-muted-foreground space-y-2">
           <p>Don't have an account?</p>
-          <div className="flex gap-2 justify-center">
+          <div className="flex gap-2">
             <Link to="/signup/host" className="text-primary hover:underline">
               Sign up as Host
             </Link>
-            <span>•</span>
+            <span>or</span>
             <Link to="/signup/vendor" className="text-primary hover:underline">
               Sign up as Vendor
             </Link>
           </div>
         </div>
-        </Card>
+        </div>
       </div>
     </div>
     </>

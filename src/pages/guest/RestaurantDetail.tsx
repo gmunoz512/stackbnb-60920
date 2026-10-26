@@ -95,7 +95,7 @@ const RestaurantDetail = () => {
   const { requireSignIn } = useRequireSignIn();
   const placeRating = resolveGoogleRating({
     google: googleReviews ? { rating: googleReviews.rating, totalReviews: googleReviews.totalReviews } : null,
-    place: restaurant
+    place: restaurant?.isFromApi
       ? { rating: restaurant.rating, reviewCount: restaurant.reviewCount, isFromApi: restaurant.isFromApi }
       : null,
   });

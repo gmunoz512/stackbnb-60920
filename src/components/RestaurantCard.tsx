@@ -1,3 +1,4 @@
+import { useRestaurantRating } from "@/hooks/useRestaurantRating";
 import { Link } from "react-router-dom";
 import { Heart, MapPin, Navigation, Plus, Check, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -24,24 +25,9 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
   const [isAdding, setIsAdding] = useState(false);
   const isOpen = isRestaurantOpen(restaurant);
 
-  // Shared Google data (rating/photos) — one cache for the whole app
-  const { data: googleData } = useGoogleReviews({
-    id: restaurant.id,
-    searchQuery: `${restaurant.name} restaurant ${restaurant.address || ''} ${restaurant.city}`,
-    lat: restaurant.coordinates?.lat,
-    lng: restaurant.coordinates?.lng,
-    enabled: Boolean(restaurant.coordinates?.lat && restaurant.coordinates?.lng),
-  });
-
-  const coverPhoto = googleData?.photos?.[0] ?? restaurant.photos[0];
-  const rating = resolveGoogleRating({
-    google: googleData ? { rating: googleData.rating, totalReviews: googleData.totalReviews } : null,
-    place: {
-      rating: restaurant.rating,
-      reviewCount: restaurant.reviewCount,
-      isFromApi: restaurant.isFromApi,
-    },
-  });
+  // One rating source for the whole app (live Google, cached by restaurant id)
+  const { rating, photo: googlePhoto } = useRestaurantRating(restaurant);
+  const coverPhoto = googlePhoto ?? restaurant.photos[0];
 
   const isSmall = size === 'small';
   
@@ -159,7 +145,7 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
               <span className="line-clamp-1">{restaurant.neighborhood || restaurant.city}</span>
               {restaurant.distance && (
                 <>
-                  <span>•</span>
+                  <span aria-hidden="true" className="-ml-1">,</span>
                   <Navigation className="h-3 w-3" />
                   <span>{formatDistance(restaurant.distance)}</span>
                 </>

@@ -1,3 +1,4 @@
+import { AuthSidePanel, AuthMobileMark } from "@/components/auth/AuthSidePanel";
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -132,20 +133,14 @@ const Auth = () => {
   // Show role selection if no role is specified and user is signing up
   if (!role && isSignUp) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
-        <div className="w-full max-w-md space-y-8">
-          {/* Logo */}
-          <div className="flex justify-center">
-            <img 
-              src={stackdLogo}
-              alt="Stackd" 
-              className="h-32 w-32 sm:h-40 sm:w-40 object-contain"
-            />
-          </div>
+      <div className="min-h-screen bg-background lg:grid lg:grid-cols-2">
+        <AuthSidePanel />
+        <div className="mx-auto w-full max-w-md space-y-8 px-6 py-10 lg:self-center">
+          <AuthMobileMark />
 
           {/* Title */}
-          <div className="text-center">
-            <h1 className="text-2xl sm:text-3xl font-semibold text-foreground">Choose your role.</h1>
+          <div>
+            <h1 className="font-display text-3xl text-foreground">How will you use stackd?</h1>
           </div>
 
           {/* Role Cards - Compact horizontal style */}
@@ -454,22 +449,16 @@ const Auth = () => {
         onOpenChange={setShowOTPDialog} 
         email={resetEmail} 
       />
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
-        <div className="w-full max-w-md space-y-8">
-          {/* Logo */}
-          <div className="flex justify-center">
-            <img 
-              src={stackdLogo}
-              alt="Stackd" 
-              className="h-24 w-24 sm:h-32 sm:w-32 object-contain"
-            />
-          </div>
+      <div className="min-h-screen bg-background lg:grid lg:grid-cols-2">
+        <AuthSidePanel />
+        <div className="mx-auto w-full max-w-md space-y-8 px-6 py-10 lg:self-center">
+          <AuthMobileMark />
 
           {/* Glass-morphic Card */}
-          <div className="p-8 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm">
+          <div>
             <div className="space-y-6">
-              <div className="text-center space-y-2">
-                <h1 className="text-2xl font-semibold text-foreground">
+              <div className="space-y-2">
+                <h1 className="font-display text-3xl text-foreground">
                   {isSignUp ? "Create your account" : "Welcome back"}
                 </h1>
                 <p className="text-sm text-muted-foreground">

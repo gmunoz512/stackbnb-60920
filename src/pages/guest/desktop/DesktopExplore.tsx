@@ -1,3 +1,4 @@
+import { useRestaurantRating } from "@/hooks/useRestaurantRating";
 import { memo, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Heart, MapPin, Search, Sparkles, User } from "lucide-react";
@@ -73,7 +74,7 @@ export function DesktopTopNav({ isAuthenticated, profileRoute }: { isAuthenticat
 }
 
 const RestaurantTile = memo(function RestaurantTile({ r, photo }: { r: Restaurant; photo: string }) {
-  const rating = resolveGoogleRating({ place: { rating: r.rating, reviewCount: r.reviewCount } });
+  const { rating } = useRestaurantRating(r);
   return (
     <Link to={`/restaurant/${r.id}`} className="group block focus-visible:outline-none">
       <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted ring-1 ring-white/5 transition-shadow group-hover:shadow-[0_18px_40px_-12px_hsl(var(--brand)/.35)] group-focus-visible:ring-2 group-focus-visible:ring-pink-500">

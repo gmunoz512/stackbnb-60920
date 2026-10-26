@@ -1,3 +1,4 @@
+import { RestaurantGoogleRating } from "@/components/RestaurantGoogleRating";
 import { VendorGoogleRating } from "@/components/VendorGoogleRating";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -473,7 +474,7 @@ const Wishlists = () => {
                           <div className="mt-2">
                             <VendorGoogleRating
                               vendor={vendor}
-                              showCount={false}
+                              showCount
                               className="text-sm"
                               starClassName="h-4 w-4"
                             />
@@ -608,14 +609,8 @@ const Wishlists = () => {
                         {restaurant.cuisine}, {restaurant.neighborhood || restaurant.city}
                       </p>
                       <div className="mt-2">
-                        <GoogleRating
-                          value={resolveGoogleRating({
-                            place: {
-                              rating: restaurant.rating,
-                              reviewCount: restaurant.reviewCount,
-                              isFromApi: restaurant.isFromApi,
-                            },
-                          })}
+                        <RestaurantGoogleRating
+                          restaurant={restaurant}
                           className="text-sm"
                           starClassName="h-4 w-4"
                         />

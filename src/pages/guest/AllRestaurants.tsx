@@ -220,11 +220,11 @@ const AllRestaurants = () => {
                       <div className="flex items-center gap-1 text-paper/80 text-[10px]">
                         <VendorGoogleRating
                           vendor={vendor}
-                          showCount={false}
+                          showCount
                           className="text-[10px] text-inherit"
                           starClassName="h-2.5 w-2.5"
                         />
-                        <span>•</span>
+                        <span aria-hidden="true" className="-ml-1">,</span>
                         <span>{vendor.category}</span>
                       </div>
                     </div>

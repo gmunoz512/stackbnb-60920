@@ -1,6 +1,5 @@
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DollarSign, CalendarCheck, Users, StarIcon, LogOut, TrendingUp, ArrowUpRight, Eye, CreditCard, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -12,7 +11,20 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VendorOnboardingWizard } from "@/components/onboarding";
 import HostVerificationCard from "@/components/onboarding/HostVerificationCard";
-import { resolveGoogleRating } from "@/lib/googleRating";
+import { VendorGoogleRating } from "@/components/VendorGoogleRating";
+import { formatDay, formatMoney, formatTime } from "@/lib/format";
+import {
+  DashboardFrame, DashboardHeader, DashboardSection, FigureList, FigureRow, Notice,
+} from "@/components/dashboard/DashboardParts";
+
+interface UpcomingBooking {
+  id: string;
+  service: string;
+  date: string;
+  time: string | null;
+  guests: number;
+  host: string;
+}
 
 const VendorDashboard = () => {
   const navigate = useNavigate();
@@ -21,90 +33,55 @@ const VendorDashboard = () => {
   const [showOnboardingWizard, setShowOnboardingWizard] = useState(false);
   const { user } = useAuthContext();
 
-  // Fetch real vendor stats from database
-  const { data: stats = [], isLoading: isLoadingStats } = useQuery({
-    queryKey: ['vendorDashboardStats', user?.id],
+  // Everything on this page comes from one query so the numbers can't disagree.
+  const { data, isLoading } = useQuery({
+    queryKey: ["vendorDashboard", user?.id],
     queryFn: async () => {
-      if (!user) return [];
-
-      // Fetch bookings for this vendor
-      const { data: vendorProfile } = await supabase
-        .from('vendor_profiles')
-        .select('id, google_rating')
-        .eq('user_id', user.id)
+      if (!user) return null;
+      const { data: vendor } = await supabase
+        .from("vendor_profiles")
+        .select("id, name, google_rating, google_place_id")
+        .eq("user_id", user.id)
         .maybeSingle();
+      if (!vendor) return null;
 
-      if (!vendorProfile) {
-        return [
-          { label: "Total Revenue", value: "$0", icon: "DollarSign" },
-          { label: "Bookings", value: "0", icon: "Calendar" },
-          { label: "Active Hosts", value: "0", icon: "Users" },
-          { label: "Rating", value: "N/A", icon: "Star" },
-        ];
+      const today = new Date().toISOString().split("T")[0];
+      const [{ data: completed }, { data: upcoming }, { data: links }] = await Promise.all([
+        supabase.from("bookings").select("total_amount, vendor_payout_amount, host_user_id")
+          .eq("vendor_profile_id", vendor.id).eq("status", "completed"),
+        supabase.from("bookings").select("id, experience_name, booking_date, booking_time, guests, host_user_id")
+          .eq("vendor_profile_id", vendor.id).gte("booking_date", today)
+          .order("booking_date", { ascending: true }).limit(8),
+        supabase.from("host_vendor_links").select("host_user_id").eq("vendor_profile_id", vendor.id),
+      ]);
+
+      const earnings = (completed ?? []).reduce((sum, b) => sum + (Number(b.vendor_payout_amount ?? b.total_amount) || 0), 0);
+
+      // Active hosts = hosts who list you in their storefront, plus any host who sent you a booking.
+      const hostIds = new Set<string>();
+      (links ?? []).forEach((l) => l.host_user_id && hostIds.add(l.host_user_id));
+      [...(completed ?? []), ...(upcoming ?? [])].forEach((b) => b.host_user_id && hostIds.add(b.host_user_id));
+
+      const bookingHostIds = [...new Set((upcoming ?? []).map((b) => b.host_user_id).filter(Boolean) as string[])];
+      const names = new Map<string, string>();
+      if (bookingHostIds.length) {
+        const { data: hosts } = await supabase.from("profiles").select("user_id, full_name").in("user_id", bookingHostIds);
+        (hosts ?? []).forEach((h) => h.full_name && names.set(h.user_id, h.full_name));
       }
 
-      // Fetch bookings for this vendor profile
-      const { data: bookings } = await supabase
-        .from('bookings')
-        .select('total_amount, vendor_payout_amount')
-        .eq('vendor_profile_id', vendorProfile.id)
-        .eq('status', 'completed');
-
-      const totalRevenue = bookings?.reduce((sum, b) => sum + (b.vendor_payout_amount || b.total_amount || 0), 0) || 0;
-      const bookingCount = bookings?.length || 0;
-
-      // Fetch host links count
-      const { count: hostCount } = await supabase
-        .from('host_vendor_links')
-        .select('*', { count: 'exact', head: true })
-        .eq('vendor_profile_id', vendorProfile.id);
-
-      const resolved = resolveGoogleRating({ googleRating: vendorProfile.google_rating });
-      const rating = resolved ? resolved.rating.toFixed(1) : "No rating yet";
-
-      return [
-        { label: "Total Revenue", value: `$${totalRevenue.toLocaleString()}`, icon: "DollarSign" },
-        { label: "Bookings", value: bookingCount.toString(), icon: "Calendar" },
-        { label: "Active Hosts", value: (hostCount || 0).toString(), icon: "Users" },
-        { label: "Rating", value: rating, icon: "Star" },
-      ];
-    },
-    enabled: !!user,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  // Fetch real upcoming bookings from database
-  const { data: bookings = [], isLoading: isLoadingBookings } = useQuery({
-    queryKey: ['vendorUpcomingBookings', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-
-      const { data: vendorProfile } = await supabase
-        .from('vendor_profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (!vendorProfile) return [];
-
-      const { data: bookingsData } = await supabase
-        .from('bookings')
-        .select('*')
-        .eq('vendor_profile_id', vendorProfile.id)
-        .gte('booking_date', new Date().toISOString().split('T')[0])
-        .order('booking_date', { ascending: true })
-        .limit(5);
-
-      return bookingsData?.map(b => ({
+      const bookings: UpcomingBooking[] = (upcoming ?? []).map((b) => ({
+        id: b.id,
         service: b.experience_name,
         date: b.booking_date,
-        time: b.booking_time,
-        guest: `${b.guests} guest${b.guests > 1 ? 's' : ''}`,
-        host: b.vendor_name || 'Direct Booking',
-      })) || [];
+        time: formatTime(b.booking_time),
+        guests: b.guests,
+        host: b.host_user_id ? names.get(b.host_user_id) ?? "Host referral" : "Direct booking",
+      }));
+
+      return { vendor, earnings, completedCount: completed?.length ?? 0, activeHosts: hostIds.size, bookings };
     },
     enabled: !!user,
-    staleTime: 2 * 60 * 1000,
+    staleTime: 60 * 1000,
   });
 
   // Check Stripe Connect status
@@ -196,245 +173,133 @@ const VendorDashboard = () => {
     }
   };
   
-  const iconMap = {
-    DollarSign,
-    Calendar: CalendarCheck,
-    Users,
-    Star: StarIcon,
-  };
+  const payoutsReady = Boolean(connectStatus?.onboardingComplete);
 
   return (
     <>
-      <VendorOnboardingWizard 
-        open={showOnboardingWizard} 
+      <VendorOnboardingWizard
+        open={showOnboardingWizard}
         onOpenChange={(open) => {
           setShowOnboardingWizard(open);
-          if (!open) {
-            sessionStorage.setItem('vendorOnboardingDismissed', 'true');
-          }
-        }} 
+          if (!open) sessionStorage.setItem("vendorOnboardingDismissed", "true");
+        }}
       />
-      <PageTransition className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 pb-24">
-        <div className="max-w-[375px] mx-auto">
-        {/* Hero Header with Gradient */}
-        <div className="bg-brand px-4 pt-6 pb-20 rounded-b-3xl shadow-lg relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,black)]" />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-6">
-              <div className="space-y-1">
-                <h1 className="text-2xl font-bold text-paper">Welcome Back</h1>
-                <p className="text-sm text-paper/80">Your business overview today</p>
-              </div>
-              <button
-                onClick={() => navigate('/signout')}
-                className="p-2 rounded-xl bg-paper/10 backdrop-blur-sm hover:bg-paper/20 transition-all active:scale-95"
-                aria-label="Sign out"
-              >
-                <LogOut className="h-5 w-5 text-paper" />
-              </button>
-            </div>
-            
-            {/* Preview Profile Button */}
-            <Button
-              onClick={() => navigate('/vendor/preview')}
-              className="w-full bg-paper/20 backdrop-blur-sm hover:bg-paper/30 text-paper border-paper/30 gap-2"
-              variant="outline"
-            >
-              <Eye className="h-4 w-4" />
-              Preview Your Profile
-            </Button>
+      <PageTransition>
+        <DashboardFrame>
+          <DashboardHeader
+            eyebrow="Vendor dashboard"
+            title={data?.vendor?.name || "Your business"}
+            subtitle="Earnings, bookings and the hosts sending you guests."
+            actions={
+              <>
+                <Button variant="outline" onClick={() => navigate("/vendor/preview")}>Preview profile</Button>
+                <Button variant="ghost" onClick={() => navigate("/signout")}>Sign out</Button>
+              </>
+            }
+          />
 
-            {/* Stripe Connect Status Card */}
-            <Card className="mt-4 p-4 bg-paper/10 backdrop-blur-sm border-paper/20">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${connectStatus?.onboardingComplete ? 'bg-success/20' : 'bg-rating/20'}`}>
-                    {connectStatus?.onboardingComplete ? (
-                      <CheckCircle2 className="h-5 w-5 text-success-light" />
-                    ) : (
-                      <AlertCircle className="h-5 w-5 text-rating-light" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-paper">
-                      {connectStatus?.onboardingComplete ? 'Payments Active' : 'Set Up Payments'}
-                    </p>
-                    <p className="text-xs text-paper/70">
-                      {connectStatus?.onboardingComplete 
-                        ? 'Receive payouts directly to your bank' 
-                        : 'Connect your bank to receive earnings'}
-                    </p>
-                  </div>
-                </div>
-                {!connectStatus?.onboardingComplete && (
-                  <Button
-                    onClick={handleConnectStripe}
-                    disabled={isConnecting}
-                    size="sm"
-                    className="bg-paper text-brand-strong hover:bg-paper/90 gap-1"
-                  >
-                    {isConnecting ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <CreditCard className="h-4 w-4" />
-                    )}
-                    {isConnecting ? 'Loading...' : 'Connect'}
-                  </Button>
-                )}
-              </div>
-            </Card>
-          </div>
-        </div>
-
-        <div className="px-4 mt-6">
-          {profileStatus && profileStatus.host_verification_status !== 'verified' && (
-            <HostVerificationCard
-              verificationStatus={profileStatus.host_verification_status as any}
-              verificationNotes={profileStatus.host_verification_notes}
-              existingIdUrl={profileStatus.government_id_url}
-              existingSelfieUrl={profileStatus.selfie_url}
-              onStatusChange={() => refetchProfile()}
+          {!payoutsReady && (
+            <Notice
+              title="Payouts aren't set up yet"
+              body="Connect a bank account through Stripe so completed bookings pay out to you."
+              action={
+                <Button onClick={handleConnectStripe} disabled={isConnecting} className="shrink-0">
+                  {isConnecting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isConnecting ? "Opening Stripe" : "Connect Stripe"}
+                </Button>
+              }
             />
           )}
-        </div>
 
-        {/* Stats Cards - Overlapping Hero */}
-        <div className="px-4 relative z-20 space-y-3 mt-4">
-          {isLoadingStats ? (
-            <>
-              {[1, 2, 3, 4].map((i) => (
-                <Card key={i} className="p-5 bg-card/80 backdrop-blur-sm border-2">
-                  <div className="flex items-center gap-4">
-                    <Skeleton className="h-12 w-12 rounded-2xl" />
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-24" />
-                      <Skeleton className="h-8 w-16" />
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </>
-          ) : (
-            stats.map((stat) => {
-              const Icon = iconMap[stat.icon as keyof typeof iconMap];
-              
-              const getNavigationRoute = () => {
-                switch(stat.label) {
-                  case "Total Revenue":
-                    return "/vendor/revenue";
-                  case "Bookings":
-                    return "/vendor/bookings";
-                  case "Active Hosts":
-                    return "/vendor/hosts";
-                  case "Rating":
-                    return "/vendor/ratings";
-                  default:
-                    return null;
-                }
-              };
-              
-              const route = getNavigationRoute();
-              const CardWrapper = route ? 'button' : 'div';
-              
-              return (
-                <Card 
-                  key={stat.label} 
-                  className="p-5 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] active:scale-95 bg-card/80 backdrop-blur-sm border-2"
-                >
-                  <CardWrapper
-                    onClick={route ? () => navigate(route) : undefined}
-                    className={route ? 'w-full text-left' : ''}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-brand/20 ring-1 ring-brand/20">
-                          <Icon className="h-6 w-6 text-brand" />
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
-                          <p className="text-3xl font-bold mt-1 text-brand ">
-                            {stat.value}
-                          </p>
-                        </div>
-                      </div>
-                      {route && (
-                        <ArrowUpRight className="h-5 w-5 text-muted-foreground" />
-                      )}
-                    </div>
-                  </CardWrapper>
-                </Card>
-              );
-            })
-          )}
-        </div>
-
-        {/* Upcoming Bookings Section */}
-        <div className="px-4 mt-8 space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-brand" />
-              <h2 className="text-xl font-bold">Upcoming Bookings</h2>
+          {profileStatus && profileStatus.host_verification_status !== "verified" && (
+            <div className="mt-6">
+              <HostVerificationCard
+                verificationStatus={profileStatus.host_verification_status as any}
+                verificationNotes={profileStatus.host_verification_notes}
+                existingIdUrl={profileStatus.government_id_url}
+                existingSelfieUrl={profileStatus.selfie_url}
+                onStatusChange={() => refetchProfile()}
+              />
             </div>
-            <button 
-              onClick={() => navigate('/vendor/bookings')}
-              className="text-sm font-medium text-primary hover:text-primary/80 active:scale-95 flex items-center gap-1"
-            >
-              View All
-              <ArrowUpRight className="h-4 w-4" />
-            </button>
-          </div>
-          
-          <div className="space-y-3">
-            {isLoadingBookings ? (
-              <>
-                {[1, 2].map((i) => (
-                  <Card key={i} className="p-4">
-                    <div className="space-y-2">
-                      <Skeleton className="h-5 w-3/4" />
-                      <Skeleton className="h-3 w-1/2" />
-                      <Skeleton className="h-3 w-1/3" />
-                    </div>
-                  </Card>
-                ))}
-              </>
-            ) : bookings.length === 0 ? (
-              <Card className="p-6 text-center">
-                <CalendarCheck className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground text-sm">No upcoming bookings yet</p>
-                <p className="text-xs text-muted-foreground mt-1">Bookings will appear here once customers make reservations</p>
-              </Card>
-            ) : (
-              bookings.map((booking, index) => (
-                <Card
-                  key={index}
-                  className="p-4 hover:shadow-lg transition-all duration-200 hover:scale-[1.01] active:scale-95 group border-l-4 border-l-transparent hover:border-l-brand"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-semibold text-base leading-tight group-hover:text-brand transition-colors">{booking.service}</h3>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">{booking.date}</span>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">
-                        <span className="font-medium">Time:</span> {booking.time}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        <span className="font-medium">Guest:</span> {booking.guest}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        <span className="font-medium">Host:</span> {booking.host}
-                      </p>
-                    </div>
-                  </div>
-                </Card>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
+          )}
 
-        <VendorBottomNav />
+          <div className="grid gap-x-14 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+            <div>
+              <section className="mt-10">
+                <p className="text-sm text-muted-foreground">Paid out to you</p>
+                {isLoading ? (
+                  <Skeleton className="mt-2 h-14 w-56" />
+                ) : (
+                  <p className="mt-1 font-display text-5xl tabular-nums text-foreground lg:text-6xl">{formatMoney(data?.earnings)}</p>
+                )}
+                <p className="mt-2 text-sm text-muted-foreground">
+                  From {data?.completedCount ?? 0} completed booking{data?.completedCount === 1 ? "" : "s"}.{" "}
+                  <button onClick={() => navigate("/vendor/revenue")} className="text-primary hover:underline">See revenue</button>
+                </p>
+              </section>
+
+              <DashboardSection title="Upcoming bookings" action={{ label: "All bookings", to: "/vendor/bookings" }}>
+                {isLoading ? (
+                  <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-12 w-full" />)}</div>
+                ) : !data?.bookings.length ? (
+                  <p className="rounded-xl border border-dashed border-white/15 p-6 text-sm text-muted-foreground">
+                    No upcoming bookings. When a guest books through a host's storefront it shows up here.
+                  </p>
+                ) : (
+                  <div className="overflow-hidden rounded-xl border border-white/10">
+                    <table className="w-full text-sm">
+                      <thead className="hidden bg-white/[0.03] text-left text-xs uppercase tracking-wider text-muted-foreground sm:table-header-group">
+                        <tr>
+                          <th className="px-4 py-3 font-medium">Date</th>
+                          <th className="px-4 py-3 font-medium">Time</th>
+                          <th className="px-4 py-3 font-medium">Experience</th>
+                          <th className="px-4 py-3 font-medium">Guests</th>
+                          <th className="px-4 py-3 font-medium">Host</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/10">
+                        {data.bookings.map((b) => (
+                          <tr key={b.id} className="block px-4 py-3 sm:table-row sm:p-0">
+                            <td className="block text-xs text-muted-foreground sm:table-cell sm:px-4 sm:py-3 sm:text-sm sm:text-foreground">
+                              {formatDay(b.date)}<span className="sm:hidden">, {b.time ?? "time not set"}</span>
+                            </td>
+                            <td className="hidden tabular-nums sm:table-cell sm:px-4 sm:py-3">
+                              {b.time ?? <span className="text-muted-foreground">Not set</span>}
+                            </td>
+                            <td className="block font-medium text-foreground sm:table-cell sm:px-4 sm:py-3">{b.service}</td>
+                            <td className="inline text-muted-foreground sm:table-cell sm:px-4 sm:py-3">
+                              {b.guests} guest{b.guests === 1 ? "" : "s"}<span className="sm:hidden">, </span>
+                            </td>
+                            <td className="inline text-muted-foreground sm:table-cell sm:px-4 sm:py-3">{b.host}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </DashboardSection>
+            </div>
+
+            <aside className="lg:pt-10">
+              <DashboardSection title="Key figures" className="lg:mt-0">
+                <FigureList>
+                  <FigureRow label="Completed bookings" value={data?.completedCount ?? 0} to="/vendor/bookings" />
+                  <FigureRow label="Active hosts" hint="List you or have sent you guests" value={data?.activeHosts ?? 0} to="/vendor/hosts" />
+                  <FigureRow
+                    label="Google rating"
+                    hint="Live from your Google listing"
+                    to="/vendor/ratings"
+                    value={data?.vendor ? <VendorGoogleRating vendor={data.vendor} className="justify-end text-xl" starClassName="h-4 w-4" emptyLabel="No rating yet" /> : "None"}
+                  />
+                  <FigureRow label="Payouts" value={<span className="font-sans text-sm">{payoutsReady ? "Active" : "Not connected"}</span>} />
+                </FigureList>
+              </DashboardSection>
+            </aside>
+          </div>
+        </DashboardFrame>
       </PageTransition>
+      {/* Outside PageTransition: a transformed ancestor would turn position:fixed into position:absolute. */}
+      <VendorBottomNav />
     </>
   );
 };

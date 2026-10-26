@@ -1,6 +1,7 @@
-import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Star, ThumbsUp, MessageSquare } from "lucide-react";
+import { ArrowLeft, Star } from "lucide-react";
+import { DashboardFrame, DashboardHeader, DashboardSection } from "@/components/dashboard/DashboardParts";
+import { formatDay } from "@/lib/format";
 import HostBottomNav from "@/components/HostBottomNav";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import { useQuery } from "@tanstack/react-query";
@@ -61,147 +62,81 @@ const HostRatings = () => {
     : 0;
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-[375px] mx-auto px-4 py-6 space-y-6">
-        <button 
-          onClick={goBack}
-          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors active:scale-95"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Dashboard
+    <>
+      <DashboardFrame>
+        <button onClick={goBack} className="mt-6 inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Dashboard
         </button>
+        <DashboardHeader
+          eyebrow="Guest reviews"
+          title="What guests say about your vendors"
+          subtitle="Reviews left on stackd after a booking. Google ratings are shown on each vendor's page."
+        />
 
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold">Guest Ratings</h1>
-          <p className="text-sm text-muted-foreground">What guests are saying</p>
-        </div>
-
-        {/* Summary Cards */}
-        <div className="grid grid-cols-3 gap-3">
-          <Card className="p-4 bg-gradient-to-br from-rating/10 to-brand/10 border-rating/20 col-span-2">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Star className="h-4 w-4 text-rating fill-rating" />
-                <p className="text-xs text-muted-foreground">Average Rating</p>
-              </div>
-              {isLoading ? (
-                <Skeleton className="h-10 w-20" />
-              ) : (
-                <div className="flex items-baseline gap-1">
-                  <p className="text-3xl font-bold">{avgRating}</p>
-                  <p className="text-sm text-muted-foreground">/ 5.0</p>
-                </div>
+        <div className="grid gap-x-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)]">
+          <aside>
+            <section className="mt-10">
+              <p className="text-sm text-muted-foreground">Average from {reviews.length} review{reviews.length === 1 ? "" : "s"}</p>
+              {isLoading ? <Skeleton className="mt-2 h-14 w-28" /> : (
+                <p className="mt-1 font-display text-6xl tabular-nums text-foreground">
+                  {reviews.length ? avgRating : "None"}
+                  {reviews.length > 0 && <span className="ml-2 text-xl text-muted-foreground">/ 5</span>}
+                </p>
               )}
-            </div>
-          </Card>
-          <Card className="p-4 bg-gradient-to-br from-success/10 to-mint/10 border-success/20">
-            <div className="space-y-2">
-              <div className="flex items-center gap-1">
-                <ThumbsUp className="h-3.5 w-3.5 text-success" />
-              </div>
-              {isLoading ? (
-                <Skeleton className="h-8 w-12" />
-              ) : (
-                <div>
-                  <p className="text-2xl font-bold">{fiveStarPercentage}%</p>
-                  <p className="text-[10px] text-muted-foreground leading-tight">5-star</p>
+              {reviews.length > 0 && <p className="mt-2 text-sm text-muted-foreground">{fiveStarPercentage}% gave five stars.</p>}
+            </section>
+
+            {!isLoading && reviews.length > 0 && (
+              <DashboardSection title="Breakdown">
+                <div className="space-y-2.5">
+                  {[5, 4, 3, 2, 1].map((stars) => {
+                    const count = reviews.filter((r) => Math.floor(r.rating) === stars).length;
+                    const pct = (count / reviews.length) * 100;
+                    return (
+                      <div key={stars} className="flex items-center gap-3 text-sm">
+                        <span className="w-14 text-muted-foreground">{stars} star{stars === 1 ? "" : "s"}</span>
+                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+                          <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="w-6 text-right tabular-nums text-muted-foreground">{count}</span>
+                      </div>
+                    );
+                  })}
                 </div>
-              )}
-            </div>
-          </Card>
-        </div>
+              </DashboardSection>
+            )}
+          </aside>
 
-        {/* Rating Distribution */}
-        {!isLoading && reviews.length > 0 && (
-          <Card className="p-4">
-            <h3 className="text-sm font-semibold mb-3">Rating Distribution</h3>
-            <div className="space-y-2">
-              {[5, 4, 3, 2, 1].map((stars) => {
-                const count = reviews.filter(r => Math.floor(r.rating) === stars).length;
-                const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
-                
-                return (
-                  <div key={stars} className="flex items-center gap-2">
-                    <span className="text-xs w-12">{stars} {stars === 1 ? 'star' : 'stars'}</span>
-                    <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-rating-light to-brand transition-all duration-500"
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-muted-foreground w-8 text-right">{count}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
-        )}
-
-        {/* Reviews List */}
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
-            Recent Reviews
-          </h2>
-          
-          {isLoading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-32 w-full rounded-xl" />
-              ))}
-            </div>
-          ) : reviews.length === 0 ? (
-            <Card className="p-8 text-center">
-              <MessageSquare className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-              <p className="font-medium text-foreground">No reviews yet</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Reviews for your linked vendors will appear here
+          <DashboardSection title="Latest reviews" className="lg:mt-10">
+            {isLoading ? (
+              <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-24 w-full" />)}</div>
+            ) : reviews.length === 0 ? (
+              <p className="rounded-xl border border-dashed border-white/15 p-6 text-sm text-muted-foreground">
+                No reviews yet. When guests review a vendor from your storefront, it shows up here.
               </p>
-            </Card>
-          ) : (
-            <div className="space-y-3 max-h-[calc(100vh-500px)] overflow-y-auto">
-              {reviews.map((review) => (
-                <Card
-                  key={review.id}
-                  className="p-4 hover:shadow-lg transition-all duration-200"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm leading-tight">
-                          {vendorNames[review.vendor_profile_id || ''] || 'Unknown Vendor'}
-                        </h3>
-                      </div>
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <Star className="h-4 w-4 text-rating fill-rating" />
-                        <span className="font-bold text-sm">{review.rating}</span>
-                      </div>
-                    </div>
-                    
-                    {review.comment && (
-                      <p className="text-sm text-foreground/80 italic">"{review.comment}"</p>
-                    )}
-                    
-                    <div className="flex items-center justify-between pt-2 border-t text-xs text-muted-foreground">
-                      <span className="font-medium">Guest Review</span>
-                      <span>
-                        {new Date(review.created_at).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: 'numeric'
-                        })}
+            ) : (
+              <ul className="divide-y divide-white/10 border-y border-white/10">
+                {reviews.map((review) => (
+                  <li key={review.id} className="py-5">
+                    <div className="flex items-baseline justify-between gap-4">
+                      <p className="font-medium text-foreground">{vendorNames[review.vendor_profile_id || ""] || "Vendor"}</p>
+                      <span className="flex items-center gap-1 text-sm tabular-nums text-foreground">
+                        <Star className="h-3.5 w-3.5 fill-rating text-rating" />
+                        {review.rating}
                       </span>
                     </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
+                    {review.comment && <p className="mt-2 max-w-2xl text-foreground/85">{review.comment}</p>}
+                    <p className="mt-2 text-xs text-muted-foreground">{formatDay(review.created_at?.slice(0, 10))}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </DashboardSection>
         </div>
-      </div>
-
+      </DashboardFrame>
       <HostBottomNav />
-    </div>
+    </>
   );
 };
 

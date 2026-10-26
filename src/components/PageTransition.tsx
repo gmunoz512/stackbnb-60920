@@ -8,10 +8,11 @@ interface PageTransitionProps {
 
 export const PageTransition = ({ children, className = "" }: PageTransitionProps) => {
   return (
+    // Opacity only: any transform here would make position:fixed children (bottom navs) scroll with the page.
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
       transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
       className={className}
     >
