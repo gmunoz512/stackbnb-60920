@@ -291,3 +291,5 @@ All colors MUST be HSL.
     @apply aspect-square rounded-2xl overflow-hidden relative ring-1 ring-border/70;
   }
 }
+
+@keyframes splashZoom { from { transform: scale(1.12); } to { transform: scale(1.02); } }
