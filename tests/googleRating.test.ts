@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
+import { test } from "vitest";
 import { resolveGoogleRating } from "../src/lib/googleRating.ts";
 import { isVettedListing } from "../src/lib/vetting.ts";
+
+test("resolveGoogleRating only trusts real Google sources", () => {
 
 assert.equal(resolveGoogleRating({}), null);
 assert.equal(resolveGoogleRating({ googleRating: null }), null);
@@ -21,5 +24,4 @@ assert.equal(isVettedListing(null), false);
 assert.equal(isVettedListing({ verificationStatus: "approved", verifiedAt: null }), false);
 assert.equal(isVettedListing({ verificationStatus: "pending", verifiedAt: "2026-01-01T00:00:00Z" }), false);
 assert.equal(isVettedListing({ verificationStatus: "approved", verifiedAt: "2026-01-01T00:00:00Z" }), true);
-
-console.log("google rating and vetting: all assertions passed");
+});

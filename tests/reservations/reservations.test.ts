@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
+import { test } from 'vitest';
 import { buildReservationLink, normalizeResyVenueUrl } from '../../src/lib/reservations.ts';
-import { mockRestaurants } from '../../src/data/mockRestaurants.ts';
+import { mockRestaurants } from '@/data/mockRestaurants';
+
+test('reservation links resolve to real Resy venues', () => {
 
 const resy = (reservationUrl: string) => ({ reservationPlatform: 'resy' as const, reservationUrl });
 
@@ -23,4 +26,4 @@ assert.equal(buildReservationLink(resy('https://resy.com/cities/ny/venues/carbon
 for (const r of mockRestaurants.filter(r => r.reservationPlatform === 'resy')) {
   assert.ok(buildReservationLink(r), `${r.name} has an invalid Resy link`);
 }
-console.log('reservations: all assertions passed');
+});

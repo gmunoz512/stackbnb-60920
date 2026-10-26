@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { guardPaidApi, normalizeAirbnbUrl } from '../../supabase/functions/_shared/paidApiGuard.ts';
+
+async function runPaidApiGuardChecks() {
 const env: Record<string,string> = { SUPABASE_URL: 'https://example.invalid', SUPABASE_SERVICE_ROLE_KEY: 'test-service-key' };
 (globalThis as any).Deno = {env:{get:(key:string)=>env[key]}};
 const originalFetch = globalThis.fetch;
@@ -58,3 +60,11 @@ try {
  assert.equal(normalizeAirbnbUrl('https://airbnb.com/rooms/123'),'https://airbnb.com/rooms/123');
  console.log('PASS: paid API authentication, public access, quota rejection, fail-closed behavior, and URL validation. All network calls mocked.');
 } finally {globalThis.fetch=originalFetch;}
+}
+
+if (process.env.VITEST) {
+  const { test } = await import('vitest');
+  test('paid API authentication, public access, quota rejection, fail-closed behavior, and URL validation', runPaidApiGuardChecks);
+} else {
+  await runPaidApiGuardChecks();
+}
