@@ -117,8 +117,9 @@ const VendorPayoutHistory = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-[375px] mx-auto px-4 py-6 space-y-6">
+    <div className="min-h-screen bg-background pb-28">
+      <div className="horizon-line" />
+      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8">
         <button 
           onClick={() => navigate(-1)}
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors active:scale-95"
@@ -128,7 +129,7 @@ const VendorPayoutHistory = () => {
         </button>
 
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold">Payout History</h1>
+          <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">Payout History</h1>
           <p className="text-sm text-muted-foreground">Track your earnings from bookings</p>
         </div>
 

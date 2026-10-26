@@ -149,7 +149,7 @@ const Booking = () => {
               <div className="space-y-4">
                 <div className="pb-4 border-b space-y-1">
                   <p className="font-medium">Sunset Kayak Tour</p>
-                  <p className="text-sm text-muted-foreground">Aug 18, 2024 • 6:00 PM</p>
+                  <p className="text-sm text-muted-foreground">Aug 18, 2024 · 6:00 PM</p>
                   <p className="text-sm text-muted-foreground">{guests} guests</p>
                 </div>
 

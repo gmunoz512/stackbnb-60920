@@ -2,11 +2,10 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import stackdLogo from "@/assets/stackd-logo-new.png";
+import { AuthSidePanel, AuthMobileMark } from "@/components/auth/AuthSidePanel";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -101,43 +100,33 @@ const ResetPassword = () => {
 
   if (!hasRecoverySession) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-md space-y-4">
-          <Card className="p-6 space-y-4">
-            <div className="flex items-center gap-3">
-              <img src={stackdLogo} alt="Stackd" className="h-10 w-10 object-contain" />
-              <div>
-                <h1 className="text-xl font-bold">Reset link expired</h1>
-                <p className="text-sm text-muted-foreground">
-                  Please request a new password reset email.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <Button asChild className="flex-1">
-                <Link to="/auth">Back to sign in</Link>
-              </Button>
-            </div>
-          </Card>
+      <div className="min-h-screen bg-background lg:grid lg:grid-cols-2">
+      <AuthSidePanel />
+      <main className="flex min-h-screen items-center px-6 py-10 sm:px-12">
+        <div className="w-full max-w-md space-y-6">
+          <AuthMobileMark />
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-secondary">Password reset</p>
+            <h1 className="mt-2 font-display text-3xl leading-tight text-foreground lg:text-4xl">This reset link has expired</h1>
+            <p className="mt-3 text-sm text-muted-foreground">Request a new password reset email from the sign-in page.</p>
+          </div>
+          <Button asChild className="w-full"><Link to="/auth">Back to sign in</Link></Button>
         </div>
-      </div>
+      </main>
+    </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-4">
-        <div className="flex justify-center">
-          <img src={stackdLogo} alt="Stackd" className="h-20 w-20 object-contain" />
-        </div>
-
-        <Card className="p-6 space-y-5">
-          <div className="space-y-1 text-center">
-            <h1 className="text-2xl font-bold">Set a new password</h1>
-            <p className="text-sm text-muted-foreground">
-              Choose a strong password you haven't used elsewhere.
-            </p>
+    <div className="min-h-screen bg-background lg:grid lg:grid-cols-2">
+      <AuthSidePanel />
+      <main className="flex min-h-screen items-center px-6 py-10 sm:px-12">
+        <div className="w-full max-w-md space-y-6">
+          <AuthMobileMark />
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-secondary">Password reset</p>
+            <h1 className="mt-2 font-display text-3xl leading-tight text-foreground lg:text-4xl">Set a new password</h1>
+            <p className="mt-3 text-sm text-muted-foreground">Choose a strong password you haven't used elsewhere.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -174,13 +163,13 @@ const ResetPassword = () => {
             </Button>
           </form>
 
-          <p className="text-center text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             <Link to="/auth" className="hover:underline">
               Back to sign in
             </Link>
           </p>
-        </Card>
-      </div>
+        </div>
+      </main>
     </div>
   );
 };

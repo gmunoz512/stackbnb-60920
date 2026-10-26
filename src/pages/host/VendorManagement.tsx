@@ -135,10 +135,11 @@ const HostVendorManagement = () => {
   const filteredAvailable = availableVendors?.filter(v => !linkedVendorIds.includes(v.id)) || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 pb-24">
-      <div className="max-w-lg mx-auto">
+    <div className="min-h-screen bg-background pb-28">
+      <div className="horizon-line" />
+      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8">
         {/* Header */}
-        <div className="bg-brand px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
+        <div className="border-b border-white/10 pb-7">
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={() => navigate(-1)}
@@ -147,7 +148,7 @@ const HostVendorManagement = () => {
               <ArrowLeft className="h-5 w-5 text-paper" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-paper">My Vendors</h1>
+              <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">My Vendors</h1>
               <p className="text-sm text-paper/70">Manage vendors you earn commissions from</p>
             </div>
           </div>
@@ -155,8 +156,7 @@ const HostVendorManagement = () => {
           {/* Add Vendor Button */}
           <Button
             onClick={() => setShowSearch(!showSearch)}
-            className="w-full bg-paper/20 backdrop-blur-sm hover:bg-paper/30 text-paper border-paper/30 gap-2"
-            variant="outline"
+            className="gap-2"
           >
             {showSearch ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
             {showSearch ? 'Close Search' : 'Add Vendor'}

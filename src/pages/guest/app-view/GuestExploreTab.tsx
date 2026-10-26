@@ -527,7 +527,7 @@ export function GuestExploreTab({
                                 className="text-[10px]"
                                 starClassName="h-2.5 w-2.5"
                               />
-                              <span className="text-muted-foreground">•</span>
+                              <span className="text-muted-foreground">·</span>
                               <span className="font-medium">${vendor.price_per_person}</span>
                             </div>
                           </div>

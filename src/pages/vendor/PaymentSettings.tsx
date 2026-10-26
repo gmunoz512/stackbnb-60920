@@ -103,8 +103,9 @@ const VendorPaymentSettings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-[375px] mx-auto px-4 py-6 space-y-6">
+    <div className="min-h-screen bg-background pb-28">
+      <div className="horizon-line" />
+      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8 [&>*]:max-w-3xl">
         <button 
           onClick={() => navigate(-1)}
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors active:scale-95"
@@ -114,7 +115,7 @@ const VendorPaymentSettings = () => {
         </button>
 
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold">Payment Settings</h1>
+          <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">Payment Settings</h1>
           <p className="text-sm text-muted-foreground">Manage how you receive payments from bookings</p>
         </div>
 
@@ -143,10 +144,10 @@ const VendorPaymentSettings = () => {
             <CardContent className="space-y-4">
               <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                 <p className="text-sm font-medium">How payouts work:</p>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• When guests book your experiences, you receive your portion</li>
-                  <li>• Stripe automatically deposits to your bank</li>
-                  <li>• Payouts are processed on Stripe's schedule (usually daily)</li>
+                <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
+                  <li>When guests book your experiences, you receive your portion</li>
+                  <li>Stripe automatically deposits to your bank</li>
+                  <li>Payouts are processed on Stripe's schedule (usually daily)</li>
                 </ul>
               </div>
 
@@ -220,10 +221,10 @@ const VendorPaymentSettings = () => {
             <CardContent className="space-y-4">
               <div className="bg-muted/50 rounded-lg p-4 space-y-2">
                 <p className="text-sm font-medium">What you'll need:</p>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Bank account or debit card details</li>
-                  <li>• Personal identification (for verification)</li>
-                  <li>• About 5 minutes to complete</li>
+                <ul className="list-disc space-y-1 pl-4 text-sm text-muted-foreground">
+                  <li>Bank account or debit card details</li>
+                  <li>Personal identification (for verification)</li>
+                  <li>About 5 minutes to complete</li>
                 </ul>
               </div>
 

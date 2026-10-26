@@ -38,8 +38,9 @@ const HostActiveVendors = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-[375px] mx-auto px-4 py-6 space-y-6">
+    <div className="min-h-screen bg-background pb-28">
+      <div className="horizon-line" />
+      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8">
         {/* Header */}
         <div className="space-y-4">
           <button
@@ -50,7 +51,7 @@ const HostActiveVendors = () => {
             Back to Dashboard
           </button>
           <div>
-            <h1 className="text-2xl font-bold">Active Vendors</h1>
+            <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">Active Vendors</h1>
             <p className="text-sm text-muted-foreground">Your partner vendors</p>
           </div>
         </div>

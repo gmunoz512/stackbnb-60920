@@ -175,8 +175,8 @@ const HostDashboard = () => {
                 {profileData && typeof profileData.host_trust_score === "number" && (
                   <TrustScoreBadge score={profileData.host_trust_score} size="sm" />
                 )}
-                <Button variant="outline" onClick={() => navigate("/host/vendors")}>Manage vendors</Button>
-                <Button variant="ghost" onClick={() => navigate("/signout")}>Sign out</Button>
+                <Button variant="outline" size="sm" className="whitespace-nowrap" onClick={() => navigate("/host/vendors")}>Manage vendors</Button>
+                <Button variant="ghost" size="sm" className="whitespace-nowrap" onClick={() => navigate("/signout")}>Sign out</Button>
               </>
             }
           />

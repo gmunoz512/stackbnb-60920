@@ -155,7 +155,7 @@ export function ItinerarySheet({ open, onOpenChange }: ItinerarySheetProps) {
       const start = parseISO(startDate);
       const end = parseISO(endDate);
       const days = differenceInDays(end, start) + 1;
-      return `${format(start, "MMM d")} - ${format(end, "MMM d")} • ${days} days`;
+      return `${format(start, "MMM d")} - ${format(end, "MMM d")} · ${days} days`;
     } catch {
       return "";
     }

@@ -1,3 +1,4 @@
+import { formatMoney } from "@/lib/format";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, DollarSign } from "lucide-react";
 import VendorBottomNav from "@/components/VendorBottomNav";
@@ -70,8 +71,9 @@ const RevenueBreakdown = () => {
   const totalRevenue = revenueData.reduce((sum, item) => sum + item.amount, 0);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-[375px] mx-auto px-4 py-6 space-y-6">
+    <div className="min-h-screen bg-background pb-28">
+      <div className="horizon-line" />
+      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8">
         <button 
           onClick={goBack}
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors active:scale-95"
@@ -81,27 +83,18 @@ const RevenueBreakdown = () => {
         </button>
 
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold">Revenue Breakdown</h1>
+          <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">Revenue Breakdown</h1>
           <p className="text-sm text-muted-foreground">Detailed revenue by service</p>
         </div>
 
-        <Card className="p-4 bg-brand/10 border-brand/20">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted-foreground">Total Revenue</p>
-              {isLoading ? (
-                <Skeleton className="h-8 w-24 mt-1" />
-              ) : (
-                <p className="text-2xl font-bold mt-1">${totalRevenue.toLocaleString()}</p>
-              )}
-            </div>
-            <div className="p-3 rounded-lg bg-brand/20 ">
-              <DollarSign className="h-6 w-6 text-primary" />
-            </div>
-          </div>
-        </Card>
+        <section>
+          <p className="text-sm text-muted-foreground">Revenue from completed bookings</p>
+          {isLoading ? <Skeleton className="mt-2 h-14 w-48" /> : (
+            <p className="mt-1 font-display text-5xl tabular-nums text-foreground lg:text-6xl">{formatMoney(totalRevenue)}</p>
+          )}
+        </section>
 
-        <div className="space-y-3 max-h-[calc(100vh-340px)] overflow-y-auto">
+        <div className="grid gap-3 md:grid-cols-2">
           {isLoading ? (
             <>
               {[1, 2, 3].map((i) => (
@@ -128,7 +121,7 @@ const RevenueBreakdown = () => {
             revenueData.map((item, index) => (
               <Card
                 key={index}
-                className="p-4 hover:shadow-xl transition-all duration-200 hover:scale-[1.01] active:scale-95"
+                className="p-4"
               >
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
@@ -136,7 +129,7 @@ const RevenueBreakdown = () => {
                       <h3 className="font-semibold text-sm leading-tight">{item.service}</h3>
                       <p className="text-xs text-muted-foreground mt-1">{item.bookings} booking{item.bookings !== 1 ? 's' : ''}</p>
                     </div>
-                    <p className="text-base font-bold whitespace-nowrap">${item.amount.toLocaleString()}</p>
+                    <p className="text-base font-bold whitespace-nowrap">{formatMoney(item.amount)}</p>
                   </div>
                   <div className="w-full bg-muted rounded-full h-2">
                     <div 

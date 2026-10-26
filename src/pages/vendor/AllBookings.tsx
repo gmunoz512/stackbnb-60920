@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CalendarCheck, X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import VendorBottomNav from "@/components/VendorBottomNav";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { SkeletonCardList } from "@/components/ui/skeleton-card";
 import { toast } from "sonner";
+import { formatDay, formatMoney, formatTime } from "@/lib/format";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,6 +51,12 @@ const AllBookings = () => {
         .eq('vendor_profile_id', vendorProfile.id)
         .order('booking_date', { ascending: false });
 
+      const hostIds = [...new Set((bookingsData ?? []).map(b => b.host_user_id).filter(Boolean))] as string[];
+      const { data: hostProfiles } = hostIds.length
+        ? await supabase.from('profiles').select('user_id, full_name').in('user_id', hostIds)
+        : { data: [] as { user_id: string; full_name: string | null }[] };
+      const hostName = new Map((hostProfiles ?? []).map(h => [h.user_id, h.full_name]));
+
       return bookingsData?.map(b => ({
         id: b.id,
         service: b.experience_name,
@@ -58,7 +65,7 @@ const AllBookings = () => {
         guests: b.guests,
         status: b.status,
         amount: b.total_amount,
-        host: b.vendor_name || 'Direct Booking',
+        host: b.host_user_id ? (hostName.get(b.host_user_id) || 'Host referral') : 'Direct booking',
       })) || [];
     },
     enabled: !!user,
@@ -101,8 +108,9 @@ const AllBookings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-[375px] mx-auto px-4 py-6 space-y-6">
+    <div className="min-h-screen bg-background pb-28">
+      <div className="horizon-line" />
+      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8">
         <button 
           onClick={goBack}
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors active:scale-95"
@@ -112,72 +120,33 @@ const AllBookings = () => {
         </button>
 
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold">All Bookings</h1>
+          <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">All Bookings</h1>
           <p className="text-sm text-muted-foreground">Complete list of your bookings</p>
         </div>
 
-        <div className="space-y-3 max-h-[calc(100vh-240px)] overflow-y-auto">
+        <div className="border-t border-white/10">
+          <div className="hidden grid-cols-[1.1fr_1.6fr_0.6fr_0.8fr_1.2fr_0.9fr_auto] gap-4 border-b border-white/10 py-3 text-xs uppercase tracking-[0.14em] text-muted-foreground md:grid">
+            <span>When</span><span>Experience</span><span>Guests</span><span>Amount</span><span>Host</span><span>Status</span><span className="w-16" />
+          </div>
           {isLoading ? (
             <SkeletonCardList count={4} variant="booking" />
           ) : bookings.length === 0 ? (
-            <Card className="p-6 text-center">
-              <CalendarCheck className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground text-sm">No bookings yet</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Bookings will appear here once customers make reservations
-              </p>
-            </Card>
+            <p className="py-10 text-sm text-muted-foreground">No bookings yet. They show up here as soon as a guest books.</p>
           ) : (
             bookings.map((booking) => (
-              <Card
-                key={booking.id}
-                className="p-4 hover:shadow-xl transition-all duration-200 hover:scale-[1.01]"
-              >
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-semibold text-sm leading-tight">{booking.service}</h3>
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">{booking.date}</span>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">
-                      <span className="font-medium">Time:</span> {booking.time}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      <span className="font-medium">Guests:</span> {booking.guests}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      <span className="font-medium">Amount:</span> ${booking.amount?.toLocaleString() || '0'}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-muted-foreground">
-                        <span className="font-medium">Source:</span> {booking.host}
-                      </p>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        booking.status === 'completed' 
-                          ? 'bg-success/10 text-success-strong' 
-                          : booking.status === 'pending'
-                          ? 'bg-rating/10 text-rating-strong'
-                          : booking.status === 'cancelled'
-                          ? 'bg-danger/10 text-danger-strong'
-                          : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {booking.status}
-                      </span>
-                    </div>
-                  </div>
-                  {booking.status !== 'cancelled' && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full mt-2 text-danger-strong border-danger-muted hover:bg-danger-wash hover:border-danger-soft"
-                      onClick={() => handleCancelClick(booking)}
-                    >
-                      <X className="h-3 w-3 mr-1" />
-                      Cancel Booking
-                    </Button>
+              <div key={booking.id} className="grid gap-1 border-b border-white/10 py-4 text-sm md:grid-cols-[1.1fr_1.6fr_0.6fr_0.8fr_1.2fr_0.9fr_auto] md:items-center md:gap-4">
+                <span className="text-muted-foreground">{formatDay(booking.date)} · {formatTime(booking.time) ?? "time not set"}</span>
+                <span className="font-medium text-foreground">{booking.service}</span>
+                <span className="text-muted-foreground"><span className="md:hidden">Guests: </span>{booking.guests}</span>
+                <span className="tabular-nums text-foreground">{formatMoney(booking.amount)}</span>
+                <span className="text-muted-foreground">{booking.host}</span>
+                <span className="capitalize text-muted-foreground">{booking.status}</span>
+                <span className="w-16 md:text-right">
+                  {booking.status !== 'cancelled' && booking.status !== 'completed' && (
+                    <button className="text-sm text-danger-strong hover:underline" onClick={() => handleCancelClick(booking)}>Cancel</button>
                   )}
-                </div>
-              </Card>
+                </span>
+              </div>
             ))
           )}
         </div>

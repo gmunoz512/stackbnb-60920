@@ -208,19 +208,19 @@ export function GuestAboutTab() {
                 <h3 className="font-semibold text-sm">What We Offer</h3>
                 <ul className="space-y-1.5 text-xs text-muted-foreground">
                   <li className="flex items-start gap-2">
-                    <span className="text-primary">•</span>
+                    <span className="text-primary">·</span>
                     <span>Curated local restaurants and dining experiences</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-primary">•</span>
+                    <span className="text-primary">·</span>
                     <span>Adventure activities and tours from trusted vendors</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-primary">•</span>
+                    <span className="text-primary">·</span>
                     <span>AI-powered trip planning assistance</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-primary">•</span>
+                    <span className="text-primary">·</span>
                     <span>Seamless booking and reservation management</span>
                   </li>
                 </ul>

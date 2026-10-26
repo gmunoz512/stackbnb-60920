@@ -606,7 +606,7 @@ const Wishlists = () => {
                     <div className="p-4">
                       <h3 className="font-semibold line-clamp-1">{restaurant.name}</h3>
                       <p className="text-sm text-muted-foreground line-clamp-1">
-                        {restaurant.cuisine}, {restaurant.neighborhood || restaurant.city}
+                        {restaurant.cuisine} · {restaurant.neighborhood || restaurant.city}
                       </p>
                       <div className="mt-2">
                         <RestaurantGoogleRating

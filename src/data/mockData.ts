@@ -257,8 +257,8 @@ export interface Experience {
   price: number;
   duration: string;
   maxGuests: number;
-  rating: number;
-  reviewCount: number;
+  rating?: number;
+  reviewCount?: number;
   description: string;
   included: string[];
   images: string[];
@@ -275,8 +275,6 @@ export const experiences: Experience[] = [
     price: 95,
     duration: "3 hours",
     maxGuests: 8,
-    rating: 5.0,
-    reviewCount: 156,
     description: "Discover vibrant coral reefs and tropical fish in crystal-clear waters. Our expert guides ensure a safe and unforgettable underwater adventure.",
     included: [
       "All snorkeling equipment",
@@ -297,8 +295,6 @@ export const experiences: Experience[] = [
     price: 120,
     duration: "4 hours",
     maxGuests: 10,
-    rating: 4.8,
-    reviewCount: 143,
     description: "Taste the best local cuisine and wines while exploring the charming downtown area with our expert food guide.",
     included: [
       "5 food stops",
@@ -319,8 +315,6 @@ export const experiences: Experience[] = [
     price: 135,
     duration: "3 hours",
     maxGuests: 8,
-    rating: 4.9,
-    reviewCount: 178,
     description: "Ride through lush jungle trails on powerful ATVs. Experience muddy tracks, river crossings, and breathtaking mountain views.",
     included: [
       "ATV and safety gear",
@@ -341,8 +335,6 @@ export const experiences: Experience[] = [
     price: 250,
     duration: "4 hours",
     maxGuests: 10,
-    rating: 5.0,
-    reviewCount: 92,
     description: "Charter your own private boat for island hopping, fishing, or coastal exploration. Captain and fuel included.",
     included: [
       "Private boat with captain",
@@ -363,8 +355,6 @@ export const experiences: Experience[] = [
     price: 110,
     duration: "2.5 hours",
     maxGuests: 12,
-    rating: 4.9,
-    reviewCount: 234,
     description: "Soar through the jungle canopy on 8 zip lines with platforms offering stunning forest views. Perfect for thrill-seekers!",
     included: [
       "8 zip line courses",
@@ -385,8 +375,6 @@ export const experiences: Experience[] = [
     price: 90,
     duration: "2 hours",
     maxGuests: 6,
-    rating: 4.7,
-    reviewCount: 145,
     description: "Experience the magic of riding gentle horses along pristine beaches at sunset. Perfect for all experience levels.",
     included: [
       "Well-trained horses",
@@ -407,8 +395,6 @@ export const experiences: Experience[] = [
     price: 450,
     duration: "2 days",
     maxGuests: 4,
-    rating: 5.0,
-    reviewCount: 88,
     description: "Get PADI certified with our expert instructors. Includes classroom, pool training, and 4 open water dives.",
     included: [
       "PADI certification",
@@ -429,8 +415,6 @@ export const experiences: Experience[] = [
     price: 85,
     duration: "5 hours",
     maxGuests: 10,
-    rating: 4.8,
-    reviewCount: 167,
     description: "Hike to stunning viewpoints with panoramic ocean and mountain views. Includes lunch at a scenic overlook.",
     included: [
       "Experienced hiking guide",
@@ -451,8 +435,6 @@ export const experiences: Experience[] = [
     price: 140,
     duration: "1.5 hours",
     maxGuests: 3,
-    rating: 5.0,
-    reviewCount: 215,
     description: "Soar 400 feet above the ocean for breathtaking aerial views. Safe, thrilling, and unforgettable experience.",
     included: [
       "Parasailing flight",
@@ -473,8 +455,6 @@ export const experiences: Experience[] = [
     price: 35,
     duration: "1 hour",
     maxGuests: 15,
-    rating: 4.9,
-    reviewCount: 189,
     description: "Find your inner peace with gentle yoga flows as the sun sets over the ocean. All levels welcome.",
     included: [
       "Yoga mat provided",
@@ -495,8 +475,6 @@ export const experiences: Experience[] = [
     price: 320,
     duration: "6 hours",
     maxGuests: 6,
-    rating: 4.8,
-    reviewCount: 132,
     description: "Fish for marlin, tuna, and mahi-mahi with experienced captain. All equipment and fishing licenses included.",
     included: [
       "Professional fishing gear",
@@ -517,8 +495,6 @@ export const experiences: Experience[] = [
     price: 95,
     duration: "3 hours",
     maxGuests: 12,
-    rating: 4.9,
-    reviewCount: 156,
     description: "Learn to cook authentic local dishes with a professional chef. Enjoy your creations with wine pairings.",
     included: [
       "Hands-on cooking",
@@ -539,8 +515,6 @@ export const experiences: Experience[] = [
     price: 280,
     duration: "3 hours",
     maxGuests: 8,
-    rating: 5.0,
-    reviewCount: 198,
     description: "Float peacefully over stunning landscapes at sunrise. Includes champagne toast and breakfast after landing.",
     included: [
       "1-hour balloon flight",
@@ -561,8 +535,6 @@ export const experiences: Experience[] = [
     price: 110,
     duration: "4 hours",
     maxGuests: 14,
-    rating: 4.7,
-    reviewCount: 176,
     description: "Visit 3 boutique wineries with tastings, vineyard tours, and cheese pairings. Transportation included.",
     included: [
       "Visit 3 wineries",

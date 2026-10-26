@@ -125,14 +125,15 @@ const TestInstagramScrape = () => {
   const allPhotos = [...uploadedPhotos, ...scrapedPhotos];
 
   return (
-    <div className="min-h-screen bg-background p-4 pb-24">
-      <div className="max-w-2xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background pb-28">
+      <div className="horizon-line" />
+      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8 [&>*]:max-w-3xl">
         {/* Header */}
         <div className="text-center space-y-2 pt-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-brand rounded-2xl mb-4">
             <Camera className="h-8 w-8 text-paper" />
           </div>
-          <h1 className="text-2xl font-bold">Add Your Photos</h1>
+          <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">Add Your Photos</h1>
           <p className="text-muted-foreground">
             Upload photos to showcase your services
           </p>

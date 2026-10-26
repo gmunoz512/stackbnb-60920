@@ -1,3 +1,4 @@
+import { formatDay, formatMoney } from "@/lib/format";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Calendar, DollarSign } from "lucide-react";
@@ -30,8 +31,9 @@ const HostBookings = () => {
   const totalRevenue = bookings.reduce((sum, b) => sum + (b.host_payout_amount || 0), 0);
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-[375px] mx-auto px-4 py-6 space-y-6">
+    <div className="min-h-screen bg-background pb-28">
+      <div className="horizon-line" />
+      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8">
         <button 
           onClick={goBack}
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors active:scale-95"
@@ -41,7 +43,7 @@ const HostBookings = () => {
         </button>
 
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold">All Bookings</h1>
+          <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">All Bookings</h1>
           <p className="text-sm text-muted-foreground">Complete booking history</p>
         </div>
 
@@ -94,53 +96,15 @@ const HostBookings = () => {
               </p>
             </Card>
           ) : (
-            <div className="space-y-3">
+            <div className="border-t border-white/10">
               {bookings.map((booking) => (
-                <Card
-                  key={booking.id}
-                  className="p-5 hover:shadow-lg transition-all duration-200"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold mb-1">{booking.experience_name}</p>
-                        <p className="text-sm text-muted-foreground">{booking.vendor_name || 'Unknown Vendor'}</p>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <p className="font-bold text-lg text-brand ">
-                          ${(booking.host_payout_amount || 0).toFixed(0)}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between pt-2 border-t">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(booking.booking_date).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          })}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className={`h-2 w-2 rounded-full ${
-                          booking.status === 'completed' ? 'bg-success' :
-                          booking.status === 'cancelled' ? 'bg-danger' :
-                          'bg-rating'
-                        }`}></div>
-                        <p className={`text-xs font-medium ${
-                          booking.status === 'completed' ? 'text-success-strong' :
-                          booking.status === 'cancelled' ? 'text-danger-strong' :
-                          'text-rating-strong'
-                        }`}>
-                          {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
+                <div key={booking.id} className="grid gap-1 border-b border-white/10 py-4 text-sm md:grid-cols-[1fr_1.6fr_1.2fr_0.8fr_0.8fr] md:items-center md:gap-4">
+                  <span className="text-muted-foreground">{formatDay(booking.booking_date)}</span>
+                  <span className="font-medium text-foreground">{booking.experience_name}</span>
+                  <span className="text-muted-foreground">{booking.vendor_name || "Vendor not set"}</span>
+                  <span className="capitalize text-muted-foreground">{booking.status}</span>
+                  <span className="tabular-nums text-foreground md:text-right">{formatMoney(booking.host_payout_amount)}</span>
+                </div>
               ))}
             </div>
           )}

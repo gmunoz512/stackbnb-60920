@@ -193,7 +193,7 @@ const VendorDashboard = () => {
             actions={
               <>
                 <Button variant="outline" onClick={() => navigate("/vendor/preview")}>Preview profile</Button>
-                <Button variant="ghost" onClick={() => navigate("/signout")}>Sign out</Button>
+                <Button variant="ghost" size="sm" className="whitespace-nowrap" onClick={() => navigate("/signout")}>Sign out</Button>
               </>
             }
           />
@@ -226,7 +226,7 @@ const VendorDashboard = () => {
           <div className="grid gap-x-14 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
             <div>
               <section className="mt-10">
-                <p className="text-sm text-muted-foreground">Paid out to you</p>
+                <p className="text-sm text-muted-foreground">{payoutsReady ? "Earned from completed bookings" : "Earned, waiting for payout setup"}</p>
                 {isLoading ? (
                   <Skeleton className="mt-2 h-14 w-56" />
                 ) : (
@@ -261,14 +261,14 @@ const VendorDashboard = () => {
                         {data.bookings.map((b) => (
                           <tr key={b.id} className="block px-4 py-3 sm:table-row sm:p-0">
                             <td className="block text-xs text-muted-foreground sm:table-cell sm:px-4 sm:py-3 sm:text-sm sm:text-foreground">
-                              {formatDay(b.date)}<span className="sm:hidden">, {b.time ?? "time not set"}</span>
+                              {formatDay(b.date)}<span className="sm:hidden"> · {b.time ?? "time not set"}</span>
                             </td>
                             <td className="hidden tabular-nums sm:table-cell sm:px-4 sm:py-3">
                               {b.time ?? <span className="text-muted-foreground">Not set</span>}
                             </td>
                             <td className="block font-medium text-foreground sm:table-cell sm:px-4 sm:py-3">{b.service}</td>
                             <td className="inline text-muted-foreground sm:table-cell sm:px-4 sm:py-3">
-                              {b.guests} guest{b.guests === 1 ? "" : "s"}<span className="sm:hidden">, </span>
+                              {b.guests} guest{b.guests === 1 ? "" : "s"}<span className="sm:hidden"> · </span>
                             </td>
                             <td className="inline text-muted-foreground sm:table-cell sm:px-4 sm:py-3">{b.host}</td>
                           </tr>

@@ -122,14 +122,10 @@ const HostVendors = () => {
   const isLoading = isLoadingProfile || isLoadingVendors;
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden pb-24">
-      <div 
-        className="absolute inset-0 bg-cover bg-center opacity-20"
-        style={{ backgroundImage: `url(${heroImage})` }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background/80 to-background" />
+    <div className="min-h-screen bg-background pb-28">
+      <div className="horizon-line" />
       
-      <div className="relative max-w-7xl mx-auto px-4 py-8 space-y-6">
+      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8">
         {/* Back Button */}
         <button
           onClick={() => navigate('/host/dashboard')}
@@ -143,7 +139,7 @@ const HostVendors = () => {
         <div className="text-center space-y-2 pt-4">
           <div className="flex items-center justify-center gap-2">
             <Store className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">My Vendors</h1>
+            <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">My Vendors</h1>
           </div>
           <p className="text-muted-foreground">
             Browse vendors from Explore to add them to your list
@@ -250,7 +246,7 @@ const HostVendors = () => {
                         starClassName="h-2.5 w-2.5"
                       />
                       {resolveGoogleRating({ googleRating: vendor.google_rating }) ? (
-                        <span className="text-muted-foreground">•</span>
+                        <span className="text-muted-foreground">·</span>
                       ) : null}
                       {vendor.price_per_person && (
                         <span className="text-muted-foreground">${vendor.price_per_person}</span>

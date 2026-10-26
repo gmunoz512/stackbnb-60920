@@ -37,8 +37,9 @@ const VendorRatings = () => {
   const googleReviewsUrl = vendorProfile?.google_reviews_url;
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-[375px] mx-auto px-4 py-6 space-y-6">
+    <div className="min-h-screen bg-background pb-28">
+      <div className="horizon-line" />
+      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8">
         <button 
           onClick={goBack}
           className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors active:scale-95"
@@ -48,7 +49,7 @@ const VendorRatings = () => {
         </button>
 
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold">Business Rating</h1>
+          <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">Business Rating</h1>
           <p className="text-sm text-muted-foreground">Your Google/Airbnb rating</p>
         </div>
 

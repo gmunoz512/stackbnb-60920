@@ -4,7 +4,8 @@ import stackdLogo from "@/assets/stackd-logo-new.png";
 /** Left-hand panel on desktop sign-in/sign-up pages; hidden on phones. */
 export function AuthSidePanel() {
   return (
-    <aside className="caustics relative hidden min-h-screen flex-col justify-between overflow-hidden border-r border-white/10 p-12 lg:flex">
+    <aside className="relative isolate hidden min-h-screen flex-col justify-between overflow-hidden border-r border-white/10 p-12 lg:flex">
+      <div className="caustics absolute inset-0 -z-10" aria-hidden />
       <Link to="/" className="relative z-10 flex items-center gap-2">
         <img src={stackdLogo} alt="" className="h-8 w-8" />
         <span className="font-display text-xl text-foreground">stackd</span>

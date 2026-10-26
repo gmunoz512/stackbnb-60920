@@ -298,7 +298,7 @@ export function MapDirectionsCard(props: {
                 <ul className="space-y-1">
                   {directionsData.arrivalTips.slice(0, 2).map((tip, index) => (
                     <li key={index} className="text-xs text-muted-foreground leading-relaxed">
-                      • {tip}
+                      {tip}
                     </li>
                   ))}
                 </ul>

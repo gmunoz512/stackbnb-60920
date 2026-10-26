@@ -462,7 +462,7 @@ export function EditableItineraryDaySchedule({
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Drag to reorder • Tap to edit • {day.items.length} {day.items.length === 1 ? "item" : "items"}
+        Drag to reorder · Tap to edit · {day.items.length} {day.items.length === 1 ? "item" : "items"}
       </p>
 
       {/* Sortable items */}

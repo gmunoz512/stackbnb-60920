@@ -178,7 +178,7 @@ const PlatformSettings = () => {
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Current: {settings?.platform_fee_percentage}% • Enter a value between 0-100
+                    Current: {settings?.platform_fee_percentage}% · Enter a value between 0-100
                   </p>
                 </div>
 

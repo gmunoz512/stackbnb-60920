@@ -120,7 +120,7 @@ function ExploreVendorCard({
               className="text-[10px] text-inherit"
               starClassName="h-2.5 w-2.5"
             />
-            {vendor.price_per_person ? <span>, ${vendor.price_per_person}</span> : null}
+            {vendor.price_per_person ? <><span className="text-white/60">·</span><span>${vendor.price_per_person}</span></> : null}
           </div>
         </div>
       </div>
@@ -264,7 +264,8 @@ const Explore = () => {
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden pb-20 lg:overflow-visible lg:pb-8">
           {/* Hero Section */}
-          <div className="relative overflow-hidden caustics">
+          <div className="relative isolate overflow-hidden">
+            <div className="caustics absolute inset-0 -z-10" aria-hidden />
             {/* Header */}
             <div className="relative z-10 flex items-center justify-between px-4 pt-4 pb-2 md:px-6">
               <div className="flex items-center gap-3">
@@ -281,7 +282,7 @@ const Explore = () => {
                 </Link>
               </div>
               <div className="flex items-center gap-2">
-                <ThemeToggle />
+                <div className="hidden sm:block"><ThemeToggle /></div>
                 <DropdownMenu>
                   <DropdownMenuTrigger className="p-2 rounded-full bg-background/80 border border-border text-foreground hover:bg-accent transition-colors">
                     <User className="h-4 w-4" />
@@ -333,7 +334,7 @@ const Explore = () => {
                 </DropdownMenu>
                 <Link
                   to="/trip-planner"
-                  className="rounded-full bg-primary px-3.5 py-1.5 text-sm font-semibold text-primary-foreground"
+                  className="whitespace-nowrap rounded-full bg-primary px-3.5 py-1.5 text-sm font-semibold text-primary-foreground"
                 >
                   Plan a trip
                 </Link>

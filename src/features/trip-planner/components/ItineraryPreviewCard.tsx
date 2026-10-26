@@ -147,7 +147,7 @@ export const ItineraryPreviewCard = memo(function ItineraryPreviewCard({
         const start = parseISO(itinerary.startDate);
         const end = parseISO(itinerary.endDate);
         const days = differenceInDays(end, start) + 1;
-        dateRange = `${format(start, "MMM d")} - ${format(end, "MMM d")} • ${days} days`;
+        dateRange = `${format(start, "MMM d")} - ${format(end, "MMM d")} · ${days} days`;
       } catch {
         dateRange = `${totalDays} days`;
       }

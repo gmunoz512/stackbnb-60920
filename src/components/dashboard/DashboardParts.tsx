@@ -30,7 +30,7 @@ export function DashboardHeader({
         <h1 className="mt-2 font-display text-3xl leading-tight text-foreground lg:text-5xl">{title}</h1>
         {subtitle && <p className="mt-2 max-w-xl text-muted-foreground">{subtitle}</p>}
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      {actions && <div className="flex flex-nowrap items-center gap-2 overflow-x-auto">{actions}</div>}
     </header>
   );
 }

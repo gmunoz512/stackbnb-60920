@@ -300,7 +300,7 @@ export function VendorLocationMap({ vendorName, vendorAddress, placeId, mode = '
           `;
           new mapboxgl.Marker(destEl)
             .setLngLat([mapRouteData.destination.lng, mapRouteData.destination.lat])
-            .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`<strong>${vendorName}</strong><p>${mapRouteData.distanceText} • ${mapRouteData.durationText}</p>`))
+            .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`<strong>${vendorName}</strong><p>${mapRouteData.distanceText} · ${mapRouteData.durationText}</p>`))
             .addTo(map.current);
 
           const carEl = document.createElement('div');
