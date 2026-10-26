@@ -41,7 +41,7 @@ export const BlurImage = ({
   };
 
   return (
-    <div className={cn('relative overflow-hidden', containerClassName)}>
+    <div className={cn('relative h-full w-full overflow-hidden', containerClassName)}>
       {/* Placeholder with blur effect */}
       <motion.div
         className="absolute inset-0 bg-muted"
@@ -109,7 +109,7 @@ export const ProgressiveBlurImage = ({
   }, [src, onLoad]);
 
   return (
-    <div className={cn('relative overflow-hidden', containerClassName)}>
+    <div className={cn('relative h-full w-full overflow-hidden', containerClassName)}>
       <motion.img
         src={currentSrc || src}
         alt={alt}

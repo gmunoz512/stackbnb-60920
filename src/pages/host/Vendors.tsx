@@ -1,3 +1,4 @@
+import { VendorGoogleRating } from "@/components/VendorGoogleRating";
 import { Badge } from "@/components/ui/badge";
 import { GoogleRating } from "@/components/GoogleRating";
 import { resolveGoogleRating } from "@/lib/googleRating";
@@ -29,6 +30,7 @@ interface VendorProfile {
   photos: string[] | null;
   price_per_person: number | null;
   google_rating: number | null;
+  google_place_id?: string | null;
   commission_percentage: number | null;
   listing_type: string;
 }
@@ -97,7 +99,7 @@ const HostVendors = () => {
       try {
         const { data, error } = await supabase
           .from('vendor_profiles')
-          .select('id, name, category, description, photos, price_per_person, google_rating, commission_percentage, listing_type')
+          .select('id, name, category, description, photos, price_per_person, google_rating, google_place_id, commission_percentage, listing_type')
           .in('id', savedVendorIds)
           .eq('is_published', true);
 
@@ -151,7 +153,7 @@ const HostVendors = () => {
           <div className="flex items-center justify-center gap-3 pt-2">
             <Link 
               to="/explore?mode=host"
-              className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-gradient-to-r from-brand to-hot text-paper font-medium hover:scale-105 transition-all text-sm"
+              className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-brand text-paper font-medium hover:scale-105 transition-all text-sm"
             >
               Explore Vendors
             </Link>
@@ -241,8 +243,8 @@ const HostVendors = () => {
 
                     {/* Stats */}
                     <div className="flex items-center gap-1 text-[10px]">
-                      <GoogleRating
-                        value={resolveGoogleRating({ googleRating: vendor.google_rating })}
+                      <VendorGoogleRating
+                        vendor={vendor}
                         showCount={false}
                         className="text-[10px]"
                         starClassName="h-2.5 w-2.5"

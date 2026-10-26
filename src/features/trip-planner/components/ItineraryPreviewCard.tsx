@@ -33,7 +33,7 @@ interface ItineraryPreviewCardProps {
 // Loading skeleton for the preview card
 function PreviewCardSkeleton() {
   return (
-    <Card className="p-4 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+    <Card className="p-4 bg-primary/5 border-primary/20">
       <div className="flex items-center gap-2 mb-3">
         <Loader2 className="h-4 w-4 animate-spin text-primary" />
         <span className="text-sm font-medium text-primary">Generating itinerary...</span>

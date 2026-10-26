@@ -1,3 +1,4 @@
+import { VendorGoogleRating } from "@/components/VendorGoogleRating";
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ interface VendorProfile {
   photos: string[] | null;
   price_per_person: number | null;
   google_rating: number | null;
+  google_place_id?: string | null;
   is_published: boolean | null;
   listing_type: string;
 }
@@ -82,7 +84,7 @@ function ExploreVendorCard({
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-brand/20 to-iris-strong/20 flex items-center justify-center">
+          <div className="w-full h-full bg-brand/20 flex items-center justify-center">
             <Store className="h-8 w-8 text-muted-foreground" />
           </div>
         )}
@@ -95,10 +97,10 @@ function ExploreVendorCard({
             onClick={onAdd}
             disabled={isLoading}
             className={`absolute top-2 left-2 z-20 p-2 rounded-full shadow-lg transition-all duration-200 ${
-              isSaved
-                ? "bg-success text-paper"
-                : "bg-gradient-to-r from-brand to-hot text-paper hover:from-brand-strong hover:to-hot-strong"
-            }`}
+ isSaved
+ ? "bg-success text-paper"
+ : "bg-brand text-paper hover:bg-brand-strong "
+ }`}
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -113,8 +115,8 @@ function ExploreVendorCard({
         <div className="absolute bottom-2 left-2 right-2">
           <p className="text-paper text-xs font-medium line-clamp-1">{vendor.name}</p>
           <div className="flex items-center gap-1 text-paper/80 text-[10px]">
-            <GoogleRating
-              value={resolveGoogleRating({ googleRating: vendor.google_rating })}
+            <VendorGoogleRating
+              vendor={vendor}
               showCount={false}
               className="text-[10px] text-inherit"
               starClassName="h-2.5 w-2.5"
@@ -154,7 +156,7 @@ const Explore = () => {
       // Use the public view to avoid exposing sensitive fields
       const { data, error } = await supabase
         .from('vendor_profiles_public')
-        .select('id, name, category, description, photos, price_per_person, google_rating, is_published, listing_type')
+        .select('id, name, category, description, photos, price_per_person, google_rating, google_place_id, is_published, listing_type')
         .eq('is_published', true);
 
       if (error) throw error;
@@ -337,7 +339,7 @@ const Explore = () => {
                 </DropdownMenu>
                 <Link
                   to="/trip-planner"
-                  className="p-2 rounded-full bg-gradient-to-r from-brand to-iris-strong text-paper"
+                  className="p-2 rounded-full bg-brand text-paper"
                 >
                   <Sparkles className="h-4 w-4" />
                 </Link>
@@ -356,7 +358,7 @@ const Explore = () => {
 
               {/* Search Section - Single Bar */}
               <div className="relative md:max-w-2xl md:mx-auto">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-brand/20 to-iris-strong/20 rounded-full blur-sm"></div>
+                <div className="absolute -inset-0.5 bg-brand/20 rounded-full blur-sm"></div>
                 <div className="relative bg-card/90 rounded-full border border-border/50 backdrop-blur-sm flex items-center px-3 py-2 gap-2">
                   <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
                   <Input
@@ -365,7 +367,7 @@ const Explore = () => {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="border-0 bg-transparent text-sm h-6 shadow-none focus-visible:ring-0 px-0 placeholder:text-muted-foreground flex-1 min-w-0"
                   />
-                  <button aria-label="Search" className="bg-gradient-to-r from-brand to-iris-strong text-paper rounded-full p-1.5 flex-shrink-0">
+                  <button aria-label="Search" className="bg-brand text-paper rounded-full p-1.5 flex-shrink-0">
                     <Search className="h-3 w-3" />
                   </button>
                 </div>
@@ -399,15 +401,15 @@ const Explore = () => {
                     key={category.id}
                     onClick={() => setSelectedExperienceCategory(category.id)}
                     className={`
-                      flex items-center gap-1.5 px-3 py-1.5 rounded-full border whitespace-nowrap text-xs
-                      transition-all duration-300 
-                      ${selectedExperienceCategory === category.id 
-                        ? 'bg-gradient-to-r from-brand to-hot text-paper border-transparent shadow-lg' 
-                        : 'bg-card hover:border-primary/50 border-border'
-                      }
-                    `}
+ flex items-center gap-1.5 px-3 py-1.5 rounded-full border whitespace-nowrap text-xs
+ transition-all duration-300 
+ ${selectedExperienceCategory === category.id 
+ ? 'bg-brand text-paper border-transparent shadow-lg' 
+ : 'bg-card hover:border-primary/50 border-border'
+ }
+ `}
                   >
-                    <span className="text-sm">{category.icon}</span>
+                    
                     <span className="font-medium">{category.name}</span>
                   </button>
                 ))}
@@ -481,15 +483,15 @@ const Explore = () => {
                     key={category.id}
                     onClick={() => setSelectedRestaurantCategory(category.id)}
                     className={`
-                      flex items-center gap-1.5 px-3 py-1.5 rounded-full border whitespace-nowrap text-xs
-                      transition-all duration-300 
-                      ${selectedRestaurantCategory === category.id 
-                        ? 'bg-gradient-to-r from-brand to-hot text-paper border-transparent shadow-lg' 
-                        : 'bg-card hover:border-primary/50 border-border'
-                      }
-                    `}
+ flex items-center gap-1.5 px-3 py-1.5 rounded-full border whitespace-nowrap text-xs
+ transition-all duration-300 
+ ${selectedRestaurantCategory === category.id 
+ ? 'bg-brand text-paper border-transparent shadow-lg' 
+ : 'bg-card hover:border-primary/50 border-border'
+ }
+ `}
                   >
-                    <span className="text-sm">{category.icon}</span>
+                    
                     <span className="font-medium">{category.name}</span>
                   </button>
                 ))}

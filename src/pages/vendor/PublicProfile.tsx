@@ -1,3 +1,4 @@
+import { VendorGoogleRating } from "@/components/VendorGoogleRating";
 import { DesktopTopNav } from "@/pages/guest/desktop/DesktopExplore";
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -253,7 +254,7 @@ const VendorPublicProfile = () => {
           {photos.length > 0 ? (
             <StackedPhotoGrid photos={photos} alt={profile.name} />
           ) : (
-            <div className="w-full h-[280px] rounded-xl bg-gradient-to-br from-brand to-iris-strong flex items-center justify-center">
+            <div className="w-full h-[280px] rounded-xl bg-brand flex items-center justify-center">
               <Store className="h-16 w-16 text-paper/60" />
             </div>
           )}
@@ -268,8 +269,8 @@ const VendorPublicProfile = () => {
             <p className="text-[15px] text-muted-foreground">{profile.category}</p>
 
             <div className="pt-1">
-              <GoogleRating
-                value={resolveGoogleRating({ googleRating: profile.google_rating })}
+              <VendorGoogleRating
+                vendor={profile}
                 className="text-[15px]"
                 starClassName="h-4 w-4"
               />
@@ -559,7 +560,7 @@ const VendorPublicProfile = () => {
         </div>
 
         {/* Fixed Bottom CTA */}
-        <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] z-40 lg:left-10 lg:right-auto lg:bottom-6 lg:w-[420px] lg:rounded-2xl lg:border lg:border-white/10 lg:bg-card/95 lg:backdrop-blur-xl lg:shadow-[0_24px_60px_-20px_rgba(236,72,153,.35)] lg:p-5">
+        <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] z-40 lg:left-10 lg:right-auto lg:bottom-6 lg:w-[420px] lg:rounded-2xl lg:border lg:border-white/10 lg:bg-card/95 lg:backdrop-blur-xl lg:shadow-[0_24px_60px_-20px_hsl(var(--brand)/.35)] lg:p-5">
           <div className="max-w-[375px] md:max-w-3xl lg:max-w-none mx-auto flex items-center justify-between gap-4">
             <div>
               <p className="text-[13px] text-muted-foreground">
@@ -574,7 +575,7 @@ const VendorPublicProfile = () => {
             </div>
             <Button 
               size="lg"
-              className="rounded-xl bg-gradient-to-r from-hot to-rose hover:from-hot-strong hover:to-rose-strong text-paper px-8 font-semibold"
+              className="rounded-xl bg-brand hover:bg-brand text-paper px-8 font-semibold"
               onClick={handleBook}
             >
               Book

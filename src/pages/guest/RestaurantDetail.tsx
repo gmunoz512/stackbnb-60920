@@ -518,7 +518,7 @@ const RestaurantDetail = () => {
         </div>
 
         {/* Fixed bottom CTA */}
-        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.06)] z-40 lg:left-10 lg:right-auto lg:bottom-6 lg:w-[420px] lg:rounded-2xl lg:border lg:border-white/10 lg:bg-card/95 lg:backdrop-blur-xl lg:shadow-[0_24px_60px_-20px_rgba(236,72,153,.35)] lg:p-5">
+        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.06)] z-40 lg:left-10 lg:right-auto lg:bottom-6 lg:w-[420px] lg:rounded-2xl lg:border lg:border-white/10 lg:bg-card/95 lg:backdrop-blur-xl lg:shadow-[0_24px_60px_-20px_hsl(var(--brand)/.35)] lg:p-5">
           <div className="max-w-[375px] md:max-w-3xl lg:max-w-none mx-auto space-y-2">
             {!reservationLink && (
               <p role="status" className="text-center text-xs text-muted-foreground">
@@ -534,7 +534,7 @@ const RestaurantDetail = () => {
                 </Button>
               )}
               <Button
-                className="flex-1 rounded-full bg-gradient-to-r from-brand to-hot hover:from-brand-strong hover:to-hot-strong text-paper font-semibold"
+                className="flex-1 rounded-full bg-brand hover:bg-brand-strong text-paper font-semibold"
                 onClick={reservationLink ? handleReservation : handleViewOnMaps}
               >
                 {reservationLink ? (

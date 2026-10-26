@@ -1,3 +1,4 @@
+import { VendorGoogleRating } from "@/components/VendorGoogleRating";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -71,6 +72,7 @@ interface FavoriteVendor {
   photos: string[] | null;
   price_per_person: number | null;
   google_rating: number | null;
+  google_place_id?: string | null;
 }
 
 const Wishlists = () => {
@@ -126,7 +128,7 @@ const Wishlists = () => {
     try {
       const { data, error } = await supabase
         .from('vendor_profiles')
-        .select('id, name, category, description, photos, price_per_person, google_rating')
+        .select('id, name, category, description, photos, price_per_person, google_rating, google_place_id')
         .in('id', favoriteIds);
 
       if (error) throw error;
@@ -469,8 +471,8 @@ const Wishlists = () => {
                             {vendor.category}
                           </p>
                           <div className="mt-2">
-                            <GoogleRating
-                              value={resolveGoogleRating({ googleRating: vendor.google_rating })}
+                            <VendorGoogleRating
+                              vendor={vendor}
                               showCount={false}
                               className="text-sm"
                               starClassName="h-4 w-4"
@@ -603,7 +605,7 @@ const Wishlists = () => {
                     <div className="p-4">
                       <h3 className="font-semibold line-clamp-1">{restaurant.name}</h3>
                       <p className="text-sm text-muted-foreground line-clamp-1">
-                        {restaurant.cuisine} • {restaurant.neighborhood || restaurant.city}
+                        {restaurant.cuisine}, {restaurant.neighborhood || restaurant.city}
                       </p>
                       <div className="mt-2">
                         <GoogleRating

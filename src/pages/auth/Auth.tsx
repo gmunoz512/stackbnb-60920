@@ -154,14 +154,9 @@ const Auth = () => {
             <button
               onClick={() => handleRoleSelect("user")}
               className="group w-full p-4 rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm
-                transition-all duration-300 hover:border-brand/50 hover:bg-card/80 hover:scale-[1.01]
-                hover:shadow-[0_4px_20px_rgba(234,179,8,0.15)] focus:outline-none"
+                transition-all duration-300 hover:border-brand/50 hover:bg-card/80 hover:scale-[1.01] focus:outline-none"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-rating to-brand 
-                  flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
-                  <Users className="h-6 w-6 text-paper" />
-                </div>
                 <div className="text-left">
                   <h3 className="text-lg font-bold text-foreground">Guest</h3>
                   <p className="text-sm text-muted-foreground">Discover local experiences</p>
@@ -173,14 +168,9 @@ const Auth = () => {
             <button
               onClick={() => handleRoleSelect("host")}
               className="group w-full p-4 rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm
-                transition-all duration-300 hover:border-iris/50 hover:bg-card/80 hover:scale-[1.01]
-                hover:shadow-[0_4px_20px_rgba(168,85,247,0.15)] focus:outline-none"
+                transition-all duration-300 hover:border-brand/50 hover:bg-card/80 hover:scale-[1.01] focus:outline-none"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-iris-strong to-hot 
-                  flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
-                  <Building2 className="h-6 w-6 text-paper" />
-                </div>
                 <div className="text-left">
                   <h3 className="text-lg font-bold text-foreground">Host</h3>
                   <p className="text-sm text-muted-foreground">Curate experiences for guests</p>
@@ -192,14 +182,9 @@ const Auth = () => {
             <button
               onClick={() => handleRoleSelect("vendor")}
               className="group w-full p-4 rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm
-                transition-all duration-300 hover:border-brand/50 hover:bg-card/80 hover:scale-[1.01]
-                hover:shadow-[0_4px_20px_rgba(249,115,22,0.15)] focus:outline-none"
+                transition-all duration-300 hover:border-brand/50 hover:bg-card/80 hover:scale-[1.01] focus:outline-none"
             >
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand to-hot 
-                  flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
-                  <Store className="h-6 w-6 text-paper" />
-                </div>
                 <div className="text-left">
                   <h3 className="text-lg font-bold text-foreground">Vendor</h3>
                   <p className="text-sm text-muted-foreground">Offer services to guests</p>

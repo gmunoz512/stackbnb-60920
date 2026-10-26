@@ -135,7 +135,7 @@ const SignIn = () => {
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-3 mb-4">
             <img src={stackdLogo} alt="stackd logo" className="h-10 w-10 drop-shadow-lg" />
-            <h1 className="text-3xl font-bold font-display bg-gradient-to-r from-brand via-hot to-iris-strong bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold font-display text-brand ">
               stackd
             </h1>
           </Link>

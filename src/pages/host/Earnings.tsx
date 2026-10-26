@@ -60,7 +60,7 @@ const HostEarnings = () => {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-3">
-          <Card className="p-4 bg-gradient-to-br from-brand/10 to-hot/10 border-brand/20">
+          <Card className="p-4 bg-brand/10 border-brand/20">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-brand" />
@@ -120,7 +120,7 @@ const HostEarnings = () => {
                         <p className="text-xs text-muted-foreground mt-1">{item.vendor}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="text-base font-bold bg-gradient-to-r from-brand to-hot bg-clip-text text-transparent">
+                        <p className="text-base font-bold text-brand ">
                           ${item.amount.toFixed(0)}
                         </p>
                       </div>

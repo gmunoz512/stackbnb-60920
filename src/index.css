@@ -62,12 +62,12 @@ All colors MUST be HSL.
     /* Palette tokens. Values match the previous Tailwind shades. */
     --ash-abyss: 0 0% 3.9%;
     --ash-wash: 0 0% 98%;
-    --brand: 24.6 95% 53.1%;
+    --brand: 22 100% 58%;
     --brand-abyss: 13 81.1% 14.5%;
     --brand-dark: 15 79.1% 33.7%;
-    --brand-light: 27 96% 61%;
+    --brand-light: 28 100% 66%;
     --brand-muted: 32.1 97.7% 83.1%;
-    --brand-strong: 20.5 90.2% 48.2%;
+    --brand-strong: 18 92% 50%;
     --brand-tint: 34.3 100% 91.8%;
     --cyan: 188.7 94.5% 42.7%;
     --danger: 0 84.2% 60.2%;
@@ -83,9 +83,9 @@ All colors MUST be HSL.
     --grape: 258.3 89.5% 66.3%;
     --grape-deep: 263.4 70% 50.4%;
     --grape-strong: 262.1 83.3% 57.8%;
-    --hot: 330.4 81.2% 60.4%;
-    --hot-light: 328.6 85.5% 70.2%;
-    --hot-strong: 333.3 71.4% 50.6%;
+    --hot: 14 88% 56%;
+    --hot-light: 20 95% 66%;
+    --hot-strong: 10 80% 48%;
     --indigo: 238.7 83.5% 66.7%;
     --indigo-strong: 243.4 75.4% 58.6%;
     --info: 217.2 91.2% 59.8%;
@@ -95,9 +95,9 @@ All colors MUST be HSL.
     --info-strong: 221.2 83.2% 53.3%;
     --info-wash: 213.8 100% 96.9%;
     --ink: 0 0% 0%;
-    --iris: 270.7 91% 65.1%;
-    --iris-deep: 272.1 71.7% 47.1%;
-    --iris-strong: 271.5 81.3% 55.9%;
+    --iris: 172 58% 46%;
+    --iris-deep: 175 68% 26%;
+    --iris-strong: 173 62% 36%;
     --lagoon: 173.4 80.4% 40%;
     --lagoon-abyss: 178.6 84.3% 10%;
     --lagoon-strong: 174.7 83.9% 31.6%;
@@ -139,43 +139,46 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 98%;
+    /* "Cenote at night": jungle-water dark, limestone text, sunset orange for actions,
+       cenote turquoise for good news. The purple-pink-orange gradient lives only in the logo
+       and the thin horizon line (--gradient-hero). */
+    --background: 176 38% 6%;
+    --foreground: 40 33% 90%;
 
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 98%;
+    --card: 174 30% 9%;
+    --card-foreground: 40 33% 90%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 174 30% 9%;
+    --popover-foreground: 40 33% 90%;
 
-    --primary: 20 100% 60%;
-    --primary-foreground: 0 0% 5%;
+    --primary: 22 100% 58%;
+    --primary-foreground: 176 38% 6%;
 
-    --secondary: 30 100% 55%;
-    --secondary-foreground: 0 0% 5%;
+    --secondary: 172 55% 46%;
+    --secondary-foreground: 176 38% 6%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 174 22% 12%;
+    --muted-foreground: 38 12% 66%;
 
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 174 20% 15%;
+    --accent-foreground: 40 33% 90%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 4 80% 58%;
+    --destructive-foreground: 40 33% 95%;
 
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
-    --ring: 20 100% 60%;
-    
-    --gradient-primary: linear-gradient(135deg, hsl(25 100% 55%), hsl(280 80% 55%));
-    --gradient-dark: linear-gradient(135deg, hsl(0 0% 5%), hsl(0 0% 10%));
-    --gradient-accent: linear-gradient(135deg, hsl(25 100% 55%), hsl(280 80% 50%));
-    --gradient-hero: linear-gradient(135deg, hsl(30 100% 60%), hsl(320 80% 55%), hsl(280 75% 50%));
-    
-    --shadow-elegant: 0 10px 40px -10px hsl(280 80% 50% / 0.4);
-    --shadow-card: 0 2px 12px -2px hsl(25 100% 50% / 0.3);
-    --shadow-glow: 0 0 40px hsl(280 80% 55% / 0.5);
-    --shadow-button: 0 4px 20px -4px hsl(280 80% 50% / 0.5);
+    --border: 172 16% 17%;
+    --input: 172 16% 19%;
+    --ring: 22 100% 58%;
+
+    --gradient-primary: linear-gradient(180deg, hsl(24 100% 61%), hsl(18 96% 54%));
+    --gradient-dark: linear-gradient(180deg, hsl(176 38% 6%), hsl(174 30% 9%));
+    --gradient-accent: linear-gradient(180deg, hsl(24 100% 61%), hsl(18 96% 54%));
+    --gradient-hero: linear-gradient(90deg, hsl(28 100% 60%), hsl(338 80% 60%), hsl(272 70% 58%));
+
+    --shadow-elegant: 0 18px 40px -18px hsl(176 60% 2% / 0.8);
+    --shadow-card: 0 10px 30px -16px hsl(176 60% 2% / 0.7);
+    --shadow-glow: 0 0 0 1px hsl(22 100% 58% / 0.35);
+    --shadow-button: 0 8px 20px -10px hsl(22 100% 40% / 0.6);
   }
 }
 
@@ -186,7 +189,7 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-weight: 400;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -220,27 +223,27 @@ All colors MUST be HSL.
   }
   
   h3, h4 {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Instrument Sans', sans-serif;
     font-weight: 700;
     letter-spacing: -0.01em;
     line-height: 1.3;
   }
   
   h5, h6 {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Instrument Sans', sans-serif;
     font-weight: 600;
     letter-spacing: 0;
     line-height: 1.4;
   }
   
   p {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Instrument Sans', sans-serif;
     line-height: 1.7;
   }
   
   .font-display {
     font-family: 'Archivo Black', sans-serif;
-    letter-spacing: 0.05em;
+    letter-spacing: -0.02em;
   }
   
   /* Touch targets for mobile */
@@ -293,3 +296,22 @@ All colors MUST be HSL.
 }
 
 @keyframes splashZoom { from { transform: scale(1.12); } to { transform: scale(1.02); } }
+
+/* Limestone grain: a fixed noise layer over every page, like chukum plaster walls. */
+@layer base {
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.07;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+}
+@layer utilities {
+  .horizon-line { background: var(--gradient-hero); height: 3px; }
+  .caustics { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: soft-light; opacity: .55; }
+  @media (prefers-reduced-motion: reduce) { .caustics animate { display: none; } }
+}

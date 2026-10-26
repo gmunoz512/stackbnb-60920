@@ -4,6 +4,7 @@ import { Heart, MapPin, Search, Sparkles, User } from "lucide-react";
 import Logo3DSpin from "@/components/Logo3DSpin";
 import { GoogleRating } from "@/components/GoogleRating";
 import { resolveGoogleRating } from "@/lib/googleRating";
+import { useVendorRating } from "@/hooks/useVendorRating";
 import heroImage from "@/assets/hero-beach.jpg";
 import type { Restaurant } from "@/data/mockRestaurants";
 
@@ -15,6 +16,7 @@ export interface DesktopVendor {
   photos: string[] | null;
   price_per_person: number | null;
   google_rating: number | null;
+  google_place_id?: string | null;
 }
 
 interface Props {
@@ -60,7 +62,7 @@ export function DesktopTopNav({ isAuthenticated, profileRoute }: { isAuthenticat
               <User className="h-[18px] w-[18px]" />
             </Link>
           ) : (
-            <Link to="/auth" className="rounded-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_6px_24px_rgba(236,72,153,.35)] transition-transform hover:scale-[1.03]">
+            <Link to="/auth" className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-transform hover:scale-[1.03]">
               Sign in
             </Link>
           )}
@@ -74,7 +76,7 @@ const RestaurantTile = memo(function RestaurantTile({ r, photo }: { r: Restauran
   const rating = resolveGoogleRating({ place: { rating: r.rating, reviewCount: r.reviewCount } });
   return (
     <Link to={`/restaurant/${r.id}`} className="group block focus-visible:outline-none">
-      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted ring-1 ring-white/5 transition-shadow group-hover:shadow-[0_18px_40px_-12px_rgba(236,72,153,.35)] group-focus-visible:ring-2 group-focus-visible:ring-pink-500">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted ring-1 ring-white/5 transition-shadow group-hover:shadow-[0_18px_40px_-12px_hsl(var(--brand)/.35)] group-focus-visible:ring-2 group-focus-visible:ring-pink-500">
         <img src={photo} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
         {r.priceRange ? (
           <span className="absolute right-3 top-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white backdrop-blur">{r.priceRange}</span>
@@ -94,10 +96,10 @@ const RestaurantTile = memo(function RestaurantTile({ r, photo }: { r: Restauran
 });
 
 const ExperienceTile = memo(function ExperienceTile({ v, fav, onFav, featured = false }: { v: DesktopVendor; fav: boolean; onFav: (id: string, e: React.MouseEvent) => void; featured?: boolean }) {
-  const rating = resolveGoogleRating({ googleRating: v.google_rating });
+  const rating = useVendorRating(v);
   return (
     <Link to={`/vendor/${v.id}`} className={featured ? "group col-span-2 row-span-2 flex flex-col focus-visible:outline-none" : "group block focus-visible:outline-none"}>
-      <div className={`${featured ? "flex-1 min-h-[420px]" : "aspect-[4/5]"} relative overflow-hidden rounded-2xl bg-muted ring-1 ring-white/5 transition-shadow group-hover:shadow-[0_18px_40px_-12px_rgba(168,85,247,.4)] group-focus-visible:ring-2 group-focus-visible:ring-purple-500`}>
+      <div className={`${featured ? "flex-1 min-h-[420px]" : "aspect-[4/5]"} relative overflow-hidden rounded-2xl bg-muted ring-1 ring-white/5 transition-shadow group-hover:shadow-[0_18px_40px_-12px_hsl(var(--brand)/.4)] group-focus-visible:ring-2 group-focus-visible:ring-purple-500`}>
         {v.photos?.[0] ? (
           <img src={v.photos[0]} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
         ) : (
@@ -153,9 +155,11 @@ export function DesktopExplore(p: Props) {
       <section className="mx-auto max-w-[1360px] px-10 pt-6">
         <div className="relative isolate overflow-hidden rounded-[28px] ring-1 ring-white/10">
           <img src={heroImage} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" fetchPriority="high" />
-          <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(8,8,8,.88)_0%,rgba(8,8,8,.55)_45%,rgba(8,8,8,.1)_100%)]" />
+          <div className="caustics absolute inset-0 -z-10" aria-hidden />
+          <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,hsl(var(--background)/.9)_0%,hsl(var(--background)/.55)_45%,hsl(var(--background)/.05)_100%)]" />
+          <div className="horizon-line absolute inset-x-0 bottom-0" aria-hidden />
           <div className="flex min-h-[440px] flex-col justify-end p-12">
-            <p className="flex items-center gap-1.5 text-sm text-white/70"><MapPin className="h-4 w-4 text-orange-400" />{p.destination}, Quintana Roo</p>
+            <p className="flex items-center gap-1.5 text-sm text-white/70"><MapPin className="h-4 w-4 text-primary" />{p.destination}, Quintana Roo</p>
             <h1 className="mt-3 max-w-[14ch] font-['Archivo_Black'] text-[64px] leading-[0.95] tracking-tight text-white">
               Eat, swim and wander Tulum.
             </h1>
@@ -170,7 +174,7 @@ export function DesktopExplore(p: Props) {
               <Search className="h-5 w-5 shrink-0 text-white/60" aria-hidden />
               <label htmlFor="desk-q" className="sr-only">Search Tulum</label>
               <input id="desk-q" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cenotes, tacos, sunrise yoga…" className="h-11 flex-1 bg-transparent text-[15px] text-white placeholder:text-white/45 focus:outline-none" />
-              <button type="submit" className="h-12 rounded-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 px-7 text-sm font-semibold text-white shadow-[0_6px_24px_rgba(236,72,153,.4)] transition-transform hover:scale-[1.03]">
+              <button type="submit" className="h-12 rounded-full bg-primary px-7 text-sm font-semibold text-white transition-transform hover:scale-[1.03]">
                 Search
               </button>
               <Link to="/trip-planner" className="hidden xl:flex h-12 items-center gap-2 rounded-full border border-white/15 px-5 text-sm text-white/85 hover:bg-white/10">

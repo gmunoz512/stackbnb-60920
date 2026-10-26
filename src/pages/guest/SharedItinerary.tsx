@@ -388,7 +388,7 @@ function formatDateRange(startDate: string, endDate: string): string {
     const start = parseISO(startDate);
     const end = parseISO(endDate);
     const days = differenceInDays(end, start) + 1;
-    return `${format(start, "MMM d")} - ${format(end, "MMM d, yyyy")} • ${days} days`;
+    return `${format(start, "MMM d")} - ${format(end, "MMM d, yyyy")} (${days} days)`;
   } catch {
     return `${startDate} - ${endDate}`;
   }

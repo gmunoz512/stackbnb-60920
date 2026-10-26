@@ -1,5 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
+import experiencesImg from "@/assets/experiences/snorkeling-3.jpg";
+import restaurantsImg from "@/assets/restaurants/arca-tulum.jpg";
+
+const starts = [
+  { to: "/experiences", label: "Experiences", img: experiencesImg },
+  { to: "/restaurants", label: "Restaurants", img: restaurantsImg },
+];
 import { PageTransition } from "@/components/PageTransition";
 import { 
   TripPlannerChatProvider, 
@@ -128,20 +136,29 @@ function TripPlannerChatContent() {
       />
 
       {!hasMessages ? (
-        <div className="flex-1 flex flex-col items-center justify-center px-4">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-semibold text-foreground">
-              Hello, I'm JC!
-            </h1>
-            <p className="mt-2 text-muted-foreground">
-              Discover amazing restaurants and excursions for your trip.
+        <div className="flex-1 overflow-y-auto">
+          <div className="mx-auto w-full max-w-3xl px-5 pt-10 pb-12 lg:pt-16">
+            <h1 className="font-display text-4xl leading-[0.95] lg:text-6xl">Plan your days in Tulum.</h1>
+            <p className="mt-4 max-w-lg text-lg text-muted-foreground">
+              Tell me your dates and what you like. I'll suggest guides and tables from the stackd catalog and build a day-by-day plan.
             </p>
-          </div>
-
-          <div className="w-full max-w-2xl">
-            <ChatInputArea placeholder="Where are you planning to visit?" />
-            <div className="mt-6">
-              <QuickActionsBar />
+            <div className="mt-8">
+              <ChatInputArea placeholder="e.g. 4 days in March, two of us, love cenotes and seafood" />
+              <div className="mt-4">
+                <QuickActionsBar />
+              </div>
+            </div>
+            <div className="mt-12">
+              <h2 className="font-display text-2xl">Or start from the catalog</h2>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                {starts.map((s) => (
+                  <Link key={s.to} to={s.to} className="group relative aspect-[4/3] overflow-hidden rounded-[22px]">
+                    <img src={s.img} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent to-60%" />
+                    <span className="absolute bottom-4 left-4 right-4 text-lg font-semibold text-white">{s.label}</span>
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>

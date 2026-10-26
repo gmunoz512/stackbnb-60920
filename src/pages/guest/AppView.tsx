@@ -68,6 +68,7 @@ interface VendorProfile {
   photos: string[] | null;
   price_per_person: number | null;
   google_rating: number | null;
+  google_place_id?: string | null;
   is_published: boolean | null;
   listing_type: 'restaurant' | 'experience';
 }

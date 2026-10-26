@@ -128,7 +128,7 @@ export function GenerateItineraryButton({ onOpenItinerary }: GenerateItineraryBu
       onClick={handleGenerate}
       disabled={buttonDisabled}
       aria-label="Generate full itinerary with AI"
-      className="flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-md transition-all"
+      className="flex items-center gap-2 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all"
     >
       {buttonDisabled ? (
         <>

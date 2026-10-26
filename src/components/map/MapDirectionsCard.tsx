@@ -183,7 +183,7 @@ export function MapDirectionsCard(props: {
         <div className="flex items-start gap-3">
           {/* Map Pin Icon with gradient background */}
           <div className="relative shrink-0">
-            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
+            <div className="h-12 w-12 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/20">
               <MapPin className="h-6 w-6 text-primary" />
             </div>
           </div>
@@ -279,7 +279,7 @@ export function MapDirectionsCard(props: {
                   <div className="flex-1">
                     <p className="text-sm font-medium text-success-strong">Arrive at {vendorName}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Total: {mapRouteData.distanceText} • {mapRouteData.durationText}
+                      Total: {mapRouteData.distanceText}, {mapRouteData.durationText}
                     </p>
                   </div>
                 </div>
@@ -313,7 +313,7 @@ export function MapDirectionsCard(props: {
             onClick={openInGoogleMaps}
             className={cn(
               "flex-1 h-11 rounded-xl font-medium",
-              "bg-gradient-to-r from-primary to-primary/80",
+              "bg-primary ",
               "hover:from-primary/90 hover:to-primary/70",
               "shadow-lg shadow-primary/25",
               "transition-all duration-300 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02]"

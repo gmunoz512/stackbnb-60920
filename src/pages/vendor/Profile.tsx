@@ -178,7 +178,7 @@ const VendorProfile = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-16 w-16 flex-shrink-0">
-                  <AvatarFallback className="bg-gradient-to-br from-brand-light via-hot to-iris-strong text-paper text-xl font-semibold">
+                  <AvatarFallback className="bg-brand-light text-paper text-xl font-semibold">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
@@ -215,7 +215,7 @@ const VendorProfile = () => {
           ) : (
             <div className="flex items-center gap-3">
               <Avatar className="h-16 w-16 flex-shrink-0">
-                <AvatarFallback className="bg-gradient-to-br from-brand-light via-hot to-iris-strong text-paper text-xl font-semibold">
+                <AvatarFallback className="bg-brand-light text-paper text-xl font-semibold">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -245,11 +245,11 @@ const VendorProfile = () => {
               key={item.label}
               onClick={() => handleMenuClick(item.action)}
               className={`
-                w-full flex items-center justify-between p-4 
-                hover:bg-muted/30 active:bg-muted/50 transition-all
-                ${index !== menuItems.length - 1 ? 'border-b' : ''}
-                ${item.gradient ? 'bg-gradient-to-r from-brand/5 to-hot/5' : ''}
-              `}
+ w-full flex items-center justify-between p-4 
+ hover:bg-muted/30 active:bg-muted/50 transition-all
+ ${index !== menuItems.length - 1 ? 'border-b' : ''}
+ ${item.gradient ? 'bg-brand/5 ' : ''}
+ `}
             >
               <div className="flex items-center gap-3">
                 <item.icon className={`h-5 w-5 flex-shrink-0 ${item.gradient ? 'text-primary' : 'text-muted-foreground'}`} />

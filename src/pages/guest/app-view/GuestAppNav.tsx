@@ -66,7 +66,7 @@ export function GuestAppNav({
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className="absolute -top-1 -right-2 h-3.5 w-3.5 bg-gradient-to-r from-brand to-hot rounded-full text-[7px] text-paper font-bold flex items-center justify-center"
+                          className="absolute -top-1 -right-2 h-3.5 w-3.5 bg-brand rounded-full text-[7px] text-paper font-bold flex items-center justify-center"
                         >
                           {item.badge > 99 ? '99+' : item.badge}
                         </motion.div>

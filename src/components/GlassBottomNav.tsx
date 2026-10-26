@@ -70,7 +70,7 @@ const GlassBottomNav = ({ items, maxWidth = "max-w-[375px] md:max-w-3xl lg:max-w
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-2 h-4 min-w-4 px-1 bg-gradient-to-r from-brand to-hot rounded-full text-[9px] text-paper font-bold flex items-center justify-center"
+                      className="absolute -top-1 -right-2 h-4 min-w-4 px-1 bg-brand rounded-full text-[9px] text-paper font-bold flex items-center justify-center"
                     >
                       {item.badge > 99 ? '99+' : item.badge}
                     </motion.div>

@@ -230,7 +230,7 @@ const HostProfile = () => {
         {/* Profile Header Card */}
         <Card className="p-5">
           <div className="flex items-center gap-3">
-            <div className="h-16 w-16 rounded-full bg-gradient-to-r from-brand to-hot flex items-center justify-center flex-shrink-0">
+            <div className="h-16 w-16 rounded-full bg-brand flex items-center justify-center flex-shrink-0">
               <img src={stackdLogo} alt="stackd" className="h-10 w-10 object-contain" />
             </div>
             <div className="min-w-0 flex-1">
@@ -252,11 +252,10 @@ const HostProfile = () => {
                 <DropdownMenuTrigger asChild>
                   <button
                     className={`
-                      w-full flex items-center justify-between p-4 
-                      hover:bg-muted/30 active:bg-muted/50 transition-all
-                      ${index !== allMenuItems.length - 1 ? 'border-b' : ''}
-                      bg-gradient-to-r from-brand/5 to-hot/5
-                    `}
+ w-full flex items-center justify-between p-4 
+ hover:bg-muted/30 active:bg-muted/50 transition-all
+ ${index !== allMenuItems.length - 1 ? 'border-b' : ''}
+ bg-brand/5 `}
                   >
                     <div className="flex items-center gap-3">
                       <item.icon className="h-5 w-5 flex-shrink-0 text-primary" />
@@ -296,11 +295,11 @@ const HostProfile = () => {
                 key={item.label}
                 onClick={() => handleMenuClick(item.action)}
                 className={`
-                  w-full flex items-center justify-between p-4 
-                  hover:bg-muted/30 active:bg-muted/50 transition-all
-                  ${index !== allMenuItems.length - 1 ? 'border-b' : ''}
-                  ${'isAdmin' in item && item.isAdmin ? 'bg-gradient-to-r from-grape/10 to-iris/10' : ''}
-                `}
+ w-full flex items-center justify-between p-4 
+ hover:bg-muted/30 active:bg-muted/50 transition-all
+ ${index !== allMenuItems.length - 1 ? 'border-b' : ''}
+ ${'isAdmin' in item && item.isAdmin ? 'bg-brand ' : ''}
+ `}
               >
                 <div className="flex items-center gap-3">
                   <item.icon className={`h-5 w-5 flex-shrink-0 ${'isAdmin' in item && item.isAdmin ? 'text-grape' : 'text-muted-foreground'}`} />

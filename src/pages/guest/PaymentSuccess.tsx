@@ -341,9 +341,9 @@ END:VCALENDAR`;
         <div className="bg-card/80 border-b border-border p-4">
           <div className="text-center text-xs uppercase tracking-widest text-muted-foreground mb-2">Confirmed</div>
           <div className="flex gap-1">
-            <div className="h-1 flex-1 bg-gradient-to-r from-brand to-hot rounded-full" />
-            <div className="h-1 flex-1 bg-gradient-to-r from-brand to-hot rounded-full" />
-            <div className="h-1 flex-1 bg-gradient-to-r from-brand to-hot rounded-full" />
+            <div className="h-1 flex-1 bg-brand rounded-full" />
+            <div className="h-1 flex-1 bg-brand rounded-full" />
+            <div className="h-1 flex-1 bg-brand rounded-full" />
           </div>
         </div>
 
@@ -412,7 +412,7 @@ END:VCALENDAR`;
                 <div className="pt-4 mt-4 border-t">
                   <div className="flex justify-between items-center">
                     <span className="font-semibold">{sessionId ? 'Total paid' : 'Total'}</span>
-                    <span className="text-2xl font-bold bg-gradient-to-r from-brand to-hot bg-clip-text text-transparent">
+                    <span className="text-2xl font-bold text-brand ">
                       ${bookingData.totalPrice}
                     </span>
                   </div>

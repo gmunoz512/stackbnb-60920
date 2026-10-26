@@ -159,7 +159,7 @@ export function AuthPromptDialog({ open, onOpenChange, onSkip }: AuthPromptDialo
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="text-center pb-2">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
               <MapPin className="h-8 w-8 text-primary" />
             </div>
           </div>

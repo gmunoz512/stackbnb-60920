@@ -32,7 +32,7 @@ const MeetTheHost = ({ name, category, bio, avatarUrl, googleRating }: MeetTheHo
             {avatarUrl ? (
               <AvatarImage src={avatarUrl} alt={name} />
             ) : null}
-            <AvatarFallback className="text-lg font-semibold bg-gradient-to-br from-hot to-rose text-paper">
+            <AvatarFallback className="text-lg font-semibold bg-brand text-paper">
               {initials}
             </AvatarFallback>
           </Avatar>

@@ -23,7 +23,7 @@ const Booking = () => {
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2">
               <img src={stackdLogo} alt="stackd logo" className="h-8 w-8 drop-shadow-lg" />
-              <span className="text-xl font-bold font-display bg-gradient-to-r from-brand via-hot to-iris-strong bg-clip-text text-transparent">
+              <span className="text-xl font-bold font-display text-brand ">
                 stackd
               </span>
             </Link>

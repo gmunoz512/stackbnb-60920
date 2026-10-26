@@ -25,7 +25,7 @@ export function GuestServicesTab() {
 
               <div className="space-y-4">
                 <div className="flex items-start gap-3 p-3 bg-card rounded-xl border border-border">
-                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-brand to-hot flex items-center justify-center flex-shrink-0">
+                  <div className="h-8 w-8 rounded-full bg-brand flex items-center justify-center flex-shrink-0">
                     <User className="h-4 w-4 text-paper" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -37,7 +37,7 @@ export function GuestServicesTab() {
                 </div>
 
                 <div className="flex items-start gap-3 p-3 bg-card rounded-xl border border-border">
-                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-brand to-hot flex items-center justify-center flex-shrink-0">
+                  <div className="h-8 w-8 rounded-full bg-brand flex items-center justify-center flex-shrink-0">
                     <Store className="h-4 w-4 text-paper" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -49,7 +49,7 @@ export function GuestServicesTab() {
                 </div>
 
                 <div className="flex items-start gap-3 p-3 bg-card rounded-xl border border-border">
-                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-brand to-hot flex items-center justify-center flex-shrink-0">
+                  <div className="h-8 w-8 rounded-full bg-brand flex items-center justify-center flex-shrink-0">
                     <Megaphone className="h-4 w-4 text-paper" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -76,7 +76,7 @@ Get additional advertising and promote your affiliate programs to reach more cus
                       className="flex items-center justify-between p-3 bg-card rounded-lg border border-border hover:border-brand/50 transition-all group"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-brand to-hot flex items-center justify-center flex-shrink-0">
+                        <div className="h-8 w-8 rounded-full bg-brand flex items-center justify-center flex-shrink-0">
                           <Store className="h-4 w-4 text-paper" />
                         </div>
                         <div>
@@ -91,7 +91,7 @@ Get additional advertising and promote your affiliate programs to reach more cus
                       className="flex items-center justify-between p-3 bg-card rounded-lg border border-border hover:border-brand/50 transition-all group"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-brand to-hot flex items-center justify-center flex-shrink-0">
+                        <div className="h-8 w-8 rounded-full bg-brand flex items-center justify-center flex-shrink-0">
                           <Home className="h-4 w-4 text-paper" />
                         </div>
                         <div>

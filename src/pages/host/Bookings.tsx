@@ -107,7 +107,7 @@ const HostBookings = () => {
                         <p className="text-sm text-muted-foreground">{booking.vendor_name || 'Unknown Vendor'}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="font-bold text-lg bg-gradient-to-r from-brand to-hot bg-clip-text text-transparent">
+                        <p className="font-bold text-lg text-brand ">
                           ${(booking.host_payout_amount || 0).toFixed(0)}
                         </p>
                       </div>

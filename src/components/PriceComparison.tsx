@@ -170,7 +170,7 @@ const PriceComparison = ({ category, experienceName, currentPrice, duration }: P
       case 'above_average':
         return 'shadow-[0_0_8px_2px_rgba(245,158,11,0.5)]';
       case 'premium':
-        return 'shadow-[0_0_8px_2px_rgba(168,85,247,0.5)]';
+        return 'shadow-[0_0_8px_2px_hsl(var(--brand)/0.5)]';
       default:
         return 'shadow-[0_0_8px_2px_rgba(59,130,246,0.5)]';
     }

@@ -29,7 +29,8 @@ const SplashPage = () => (
         className="absolute inset-0 -z-10 h-full w-full object-cover scale-105 motion-safe:animate-[splashZoom_18s_ease-out_forwards]"
         fetchPriority="high"
       />
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(10,10,10,.55)_0%,rgba(10,10,10,.25)_40%,hsl(var(--background))_100%)]" />
+      <div className="caustics absolute inset-0 -z-10" aria-hidden />
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,hsl(var(--background)/.55)_0%,hsl(var(--background)/.15)_40%,hsl(var(--background))_100%)]" />
 
       <header className="flex items-center justify-between px-5 md:px-10 pt-5">
         <span className="font-['Archivo_Black'] text-xl tracking-tight text-white">stackd</span>
@@ -41,9 +42,9 @@ const SplashPage = () => (
         </nav>
       </header>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-5 text-center">
-        <Logo3DSpin className="mb-4" desktopSize={170} mobileSize={120} />
-        <h1 className="font-['Archivo_Black'] text-white text-[2.6rem] leading-[0.95] md:text-7xl max-w-3xl drop-shadow-[0_4px_30px_rgba(0,0,0,.5)]">
+      <div className="flex-1 flex flex-col justify-end px-5 md:px-10 pb-24 max-w-7xl w-full mx-auto">
+        <Logo3DSpin className="mb-4 self-start" desktopSize={110} mobileSize={84} />
+        <h1 className="font-['Archivo_Black'] text-white text-[2.6rem] leading-[0.95] md:text-8xl lg:text-9xl max-w-4xl drop-shadow-[0_4px_30px_rgba(0,0,0,.5)]">
           Tulum, stacked.
         </h1>
         <p className="mt-4 max-w-md text-white/85 text-base md:text-lg">
@@ -52,11 +53,11 @@ const SplashPage = () => (
 
         <Link
           to="/appview"
-          className="group mt-8 w-full max-w-md flex items-center gap-3 rounded-full bg-black/55 backdrop-blur-xl border border-white/15 pl-5 pr-1.5 py-1.5 shadow-[0_10px_40px_rgba(168,85,247,.25)] hover:border-white/30 transition-colors"
+          className="group mt-8 w-full max-w-md flex items-center gap-3 rounded-full bg-background/70 backdrop-blur-xl border border-white/15 pl-5 pr-1.5 py-1.5  hover:border-white/30 transition-colors"
         >
-          <MapPin className="h-4 w-4 text-orange-400 shrink-0" aria-hidden />
+          <MapPin className="h-4 w-4 text-primary shrink-0" aria-hidden />
           <span className="flex-1 text-left text-white/70 text-sm">What do you want to do in Tulum?</span>
-          <span className="grid place-items-center h-11 w-11 rounded-full bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 shadow-[0_4px_20px_rgba(168,85,247,.5)] group-hover:scale-105 transition-transform">
+          <span className="grid place-items-center h-11 w-11 rounded-full bg-primary group-hover:scale-105 transition-transform">
             <Search className="h-4 w-4 text-white" aria-hidden />
           </span>
         </Link>
@@ -64,10 +65,11 @@ const SplashPage = () => (
           New here? Create an account
         </Link>
       </div>
+      <div className="horizon-line" aria-hidden />
     </section>
 
     {/* Photo rail: real inventory, not feature bullets */}
-    <section className="relative -mt-10 pb-14">
+    <section className="relative pt-12 pb-14">
       <div className="px-5 md:px-10 mb-4 flex items-end justify-between max-w-7xl mx-auto">
         <h2 className="font-['Archivo_Black'] text-2xl md:text-3xl">Start with a mood</h2>
         <Link to="/appview" className="text-sm text-muted-foreground hover:text-foreground">See everything</Link>
@@ -80,7 +82,7 @@ const SplashPage = () => (
             className={`relative shrink-0 snap-start overflow-hidden rounded-[22px] group ${i === 0 ? "w-[68vw] sm:w-80 md:w-96" : "w-[44vw] sm:w-56"} aspect-[3/4]`}
           >
             <img src={t.img} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent to-50%" />
             <span className="absolute left-4 bottom-4 right-4 font-semibold text-white text-base leading-tight">{t.label}</span>
           </Link>
         ))}

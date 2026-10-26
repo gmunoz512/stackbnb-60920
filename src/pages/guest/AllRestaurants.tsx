@@ -1,3 +1,4 @@
+import { VendorGoogleRating } from "@/components/VendorGoogleRating";
 import { useState, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Star, Store } from "lucide-react";
@@ -26,6 +27,7 @@ interface VendorRestaurant {
   photos: string[] | null;
   price_per_person: number | null;
   google_rating: number | null;
+  google_place_id?: string | null;
 }
 
 const convertApiPlaceToRestaurant = (place: GeoapifyPlace): Restaurant => ({
@@ -209,15 +211,15 @@ const AllRestaurants = () => {
                     {vendor.photos?.[0] ? (
                       <img src={vendor.photos[0]} alt={vendor.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-brand to-iris-strong flex items-center justify-center">
+                      <div className="w-full h-full bg-brand flex items-center justify-center">
                         <Store className="h-8 w-8 text-paper/80" />
                       </div>
                     )}
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/70 to-transparent p-2">
                       <p className="text-paper text-xs font-medium line-clamp-1">{vendor.name}</p>
                       <div className="flex items-center gap-1 text-paper/80 text-[10px]">
-                        <GoogleRating
-                          value={resolveGoogleRating({ googleRating: vendor.google_rating })}
+                        <VendorGoogleRating
+                          vendor={vendor}
                           showCount={false}
                           className="text-[10px] text-inherit"
                           starClassName="h-2.5 w-2.5"

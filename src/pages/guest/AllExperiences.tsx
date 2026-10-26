@@ -1,3 +1,4 @@
+import { VendorGoogleRating } from "@/components/VendorGoogleRating";
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Heart, Star, Search, Store } from "lucide-react";
@@ -30,6 +31,7 @@ interface VendorExperience {
   photos: string[] | null;
   price_per_person: number | null;
   google_rating: number | null;
+  google_place_id?: string | null;
 }
 
 const AllExperiences = () => {
@@ -53,7 +55,7 @@ const AllExperiences = () => {
       setIsLoading(true);
       const { data, error } = await supabase
         .from('vendor_profiles_public')
-        .select('id, name, category, description, photos, price_per_person, google_rating, is_published, listing_type')
+        .select('id, name, category, description, photos, price_per_person, google_rating, google_place_id, is_published, listing_type')
         .eq('is_published', true)
         .eq('listing_type', 'experience');
 
@@ -170,7 +172,7 @@ const AllExperiences = () => {
                         }}
                       />
                     ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-brand to-iris-strong flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
+                      <div className="absolute inset-0 bg-brand flex items-center justify-center group-hover:scale-105 transition-transform duration-500">
                         <Store className="h-10 w-10 text-paper/80" />
                       </div>
                     )}
@@ -202,8 +204,8 @@ const AllExperiences = () => {
                   <div className="space-y-0.5">
                     <h3 className="font-semibold text-sm line-clamp-2">{experience.name}</h3>
                     <p className="text-xs text-muted-foreground line-clamp-1">{experience.category}</p>
-                    <GoogleRating
-                      value={resolveGoogleRating({ googleRating: experience.google_rating })}
+                    <VendorGoogleRating
+                      vendor={experience}
                       showCount={false}
                       className="text-xs"
                       starClassName="h-3 w-3"

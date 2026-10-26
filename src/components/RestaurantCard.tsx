@@ -149,7 +149,7 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
             
             <p className="text-xs text-muted-foreground">
               {restaurant.cuisine}
-              {restaurant.priceRange && ` • ${restaurant.priceRange}`}
+              {restaurant.priceRange && `, ${restaurant.priceRange}`}
             </p>
             
             <GoogleRating value={rating} className="text-xs" starClassName="h-3 w-3" />
@@ -245,7 +245,7 @@ const RestaurantCard = ({ restaurant, variant = 'horizontal', size = 'default', 
           </h3>
           {!isSmall && (
             <p className="text-xs text-muted-foreground line-clamp-1">
-              {restaurant.cuisine} • {restaurant.neighborhood || restaurant.city}
+              {restaurant.cuisine}, {restaurant.neighborhood || restaurant.city}
             </p>
           )}
           <div className={`flex items-center ${isSmall ? 'gap-0.5' : 'justify-between pt-0.5'}`}>

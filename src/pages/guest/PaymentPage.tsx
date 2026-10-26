@@ -186,8 +186,8 @@ const PaymentPage = () => {
         <div className="bg-card border-b p-4">
           <div className="text-center text-sm text-muted-foreground mb-2">Step 2 of 3</div>
           <div className="flex gap-1">
-            <div className="h-1 flex-1 bg-gradient-to-r from-brand to-hot rounded-full" />
-            <div className="h-1 flex-1 bg-gradient-to-r from-brand to-hot rounded-full" />
+            <div className="h-1 flex-1 bg-brand rounded-full" />
+            <div className="h-1 flex-1 bg-brand rounded-full" />
             <div className="h-1 flex-1 bg-muted rounded-full" />
           </div>
         </div>

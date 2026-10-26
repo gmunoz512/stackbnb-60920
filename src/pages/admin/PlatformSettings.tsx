@@ -123,7 +123,7 @@ const PlatformSettings = () => {
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
       <div className="max-w-lg mx-auto">
         {/* Header */}
-        <div className="bg-gradient-to-br from-grape-strong to-iris-strong px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
+        <div className="bg-brand px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={() => navigate(-1)}
@@ -142,7 +142,7 @@ const PlatformSettings = () => {
           {/* Platform Fee Card */}
           <Card className="p-6">
             <div className="flex items-start gap-4 mb-6">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-grape/20 to-iris/20">
+              <div className="p-3 rounded-xl bg-brand ">
                 <Percent className="h-6 w-6 text-grape" />
               </div>
               <div className="flex-1">
@@ -185,7 +185,7 @@ const PlatformSettings = () => {
                 <Button
                   onClick={handleSave}
                   disabled={!hasChanges || updateSettings.isPending}
-                  className="w-full gap-2 bg-gradient-to-r from-grape-strong to-iris-strong hover:from-grape-deep hover:to-iris-deep"
+                  className="w-full gap-2 bg-brand hover:bg-brand "
                 >
                   {updateSettings.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -202,7 +202,7 @@ const PlatformSettings = () => {
           <Link to="/admin/promo-codes">
             <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer group">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-brand/20 to-hot/20">
+                <div className="p-3 rounded-xl bg-brand/20 ">
                   <Tag className="h-6 w-6 text-brand" />
                 </div>
                 <div className="flex-1">

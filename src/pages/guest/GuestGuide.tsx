@@ -291,7 +291,7 @@ const GuestGuide = () => {
               included: exp!.included,
             }))
           }}
-          className="flex items-center justify-center gap-2 w-full py-3 rounded-full bg-gradient-to-r from-brand to-iris-strong text-paper font-medium shadow-lg hover:scale-[1.02] transition-transform"
+          className="flex items-center justify-center gap-2 w-full py-3 rounded-full bg-brand text-paper font-medium shadow-lg hover:scale-[1.02] transition-transform"
         >
           <Sparkles className="h-5 w-5" />
           Plan your trip using AI

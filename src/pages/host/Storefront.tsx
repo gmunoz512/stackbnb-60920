@@ -24,7 +24,7 @@ const HostStorefront = () => {
     <div className="min-h-screen bg-background pb-8">
       <div className="max-w-[375px] mx-auto">
         {/* Header */}
-        <div className="bg-gradient-to-br from-brand to-hot text-paper p-6 space-y-4">
+        <div className="bg-brand text-paper p-6 space-y-4">
           <div className="space-y-2">
             <h1 className="text-2xl font-bold">{propertyName}</h1>
             <p className="text-paper/90">Hosted by {hostName}</p>
@@ -49,7 +49,7 @@ const HostStorefront = () => {
                   className="p-4 hover:shadow-xl transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer"
                 >
                   <div className="text-center space-y-2">
-                    <div className="text-3xl">{category.icon}</div>
+                    
                     <div>
                       <p className="font-semibold text-sm">{category.name}</p>
                       <p className="text-xs text-muted-foreground">{category.count} {category.count === 1 ? 'experience' : 'experiences'}</p>
@@ -77,7 +77,7 @@ const HostStorefront = () => {
                           </div>
                           <p className="text-sm text-muted-foreground">{experience.vendor}</p>
                         </div>
-                        <Badge variant="secondary" className="bg-gradient-to-r from-brand to-hot text-paper text-sm flex-shrink-0">
+                        <Badge variant="secondary" className="bg-brand text-paper text-sm flex-shrink-0">
                           ${experience.price}
                         </Badge>
                       </div>

@@ -1,3 +1,4 @@
+import { VendorGoogleRating } from "@/components/VendorGoogleRating";
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -393,7 +394,7 @@ const VendorProfilePreview = () => {
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="w-full h-[280px] rounded-xl bg-gradient-to-br from-brand to-iris-strong flex flex-col items-center justify-center gap-2 hover:from-brand-strong hover:to-iris-deep transition-colors cursor-pointer"
+              className="w-full h-[280px] rounded-xl bg-brand flex flex-col items-center justify-center gap-2 hover:bg-brand-strong transition-colors cursor-pointer"
             >
               {isUploading ? (
                 <Loader2 className="h-12 w-12 text-paper animate-spin" />
@@ -416,8 +417,8 @@ const VendorProfilePreview = () => {
             <p className="text-[15px] text-muted-foreground">{profile.category}</p>
 
             <div className="pt-1">
-              <GoogleRating
-                value={resolveGoogleRating({ googleRating: profile.google_rating })}
+              <VendorGoogleRating
+                vendor={profile}
                 className="text-[15px]"
                 starClassName="h-4 w-4"
               />
@@ -739,7 +740,7 @@ const VendorProfilePreview = () => {
             
             {profile.verification_status === 'approved' ? (
               <Button 
-                className="flex-1 gap-2 rounded-full bg-gradient-to-r from-brand to-hot hover:from-brand-strong hover:to-hot-strong text-paper font-semibold"
+                className="flex-1 gap-2 rounded-full bg-brand hover:bg-brand-strong text-paper font-semibold"
                 onClick={handlePublish}
                 disabled={isPublishing}
               >

@@ -259,7 +259,7 @@ const ExperienceDetails = () => {
               <p className="text-xl font-semibold">${experience.price}<span className="text-[14px] font-normal text-muted-foreground"> /person</span></p>
             </div>
             <Button 
-              className="rounded-full px-8 bg-gradient-to-r from-brand to-hot hover:from-brand-strong hover:to-hot-strong text-paper font-semibold"
+              className="rounded-full px-8 bg-brand hover:bg-brand-strong text-paper font-semibold"
               size="lg"
               onClick={() => {
                 if (!requireSignIn("book")) return;

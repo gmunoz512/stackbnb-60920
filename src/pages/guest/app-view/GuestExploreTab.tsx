@@ -1,3 +1,4 @@
+import { VendorGoogleRating } from "@/components/VendorGoogleRating";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,7 @@ interface GuestVendor {
   photos: string[] | null;
   price_per_person: number | null;
   google_rating: number | null;
+  google_place_id?: string | null;
 }
 
 interface GuestExploreTabProps {
@@ -139,7 +141,7 @@ export function GuestExploreTab({
                   <Link
                     to="/trip-planner"
                     aria-label="Open trip planner"
-                    className="p-2 rounded-full bg-gradient-to-r from-brand to-iris-strong text-paper"
+                    className="p-2 rounded-full bg-brand text-paper"
                   >
                     <Sparkles className="h-4 w-4" />
                   </Link>
@@ -158,7 +160,7 @@ export function GuestExploreTab({
 
                 {/* Search Section - Single Bar */}
                 <div className="relative md:max-w-2xl md:mx-auto">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-brand/20 to-iris-strong/20 rounded-full blur-sm"></div>
+                  <div className="absolute -inset-0.5 bg-brand/20 rounded-full blur-sm"></div>
                   <div className="relative bg-card/90 rounded-full border border-border/50 backdrop-blur-sm flex items-center px-3 py-2">
                     {/* Left: Location icon */}
                     <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
@@ -228,7 +230,7 @@ export function GuestExploreTab({
                     <button
                       type="button"
                       aria-label="Search restaurants"
-                      className="ml-2 bg-gradient-to-r from-brand to-iris-strong text-paper rounded-full p-1.5 flex-shrink-0"
+                      className="ml-2 bg-brand text-paper rounded-full p-1.5 flex-shrink-0"
                       onClick={() => navigate('/restaurants')}
                     >
                       <Search className="h-3 w-3" />
@@ -257,7 +259,7 @@ export function GuestExploreTab({
                           to="/host/vendors"
                           className="flex-shrink-0 w-28 md:w-auto md:min-w-0"
                         >
-                          <div className="aspect-square bg-gradient-to-br from-brand/20 to-hot/20 rounded-xl flex items-center justify-center border border-border">
+                          <div className="aspect-square bg-brand/20 rounded-xl flex items-center justify-center border border-border">
                             <Store className="h-8 w-8 text-muted-foreground" />
                           </div>
                           <p className="text-xs font-medium mt-1 line-clamp-1">{business.name}</p>
@@ -306,7 +308,7 @@ export function GuestExploreTab({
                                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-brand to-iris-strong flex items-center justify-center">
+                                <div className="w-full h-full bg-brand flex items-center justify-center">
                                   <Store className="h-8 w-8 text-paper/80" />
                                 </div>
                               )}
@@ -327,8 +329,8 @@ export function GuestExploreTab({
                               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/70 to-transparent p-2">
                                 <p className="text-paper text-xs font-medium line-clamp-1">{vendor.name}</p>
                                 <div className="flex items-center gap-1 text-paper/80 text-[10px]">
-                                  <GoogleRating
-                                    value={resolveGoogleRating({ googleRating: vendor.google_rating })}
+                                  <VendorGoogleRating
+                                    vendor={vendor}
                                     showCount={false}
                                     className="text-[10px] text-inherit"
                                     starClassName="h-2.5 w-2.5"
@@ -435,7 +437,7 @@ export function GuestExploreTab({
                                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-brand to-iris-strong flex items-center justify-center">
+                                <div className="w-full h-full bg-brand flex items-center justify-center">
                                   <Store className="h-8 w-8 text-paper/80" />
                                 </div>
                               )}
@@ -456,8 +458,8 @@ export function GuestExploreTab({
                               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink/70 to-transparent p-2">
                                 <p className="text-paper text-xs font-medium line-clamp-1">{vendor.name}</p>
                                 <div className="flex items-center gap-1 text-paper/80 text-[10px]">
-                                  <GoogleRating
-                                    value={resolveGoogleRating({ googleRating: vendor.google_rating })}
+                                  <VendorGoogleRating
+                                    vendor={vendor}
                                     showCount={false}
                                     className="text-[10px] text-inherit"
                                     starClassName="h-2.5 w-2.5"
@@ -520,8 +522,8 @@ export function GuestExploreTab({
                             <p className="text-xs font-medium line-clamp-1">{vendor.name}</p>
                             <p className="text-[10px] text-muted-foreground line-clamp-1">{vendor.category}</p>
                             <div className="flex items-center gap-1 text-[10px]">
-                              <GoogleRating
-                                value={resolveGoogleRating({ googleRating: vendor.google_rating })}
+                              <VendorGoogleRating
+                                vendor={vendor}
                                 showCount={false}
                                 className="text-[10px]"
                                 starClassName="h-2.5 w-2.5"

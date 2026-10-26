@@ -75,14 +75,14 @@ export const AnimatedTabs = ({
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              {tab.icon && <span className="text-base">{tab.icon}</span>}
+              {tab.icon && typeof tab.icon !== 'string' && <span className="text-base">{tab.icon}</span>}
               <span>{tab.name}</span>
             </button>
           ))}
           
           {/* Animated Underline */}
           <motion.div
-            className="absolute bottom-0 h-0.5 bg-gradient-to-r from-brand to-iris-strong rounded-full"
+            className="absolute bottom-0 h-0.5 bg-brand rounded-full"
             initial={false}
             animate={{
               left: indicatorStyle.left,
@@ -135,7 +135,7 @@ export const AnimatedTabs = ({
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
-            {tab.icon && <span className="text-base">{tab.icon}</span>}
+            {tab.icon && typeof tab.icon !== 'string' && <span className="text-base">{tab.icon}</span>}
             <span>{tab.name}</span>
           </button>
         ))}
@@ -171,7 +171,7 @@ export const AnimatedTabs = ({
             {isActive && (
               <motion.div
                 layoutId="activeTabBg"
-                className="absolute inset-0 bg-gradient-to-r from-brand to-iris-strong rounded-full"
+                className="absolute inset-0 bg-brand rounded-full"
                 initial={false}
                 transition={{
                   type: "spring",
@@ -181,7 +181,7 @@ export const AnimatedTabs = ({
               />
             )}
             
-            <span className="relative z-10 text-base">{tab.icon}</span>
+            {typeof tab.icon !== 'string' && <span className="relative z-10 text-base">{tab.icon}</span>}
             <span className="relative z-10 font-medium">{tab.name}</span>
           </button>
         );

@@ -19,7 +19,7 @@ const PrivacyPolicy = () => {
           </button>
           <div className="flex items-center gap-2">
             <img src={stackdLogo} alt="Stackd" className="h-8 w-8" />
-            <span className="font-display text-xl font-bold bg-gradient-to-r from-brand via-hot to-iris-strong bg-clip-text text-transparent">
+            <span className="font-display text-xl font-bold text-brand ">
               stackd
             </span>
           </div>

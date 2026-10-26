@@ -65,7 +65,7 @@ const Storefront = () => {
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2">
               <img src={stackdLogo} alt="stackd logo" className="h-8 w-8 drop-shadow-lg" />
-              <span className="text-xl font-bold font-display bg-gradient-to-r from-brand via-hot to-iris-strong bg-clip-text text-transparent">
+              <span className="text-xl font-bold font-display text-brand ">
                 stackd
               </span>
             </Link>
@@ -100,7 +100,7 @@ const Storefront = () => {
                 key={category.label}
                 className="p-6 text-center hover:shadow-lg transition-all cursor-pointer group hover:border-primary"
               >
-                <div className="text-4xl mb-2">{category.emoji}</div>
+                
                 <p className="font-medium group-hover:text-primary transition-colors">
                   {category.label}
                 </p>

@@ -100,7 +100,7 @@ const HostOnboardingCard = ({ onComplete }: HostOnboardingCardProps) => {
     <Card className="p-6 rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm mb-6">
       <div className="flex items-start gap-4">
         {/* Gradient icon */}
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-iris-strong to-hot flex items-center justify-center flex-shrink-0">
+        <div className="w-12 h-12 rounded-full bg-brand flex items-center justify-center flex-shrink-0">
           <Home className="w-6 h-6 text-paper" />
         </div>
         

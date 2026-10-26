@@ -19,15 +19,15 @@ function Footerdemo() {
           <div className="relative">
             <div className="flex items-center gap-2 mb-4">
               <img src={stackdLogo} alt="stackd" className="h-10 w-10 drop-shadow-lg" />
-              <h2 className="text-2xl font-bold font-display bg-gradient-to-r from-brand via-hot to-iris-strong bg-clip-text text-transparent">
+              <h2 className="text-2xl font-bold font-display text-brand ">
                 stackd
               </h2>
             </div>
             <p className="mb-2 text-lg font-semibold">Ready to Monetize Your Recommendations?</p>
             <p className="mb-4 text-sm text-muted-foreground">Join 200+ Tulum hosts on the waitlist</p>
             <form className="relative group" onSubmit={(e) => e.preventDefault()}>
-              <div className="absolute -inset-1 bg-gradient-to-r from-brand to-hot rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-300"></div>
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-light to-hot-light rounded-lg blur-sm opacity-20 group-hover:opacity-40 transition duration-300"></div>
+              <div className="absolute -inset-1 bg-brand rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-300"></div>
+              <div className="absolute -inset-0.5 bg-brand-light rounded-lg blur-sm opacity-20 group-hover:opacity-40 transition duration-300"></div>
               <div className="relative">
                 <Input
                   type="email"
@@ -37,7 +37,7 @@ function Footerdemo() {
                 <Button
                   type="submit"
                   size="icon"
-                  className="absolute right-1 top-1 h-8 w-8 rounded-full bg-gradient-to-r from-brand to-hot text-paper transition-transform hover:scale-105"
+                  className="absolute right-1 top-1 h-8 w-8 rounded-full bg-brand text-paper transition-transform hover:scale-105"
                 >
                   <Send className="h-4 w-4" />
                   <span className="sr-only">Subscribe</span>

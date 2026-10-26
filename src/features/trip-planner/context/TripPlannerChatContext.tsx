@@ -434,12 +434,15 @@ export function TripPlannerChatProvider({ children, initialVendors = [] }: TripP
         variant: "destructive",
       });
 
+      // Leave the guest somewhere useful instead of an empty thread.
+      const fallback =
+        "I can't reach the planner right now. While I reconnect, you can browse every [experience](/experiences) and [restaurant](/restaurants) in Tulum, or try your question again in a minute.";
       setMessages((prev) => {
         const last = prev[prev.length - 1];
         if (last?.role === "assistant" && last.content === "") {
-          return prev.slice(0, -1);
+          return [...prev.slice(0, -1), { ...last, content: fallback }];
         }
-        return prev;
+        return [...prev, { role: "assistant", content: fallback } as (typeof prev)[number]];
       });
       setStreamingStatus("idle");
     } finally {

@@ -108,7 +108,7 @@ const PayoutHistory = () => {
 
         {/* Total Earnings Card */}
         {!isLoading && payouts.length > 0 && (
-          <Card className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+          <Card className="p-4 bg-primary/10 border-primary/20">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/20 rounded-lg">
                 <TrendingUp className="h-5 w-5 text-primary" />

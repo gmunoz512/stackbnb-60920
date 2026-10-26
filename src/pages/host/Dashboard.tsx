@@ -1,3 +1,4 @@
+import { VendorGoogleRating } from "@/components/VendorGoogleRating";
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ interface VendorWithCommission {
   commission_percentage: number | null;
   photos: string[] | null;
   google_rating: number | null;
+  google_place_id?: string | null;
 }
 
 const HostDashboard = () => {
@@ -221,7 +223,7 @@ const HostDashboard = () => {
     <PageTransition className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 pb-24">
       <div className="max-w-[375px] mx-auto">
         {/* Hero Header with Gradient */}
-        <div className="bg-gradient-to-br from-brand to-hot px-4 pt-6 pb-20 rounded-b-3xl shadow-lg relative overflow-hidden">
+        <div className="bg-brand px-4 pt-6 pb-20 rounded-b-3xl shadow-lg relative overflow-hidden">
           <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,black)]" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-6">
@@ -350,12 +352,12 @@ const HostDashboard = () => {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-gradient-to-br from-brand/20 to-hot/20 ring-1 ring-brand/20">
+                        <div className="p-3 rounded-2xl bg-brand/20 ring-1 ring-brand/20">
                           <Icon className="h-6 w-6 text-brand" />
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
-                          <p className="text-3xl font-bold mt-1 bg-gradient-to-r from-brand to-hot bg-clip-text text-transparent">
+                          <p className="text-3xl font-bold mt-1 text-brand ">
                             {stat.value}
                           </p>
                         </div>
@@ -417,7 +419,7 @@ const HostDashboard = () => {
                       <p className="text-xs text-muted-foreground mt-2">{booking.date}</p>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-brand to-hot">
+                      <div className="px-3 py-1.5 rounded-full bg-brand ">
                         <p className="font-bold text-sm text-paper">{booking.amount}</p>
                       </div>
                     </div>
@@ -468,7 +470,7 @@ const HostDashboard = () => {
                 >
                   <div className="flex items-center gap-3">
                     {/* Vendor Photo */}
-                    <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-brand/20 to-hot/20 ring-1 ring-border/60">
+                    <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-brand/20 ring-1 ring-border/60">
                       {vendor.photos && vendor.photos.length > 0 ? (
                         <img
                           src={vendor.photos[0]}
@@ -489,8 +491,8 @@ const HostDashboard = () => {
                       </p>
                       <p className="text-xs text-muted-foreground truncate">{vendor.category}</p>
                       <div className="mt-1">
-                        <GoogleRating
-                          value={resolveGoogleRating({ googleRating: vendor.google_rating })}
+                        <VendorGoogleRating
+                          vendor={vendor}
                           showCount={false}
                           className="text-xs text-muted-foreground"
                           starClassName="h-3 w-3"

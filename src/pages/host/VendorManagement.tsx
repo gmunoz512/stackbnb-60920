@@ -1,3 +1,4 @@
+import { VendorGoogleRating } from "@/components/VendorGoogleRating";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ interface VendorProfile {
   commission_percentage: number | null;
   photos: string[] | null;
   google_rating: number | null;
+  google_place_id?: string | null;
   description: string | null;
 }
 
@@ -69,7 +71,7 @@ const HostVendorManagement = () => {
     queryFn: async () => {
       let query = supabase
         .from('vendor_profiles')
-        .select('id, name, category, commission_percentage, photos, google_rating, description')
+        .select('id, name, category, commission_percentage, photos, google_rating, google_place_id, description')
         .eq('is_published', true)
         .not('commission_percentage', 'is', null)
         .gt('commission_percentage', 0);
@@ -136,7 +138,7 @@ const HostVendorManagement = () => {
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 pb-24">
       <div className="max-w-lg mx-auto">
         {/* Header */}
-        <div className="bg-gradient-to-br from-brand to-hot px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
+        <div className="bg-brand px-4 pt-6 pb-8 rounded-b-3xl shadow-lg">
           <div className="flex items-center gap-3 mb-4">
             <button
               onClick={() => navigate(-1)}
@@ -294,8 +296,8 @@ const HostVendorManagement = () => {
                         </div>
 
                         <div className="flex items-center gap-3 mt-2">
-                          <GoogleRating
-                            value={resolveGoogleRating({ googleRating: vendor.google_rating })}
+                          <VendorGoogleRating
+                            vendor={vendor}
                             showCount={false}
                             className="text-xs text-muted-foreground"
                             starClassName="h-3 w-3"

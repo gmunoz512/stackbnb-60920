@@ -103,7 +103,7 @@ const VendorOnboardingWizard = ({ open, onOpenChange }: VendorOnboardingWizardPr
         {/* Header with gradient accent */}
         <div className="p-6 border-b border-border/50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand to-hot flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-brand flex items-center justify-center">
               <Store className="w-5 h-5 text-paper" />
             </div>
             <div>
@@ -120,7 +120,7 @@ const VendorOnboardingWizard = ({ open, onOpenChange }: VendorOnboardingWizardPr
                 className={cn(
                   "h-1.5 flex-1 rounded-full transition-colors",
                   step.id <= currentStep 
-                    ? "bg-gradient-to-r from-brand to-hot" 
+                    ? "bg-brand " 
                     : "bg-border/50"
                 )} 
               />

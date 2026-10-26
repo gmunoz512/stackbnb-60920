@@ -197,7 +197,7 @@ END:VCALENDAR`;
                       )}
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className="font-bold text-lg bg-gradient-to-r from-brand to-hot bg-clip-text text-transparent">
+                      <p className="font-bold text-lg text-brand ">
                         ${booking.total_amount}
                       </p>
                     </div>

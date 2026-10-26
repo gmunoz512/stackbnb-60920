@@ -217,7 +217,7 @@ const VendorDashboard = () => {
       <PageTransition className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20 pb-24">
         <div className="max-w-[375px] mx-auto">
         {/* Hero Header with Gradient */}
-        <div className="bg-gradient-to-br from-brand to-hot px-4 pt-6 pb-20 rounded-b-3xl shadow-lg relative overflow-hidden">
+        <div className="bg-brand px-4 pt-6 pb-20 rounded-b-3xl shadow-lg relative overflow-hidden">
           <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,transparent,black)]" />
           <div className="relative z-10">
             <div className="flex items-center justify-between mb-6">
@@ -347,12 +347,12 @@ const VendorDashboard = () => {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-gradient-to-br from-brand/20 to-hot/20 ring-1 ring-brand/20">
+                        <div className="p-3 rounded-2xl bg-brand/20 ring-1 ring-brand/20">
                           <Icon className="h-6 w-6 text-brand" />
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
-                          <p className="text-3xl font-bold mt-1 bg-gradient-to-r from-brand to-hot bg-clip-text text-transparent">
+                          <p className="text-3xl font-bold mt-1 text-brand ">
                             {stat.value}
                           </p>
                         </div>
