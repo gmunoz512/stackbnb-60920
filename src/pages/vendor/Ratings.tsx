@@ -1,5 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Star, ThumbsUp, ExternalLink } from "lucide-react";
+import { SubpageShell, AsideBlock } from "@/components/dashboard/Subpage";
+import { useGoogleReviews } from "@/hooks/useGoogleReviews";
 import VendorBottomNav from "@/components/VendorBottomNav";
 import { useSmartBack } from "@/hooks/use-smart-back";
 import { useQuery } from "@tanstack/react-query";
@@ -22,7 +24,7 @@ const VendorRatings = () => {
 
       const { data, error } = await supabase
         .from('vendor_profiles')
-        .select('google_rating, google_reviews_url, name')
+        .select('id, google_rating, google_reviews_url, google_place_id, name')
         .eq('user_id', user.id)
         .maybeSingle();
 
@@ -32,115 +34,99 @@ const VendorRatings = () => {
     enabled: !!user,
   });
 
-  const resolvedRating = resolveGoogleRating({ googleRating: vendorProfile?.google_rating });
+  const placeId = vendorProfile?.google_place_id ?? null;
+  const { data: live, isLoading: liveLoading } = useGoogleReviews({
+    id: vendorProfile?.id,
+    placeId,
+    enabled: Boolean(placeId),
+  });
+
+  const resolvedRating = resolveGoogleRating({ googleRating: live?.rating ?? vendorProfile?.google_rating });
   const googleRating = resolvedRating?.rating;
-  const googleReviewsUrl = vendorProfile?.google_reviews_url;
+  const reviewCount = live?.totalReviews;
+  const googleReviewsUrl = live?.googleMapsUrl ?? vendorProfile?.google_reviews_url;
+  const loading = isLoading || (Boolean(placeId) && liveLoading);
+
+  const verdict = !googleRating
+    ? null
+    : googleRating >= 4.5
+    ? 'Top of the range. Hosts filter by 4.5 and up, so you show in every storefront.'
+    : googleRating >= 4.0
+    ? 'Solid. A few more five-star reviews puts you above the 4.5 line hosts filter on.'
+    : 'Below what most hosts list. Recent reviews below show what guests mention.';
 
   return (
-    <div className="min-h-screen bg-background pb-28">
-      <div className="horizon-line" />
-      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8">
-        <button 
-          onClick={goBack}
-          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors active:scale-95"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Dashboard
-        </button>
-
-        <div className="space-y-1">
-          <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">Business Rating</h1>
-          <p className="text-sm text-muted-foreground">Your Google/Airbnb rating</p>
-        </div>
-
-        {/* Rating Card */}
-        {isLoading ? (
-          <Card className="p-6">
-            <Skeleton className="h-8 w-24 mx-auto mb-2" />
-            <Skeleton className="h-4 w-32 mx-auto" />
-          </Card>
-        ) : googleRating ? (
-          <Card className="p-6 bg-gradient-to-br from-rating/10 to-brand/10 border-rating/20">
-            <div className="text-center space-y-3">
-              <div className="flex items-center justify-center">
-                <GoogleRating
-                  value={resolvedRating}
-                  showCount={false}
-                  className="text-5xl font-bold"
-                  starClassName="h-8 w-8"
-                />
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Rating from Google/Airbnb
-              </p>
-              {googleReviewsUrl && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  onClick={() => window.open(googleReviewsUrl, '_blank')}
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  View All Reviews
-                </Button>
+    <>
+      <SubpageShell
+        backLabel="Back to dashboard"
+        onBack={goBack}
+        eyebrow="Reputation"
+        title="Your rating"
+        subtitle="What guests and hosts see next to your name. It comes from your Google listing, not from stackd."
+        actions={googleReviewsUrl ? (
+          <Button variant="outline" size="sm" className="gap-2 whitespace-nowrap" onClick={() => window.open(googleReviewsUrl, '_blank')}>
+            <ExternalLink className="h-4 w-4" />
+            Open on Google
+          </Button>
+        ) : undefined}
+        aside={
+          <>
+            <AsideBlock title="Source">
+              {placeId ? (
+                <p className="text-muted-foreground">
+                  {live ? 'Live from Google Places' : 'Stored rating'} for place ID{' '}
+                  <code className="break-all text-xs text-foreground">{placeId}</code>. Refreshed at most once a day.
+                </p>
+              ) : (
+                <p className="text-muted-foreground">No Google listing is linked. Add your Google Place ID in your profile to show a rating.</p>
+              )}
+            </AsideBlock>
+            {verdict && (
+              <AsideBlock title="Where you stand">
+                <p className="text-muted-foreground">{verdict}</p>
+              </AsideBlock>
+            )}
+          </>
+        }
+      >
+        <section className="border-b border-white/10 py-8">
+          {loading ? (
+            <Skeleton className="h-16 w-48" />
+          ) : googleRating ? (
+            <div className="flex flex-wrap items-end gap-x-6 gap-y-2">
+              <GoogleRating value={resolvedRating} showCount={false} className="font-display text-6xl lg:text-7xl" starClassName="h-8 w-8" />
+              {reviewCount != null && (
+                <p className="pb-2 text-muted-foreground tabular-nums">{reviewCount.toLocaleString()} Google reviews</p>
               )}
             </div>
-          </Card>
-        ) : (
-          <Card className="p-6 text-center">
-            <Star className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground text-sm">No rating yet</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Add your Google Place ID in your profile to display your rating
-            </p>
-          </Card>
-        )}
+          ) : (
+            <p className="font-display text-2xl text-muted-foreground">No rating yet</p>
+          )}
+        </section>
 
-        {/* Rating Quality Indicator */}
-        {googleRating && (
-          <Card className="p-4">
-            <h3 className="text-sm font-semibold mb-3">Rating Quality</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Your Rating</span>
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={`h-4 w-4 ${
-                        star <= Math.round(googleRating)
-                          ? 'text-rating fill-rating'
-                          : 'text-muted-foreground'
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-              <div className="h-3 bg-muted rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-rating-light to-brand transition-all duration-500"
-                  style={{ width: `${(googleRating / 5) * 100}%` }}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <ThumbsUp className={`h-4 w-4 ${googleRating >= 4.5 ? 'text-success' : 'text-muted-foreground'}`} />
-                <span className="text-xs text-muted-foreground">
-                  {googleRating >= 4.5 
-                    ? 'Excellent! Your rating is outstanding.'
-                    : googleRating >= 4.0
-                    ? 'Great rating! Keep up the good work.'
-                    : googleRating >= 3.5
-                    ? 'Good rating. Room for improvement.'
-                    : 'Consider ways to improve your customer experience.'}
-                </span>
-              </div>
-            </div>
-          </Card>
+        {live?.reviews && live.reviews.length > 0 && (
+          <section className="py-8">
+            <h2 className="font-display text-lg text-foreground">Recent reviews</h2>
+            <ul className="mt-4 divide-y divide-white/10">
+              {live.reviews.map((r, i) => (
+                <li key={i} className="grid gap-2 py-5 sm:grid-cols-[180px_minmax(0,1fr)] sm:gap-6">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{r.author_name}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      <span className="tabular-nums">{r.rating}</span>
+                      <Star className="mb-0.5 ml-0.5 inline h-3 w-3 fill-rating text-rating" />
+                      {' · '}{r.relative_time_description}
+                    </p>
+                  </div>
+                  <p className="text-sm leading-relaxed text-foreground/85 line-clamp-4">{r.text}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
-      </div>
-
+      </SubpageShell>
       <VendorBottomNav />
-    </div>
+    </>
   );
 };
 

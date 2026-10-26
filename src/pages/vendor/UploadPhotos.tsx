@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { SubpageShell, FormSection, AsideBlock } from '@/components/dashboard/Subpage';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Loader2, Instagram, Image, Check, ArrowRight, X, Upload, Camera } from 'lucide-react';
@@ -124,184 +125,123 @@ const TestInstagramScrape = () => {
 
   const allPhotos = [...uploadedPhotos, ...scrapedPhotos];
 
+  const slots = Array.from({ length: 6 }, (_, i) => selectedPhotos[i]);
+
   return (
-    <div className="min-h-screen bg-background pb-28">
-      <div className="horizon-line" />
-      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8 [&>*]:max-w-3xl">
-        {/* Header */}
-        <div className="text-center space-y-2 pt-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-brand rounded-2xl mb-4">
-            <Camera className="h-8 w-8 text-paper" />
-          </div>
-          <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">Add Your Photos</h1>
-          <p className="text-muted-foreground">
-            Upload photos to showcase your services
-          </p>
-        </div>
-
-        {/* Upload Photos Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Upload className="h-5 w-5" />
-              Upload Photos
-            </CardTitle>
-            <CardDescription>
-              Select up to 6 high-quality photos of your work
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              className="w-full gap-2"
-              variant="outline"
-            >
-              {isUploading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Uploading...
-                </>
-              ) : (
-                <>
-                  <Upload className="h-4 w-4" />
-                  Choose Photos
-                </>
-              )}
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Instagram Scrape (Optional) */}
-        <Card className="border-dashed">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-muted-foreground">
-              <Instagram className="h-5 w-5" />
-              Import from Instagram (Beta)
-            </CardTitle>
-            <CardDescription>
-              Try to import photos from your Instagram profile
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-2">
-              <Input
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://instagram.com/yourusername"
-                className="flex-1"
-              />
-              <Button onClick={handleScrape} disabled={isLoading} variant="secondary">
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  'Try Import'
-                )}
+    <SubpageShell
+      backLabel="Back"
+      onBack={() => navigate(-1)}
+      eyebrow="Profile setup · step 2"
+      title="Add your photos"
+      subtitle="Pick up to six photos of your work. The first one becomes your cover on host storefronts."
+      aside={
+        <>
+          <AsideBlock title="Your selection">
+            <p className="font-display text-4xl tabular-nums text-foreground">{selectedPhotos.length}<span className="text-muted-foreground"> / 6</span></p>
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              {slots.map((photo, i) => (
+                <div key={i} className="relative aspect-square overflow-hidden rounded-lg border border-dashed border-white/15">
+                  {photo && (
+                    <>
+                      <img src={photo} alt={`Selected ${i + 1}`} className="h-full w-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => togglePhotoSelection(photo)}
+                        className="absolute right-1 top-1 rounded-full bg-background/80 p-0.5 text-foreground"
+                        aria-label="Remove photo"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </>
+                  )}
+                  {i === 0 && <span className="absolute bottom-1 left-1 rounded bg-background/80 px-1.5 text-[10px] uppercase tracking-wider text-muted-foreground">Cover</span>}
+                </div>
+              ))}
+            </div>
+            <div className="mt-5 flex gap-2">
+              <Button onClick={handleContinue} disabled={selectedPhotos.length === 0} className="gap-2">
+                Continue
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" onClick={() => navigate('/vendor/create-profile')} className="text-muted-foreground">
+                Skip for now
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Note: Instagram import may not work for all profiles. Uploading photos directly is recommended.
-            </p>
-          </CardContent>
-        </Card>
+          </AsideBlock>
+          <AsideBlock title="What works">
+            <ul className="list-disc space-y-1.5 pl-4 text-muted-foreground">
+              <li>Real guests mid-activity beat staged shots.</li>
+              <li>Landscape photos crop best on storefront cards.</li>
+            </ul>
+          </AsideBlock>
+        </>
+      }
+    >
+      <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleFileUpload} className="hidden" />
 
-        {/* Photo Selection */}
-        {allPhotos.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Image className="h-5 w-5" />
-                Select Your Photos
-              </CardTitle>
-              <CardDescription>
-                Choose up to 6 photos for your profile ({selectedPhotos.length}/6 selected)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-3">
-                {allPhotos.map((photo, index) => (
-                  <div
-                    key={index}
-                    className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${
-                      selectedPhotos.includes(photo) 
-                        ? 'border-primary ring-2 ring-primary/20' 
-                        : 'border-transparent hover:border-muted-foreground/30'
-                    }`}
-                    onClick={() => togglePhotoSelection(photo)}
-                  >
-                    <img
-                      src={photo}
-                      alt={`Photo ${index + 1}`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.parentElement!.style.display = 'none';
-                      }}
-                    />
-                    {selectedPhotos.includes(photo) && (
-                      <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
-                        <Check className="h-8 w-8 text-primary-foreground bg-primary rounded-full p-1" />
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Selected Preview & Continue */}
-        {selectedPhotos.length > 0 && (
-          <Card className="border-primary">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between mb-4">
-                <p className="font-medium">Selected Photos</p>
-                <Button onClick={handleContinue} className="gap-2">
-                  Continue
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {selectedPhotos.map((photo, index) => (
-                  <div key={index} className="relative flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden">
-                    <img src={photo} alt={`Selected ${index + 1}`} className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        togglePhotoSelection(photo);
-                      }}
-                      className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-0.5"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Skip option */}
-        <div className="text-center">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/vendor/create-profile')}
-            className="text-muted-foreground"
+      <section className="py-8">
+        {allPhotos.length === 0 ? (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            className="flex aspect-[16/7] w-full flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/20 text-muted-foreground transition-colors hover:border-primary hover:text-foreground"
           >
-            Skip for now
+            {isUploading ? <Loader2 className="h-6 w-6 animate-spin" /> : <Upload className="h-6 w-6" />}
+            <span className="font-display text-xl text-foreground">{isUploading ? "Uploading..." : "Choose photos from your computer"}</span>
+            <span className="text-sm">JPG or PNG, up to six</span>
+          </button>
+        ) : (
+          <>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="font-display text-lg text-foreground">Choose which to show</h2>
+              <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploading} className="gap-2">
+                {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                Add more
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {allPhotos.map((photo, index) => (
+                <button
+                  type="button"
+                  key={index}
+                  className={`relative aspect-[4/3] overflow-hidden rounded-xl border-2 transition-all ${
+                    selectedPhotos.includes(photo) ? 'border-primary' : 'border-transparent hover:border-white/30'
+                  }`}
+                  onClick={() => togglePhotoSelection(photo)}
+                >
+                  <img
+                    src={photo}
+                    alt={`Photo ${index + 1}`}
+                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).parentElement!.style.display = 'none';
+                    }}
+                  />
+                  {selectedPhotos.includes(photo) && (
+                    <span className="absolute right-2 top-2 rounded-full bg-primary p-1 text-primary-foreground">
+                      <Check className="h-4 w-4" />
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </section>
+
+      <FormSection
+        title="Import from Instagram"
+        description="Beta. Pulls recent posts from a public profile. It doesn't work for every account, so uploading directly is more reliable."
+      >
+        <div className="flex gap-2">
+          <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://instagram.com/yourusername" className="flex-1" />
+          <Button onClick={handleScrape} disabled={isLoading} variant="secondary">
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Import'}
           </Button>
         </div>
-      </div>
-    </div>
+      </FormSection>
+    </SubpageShell>
   );
 };
 

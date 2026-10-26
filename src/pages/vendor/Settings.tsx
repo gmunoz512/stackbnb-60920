@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { SubpageShell, FormSection, AsideBlock } from "@/components/dashboard/Subpage";
 import VendorBottomNav from "@/components/VendorBottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
@@ -101,36 +102,28 @@ const VendorSettings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28">
-      <div className="horizon-line" />
-      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8 [&>*]:max-w-3xl">
-        {/* Header */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="p-2 rounded-lg hover:bg-muted transition-colors active:scale-95"
-            aria-label="Go back"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </button>
-          <div>
-            <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">Settings</h1>
-            <p className="text-sm text-muted-foreground">Configure your business policies</p>
-          </div>
-        </div>
-
-        {/* Cancellation Policy Card */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-primary" />
-              <CardTitle className="text-lg">Cancellation Policy</CardTitle>
-            </div>
-            <CardDescription>
-              Set how far in advance guests must cancel their booking to receive a refund.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+    <>
+      <SubpageShell
+        backLabel="Back"
+        onBack={() => navigate(-1)}
+        eyebrow="Business settings"
+        title="Settings"
+        subtitle="Policies that apply to every booking of your services."
+        aside={
+          <>
+            <AsideBlock title="Where this shows">
+              <p className="text-muted-foreground">The cancellation window is shown on every service page and in the booking confirmation email guests receive.</p>
+            </AsideBlock>
+            <AsideBlock title="Common choices">
+              <ul className="list-disc space-y-1.5 pl-4 text-muted-foreground">
+                <li>24 hours for tours and classes</li>
+                <li>48 to 72 hours for private charters and chefs</li>
+              </ul>
+            </AsideBlock>
+          </>
+        }
+      >
+        <FormSection title="Cancellation policy" description="How far ahead guests must cancel to get a refund.">
             {isLoading ? (
               <div className="space-y-2">
                 <Skeleton className="h-4 w-32" />
@@ -170,7 +163,7 @@ const VendorSettings = () => {
                 <Button
                   onClick={handleSave}
                   disabled={isSaving || !vendorProfileId}
-                  className="w-full"
+                  className="sm:w-auto"
                 >
                   {isSaving ? (
                     "Saving..."
@@ -183,12 +176,10 @@ const VendorSettings = () => {
                 </Button>
               </>
             )}
-          </CardContent>
-        </Card>
-      </div>
-
+        </FormSection>
+      </SubpageShell>
       <VendorBottomNav />
-    </div>
+    </>
   );
 };
 

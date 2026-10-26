@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { SubpageShell, FormSection, AsideBlock } from "@/components/dashboard/Subpage";
+import { formatMoney } from "@/lib/format";
 import HostBottomNav from "@/components/HostBottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -78,26 +80,41 @@ const AddVendor = () => {
     }
   };
 
+  const commission = Number(form.watch("commission")) || 0;
+  const examplePrice = 100;
+
   return (
-    <div className="min-h-screen bg-background pb-28">
-      <div className="horizon-line" />
-      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8 [&>*]:max-w-3xl">
-        <button 
-          onClick={goBack}
-          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors active:scale-95"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Vendors
-        </button>
-
-        <div className="space-y-1">
-          <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">Add New Vendor</h1>
-          <p className="text-sm text-muted-foreground">Invite a local service provider</p>
-        </div>
-
-        <Card className="p-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-5">
+    <>
+      <SubpageShell
+        backLabel="Back to vendors"
+        onBack={goBack}
+        eyebrow="Vendors"
+        title="Invite a vendor"
+        subtitle="They get an email to accept your commission and set up their services. Nothing shows to guests until they accept."
+        aside={
+          <>
+            <AsideBlock title="On a $100 booking">
+              <dl className="space-y-2 tabular-nums">
+                <div className="flex justify-between"><dt className="text-muted-foreground">Guest pays</dt><dd>{formatMoney(examplePrice)}</dd></div>
+                <div className="flex justify-between"><dt className="text-muted-foreground">You earn</dt><dd>{formatMoney(examplePrice * commission / 100)}</dd></div>
+                <div className="flex justify-between border-t border-white/10 pt-2"><dt className="text-muted-foreground">Vendor keeps</dt><dd>{formatMoney(examplePrice * (100 - commission) / 100)}</dd></div>
+              </dl>
+              <p className="mt-3 text-xs text-muted-foreground">Before payment processing fees.</p>
+            </AsideBlock>
+            <AsideBlock title="What happens next">
+              <ol className="list-decimal space-y-1.5 pl-4 text-muted-foreground">
+                <li>The vendor gets your invite by email.</li>
+                <li>They accept or counter the commission.</li>
+                <li>Their services appear in your guest guide.</li>
+              </ol>
+            </AsideBlock>
+          </>
+        }
+      >
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)}>
+            <FormSection title="Who they are" description="The business and the address the invite goes to.">
+              <div className="grid gap-5 sm:grid-cols-2">
               <FormField
                 control={form.control}
                 name="vendorName"
@@ -111,7 +128,6 @@ const AddVendor = () => {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="vendorEmail"
@@ -129,7 +145,7 @@ const AddVendor = () => {
                   </FormItem>
                 )}
               />
-
+              </div>
               <FormField
                 control={form.control}
                 name="category"
@@ -156,7 +172,8 @@ const AddVendor = () => {
                   </FormItem>
                 )}
               />
-
+            </FormSection>
+            <FormSection title="Commission" description="Your share of each booking. Typical range is 15 to 25%.">
               <FormField
                 control={form.control}
                 name="commission"
@@ -179,7 +196,8 @@ const AddVendor = () => {
                   </FormItem>
                 )}
               />
-
+            </FormSection>
+            <FormSection title="Your recommendation" description="Shown to guests next to this vendor in your guide.">
               <FormField
                 control={form.control}
                 name="recommendation"
@@ -198,23 +216,16 @@ const AddVendor = () => {
                   </FormItem>
                 )}
               />
-
-              <Button 
-                type="submit" 
-                variant="gradient" 
-                className="w-full" 
-                size="lg"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Sending..." : "Send Invitation"}
-              </Button>
-            </form>
-          </Form>
-        </Card>
-      </div>
-
+            </FormSection>
+            <div className="flex justify-end gap-3 py-8">
+              <Button type="button" variant="ghost" onClick={goBack}>Cancel</Button>
+              <Button type="submit" disabled={isSubmitting}>{isSubmitting ? "Sending..." : "Send invitation"}</Button>
+            </div>
+          </form>
+        </Form>
+      </SubpageShell>
       <HostBottomNav />
-    </div>
+    </>
   );
 };
 

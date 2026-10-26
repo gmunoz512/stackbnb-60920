@@ -1,4 +1,4 @@
-import { formatDay, formatMoney } from "@/lib/format";
+import { formatDay, formatMoney, bookingPhase } from "@/lib/format";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Calendar, DollarSign } from "lucide-react";
@@ -102,7 +102,7 @@ const HostBookings = () => {
                   <span className="text-muted-foreground">{formatDay(booking.booking_date)}</span>
                   <span className="font-medium text-foreground">{booking.experience_name}</span>
                   <span className="text-muted-foreground">{booking.vendor_name || "Vendor not set"}</span>
-                  <span className="capitalize text-muted-foreground">{booking.status}</span>
+                  <span className="text-muted-foreground">{({ upcoming: "Upcoming", completed: "Completed", awaiting: "Awaiting completion", cancelled: "Cancelled" } as const)[bookingPhase(booking)]}</span>
                   <span className="tabular-nums text-foreground md:text-right">{formatMoney(booking.host_payout_amount)}</span>
                 </div>
               ))}

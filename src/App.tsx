@@ -228,7 +228,7 @@ const AppRoutes = () => (
     <Route path="/shared/:token" element={<SharedItinerary />} />
     <Route path="/restaurant/:id" element={<RestaurantDetail />} />
     <Route path="/restaurants" element={<AllRestaurants />} />
-    <Route path="/experiences" element={<AllExperiences />} />
+    <Route path="/experiences" element={<Navigate to="/explore" replace />} />
     <Route path="/wishlists" element={<Wishlists />} />
     <Route path="/guide/:hostId" element={<GuestGuide />} />
     <Route path="/privacy" element={<PrivacyPolicy />} />

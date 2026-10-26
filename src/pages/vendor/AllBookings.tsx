@@ -9,7 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { SkeletonCardList } from "@/components/ui/skeleton-card";
 import { toast } from "sonner";
-import { formatDay, formatMoney, formatTime } from "@/lib/format";
+import { formatDay, formatMoney, formatTime, bookingPhase, type BookingPhase } from "@/lib/format";
+
+const PHASE_LABEL: Record<BookingPhase, string> = { upcoming: "Upcoming", completed: "Completed", awaiting: "Awaiting completion", cancelled: "Cancelled" };
 import {
   AlertDialog,
   AlertDialogAction,
@@ -140,9 +142,9 @@ const AllBookings = () => {
                 <span className="text-muted-foreground"><span className="md:hidden">Guests: </span>{booking.guests}</span>
                 <span className="tabular-nums text-foreground">{formatMoney(booking.amount)}</span>
                 <span className="text-muted-foreground">{booking.host}</span>
-                <span className="capitalize text-muted-foreground">{booking.status}</span>
+                <span className="text-muted-foreground">{PHASE_LABEL[bookingPhase({ status: booking.status, booking_date: booking.date })]}</span>
                 <span className="w-16 md:text-right">
-                  {booking.status !== 'cancelled' && booking.status !== 'completed' && (
+                  {bookingPhase({ status: booking.status, booking_date: booking.date }) === 'upcoming' && (
                     <button className="text-sm text-danger-strong hover:underline" onClick={() => handleCancelClick(booking)}>Cancel</button>
                   )}
                 </span>

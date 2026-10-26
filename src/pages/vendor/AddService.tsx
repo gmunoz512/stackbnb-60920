@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { SubpageShell, FormSection, AsideBlock } from "@/components/dashboard/Subpage";
+import { formatMoney } from "@/lib/format";
 import VendorBottomNav from "@/components/VendorBottomNav";
 import { useToast } from "@/hooks/use-toast";
 import { useSmartBack } from "@/hooks/use-smart-back";
@@ -101,26 +103,43 @@ const AddService = () => {
     }
   };
 
+  const preview = {
+    name: formData.serviceName || "Your service name",
+    price: Number(formData.price) || 0,
+  };
+
   return (
-    <div className="min-h-screen bg-background pb-28">
-      <div className="horizon-line" />
-      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8 [&>*]:max-w-3xl">
-        <button 
-          onClick={goBack}
-          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors active:scale-95"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Services
-        </button>
-
-        <div className="space-y-1">
-          <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">Add Service</h1>
-          <p className="text-sm text-muted-foreground">Create a new offering</p>
-        </div>
-
-        <Card className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
+    <>
+      <SubpageShell
+        backLabel="Back to services"
+        onBack={goBack}
+        eyebrow="Services"
+        title="Add a service"
+        subtitle="Guests see this on your page and in every host storefront that lists you."
+        aside={
+          <>
+            <AsideBlock title="How guests will see it">
+              <div className="rounded-xl border border-white/10 p-4">
+                <p className="font-display text-lg text-foreground">{preview.name}</p>
+                <p className="mt-1 text-muted-foreground">
+                  {[formData.duration, formData.maxCapacity ? `up to ${formData.maxCapacity} guests` : null].filter(Boolean).join(" · ") || "Duration · capacity"}
+                </p>
+                <p className="mt-3 tabular-nums text-foreground">{preview.price ? `${formatMoney(preview.price)} per person` : "Price per person"}</p>
+              </div>
+            </AsideBlock>
+            <AsideBlock title="Tips">
+              <ul className="list-disc space-y-1.5 pl-4 text-muted-foreground">
+                <li>Lead with what happens, not adjectives: where you go and what's included.</li>
+                <li>Use the duration guests will actually spend, including pickup.</li>
+                <li>Your rating comes from your Google listing, not this form.</li>
+              </ul>
+            </AsideBlock>
+          </>
+        }
+      >
+        <form onSubmit={handleSubmit}>
+          <FormSection title="The basics" description="The name and description guests read before they book.">
+<div className="space-y-2">
               <Label htmlFor="serviceName" className="text-sm font-medium">Service Name *</Label>
               <Input
                 id="serviceName"
@@ -134,8 +153,7 @@ const AddService = () => {
                 <p className="text-xs text-destructive">{errors.serviceName}</p>
               )}
             </div>
-
-            <div className="space-y-2">
+<div className="space-y-2">
               <Label htmlFor="description" className="text-sm font-medium">Description *</Label>
               <Textarea
                 id="description"
@@ -150,8 +168,10 @@ const AddService = () => {
                 <p className="text-xs text-destructive">{errors.description}</p>
               )}
             </div>
-
-            <div className="space-y-2">
+          </FormSection>
+          <FormSection title="Price and capacity" description="What one guest pays and how many you can take at once.">
+            <div className="grid gap-5 sm:grid-cols-3">
+<div className="space-y-2">
               <Label htmlFor="duration" className="text-sm font-medium">Duration *</Label>
               <Input
                 id="duration"
@@ -165,9 +185,8 @@ const AddService = () => {
                 <p className="text-xs text-destructive">{errors.duration}</p>
               )}
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="price" className="text-sm font-medium">Price *</Label>
+<div className="space-y-2">
+              <Label htmlFor="price" className="text-sm font-medium">Price per person (USD) *</Label>
               <Input
                 id="price"
                 name="price"
@@ -183,8 +202,7 @@ const AddService = () => {
                 <p className="text-xs text-destructive">{errors.price}</p>
               )}
             </div>
-
-            <div className="space-y-2">
+<div className="space-y-2">
               <Label htmlFor="maxCapacity" className="text-sm font-medium">Max Capacity *</Label>
               <Input
                 id="maxCapacity"
@@ -200,8 +218,8 @@ const AddService = () => {
                 <p className="text-xs text-destructive">{errors.maxCapacity}</p>
               )}
             </div>
-
-            <div className="space-y-2">
+            </div>
+<div className="space-y-2">
               <Label htmlFor="category" className="text-sm font-medium">Category *</Label>
               <Select
                 value={formData.category}
@@ -229,16 +247,15 @@ const AddService = () => {
                 <p className="text-xs text-destructive">{errors.category}</p>
               )}
             </div>
-
-            <Button type="submit" variant="gradient" className="w-full" size="lg">
-              Save Service
-            </Button>
-          </form>
-        </Card>
-      </div>
-
+          </FormSection>
+          <div className="flex justify-end gap-3 py-8">
+            <Button type="button" variant="ghost" onClick={goBack}>Cancel</Button>
+            <Button type="submit">Save service</Button>
+          </div>
+        </form>
+      </SubpageShell>
       <VendorBottomNav />
-    </div>
+    </>
   );
 };
 

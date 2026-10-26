@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import stackdLogo from "@/assets/stackd-logo-new.png";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -19,6 +20,7 @@ import {
   Handshake,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { SubpageShell, AsideBlock } from "@/components/dashboard/Subpage";
 import HostBottomNav from "@/components/HostBottomNav";
 import { useSignup } from "@/contexts/SignupContext";
 import { useProfile } from "@/contexts/ProfileContext";
@@ -209,45 +211,46 @@ const HostProfile = () => {
     navigate(action);
   };
 
-  return (
-    <div className="min-h-screen bg-background pb-28">
-      <div className="horizon-line" />
-      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8 [&>*]:max-w-3xl">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">Profile</h1>
-            <p className="text-sm text-muted-foreground">Manage your account</p>
-          </div>
-          <button
-            onClick={() => navigate('/signout')}
-            className="p-2 rounded-lg hover:bg-muted transition-colors active:scale-95"
-            aria-label="Sign out"
-          >
-            <LogOut className="h-5 w-5 text-muted-foreground" />
-          </button>
-        </div>
-        
-        {/* Profile Header Card */}
-        <Card className="p-5">
-          <div className="flex items-center gap-3">
-            <div className="h-16 w-16 rounded-full bg-brand flex items-center justify-center flex-shrink-0">
-              <img src={stackdLogo} alt="stackd" className="h-10 w-10 object-contain" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h2 className="text-lg font-bold truncate">
-                {displayFullName || "Your Name"}
-              </h2>
-              <p className="text-sm text-muted-foreground truncate">
-                {propertyName || "Your property"}
-              </p>
-            </div>
-          </div>
-        </Card>
+  const listItems = allMenuItems.filter((item) => item.action !== "share-guide" && item.action !== "/signout");
 
-        {/* Menu Items */}
-        <Card className="overflow-hidden">
-          {allMenuItems.map((item, index) => (
+  return (
+    <>
+      <SubpageShell
+        backLabel="Back to dashboard"
+        onBack={() => navigate('/host/dashboard')}
+        eyebrow="Account"
+        title={displayFullName || "Your profile"}
+        subtitle={propertyName ? `Host at ${propertyName}` : "Add your property to finish setup."}
+        actions={
+          <Button variant="outline" size="sm" onClick={() => navigate('/signout')} className="gap-2 whitespace-nowrap">
+            <LogOut className="h-4 w-4" />
+            Sign out
+          </Button>
+        }
+        aside={
+          <>
+            <AsideBlock title="Share your guest guide">
+              <p className="text-muted-foreground">Send guests the page with every experience you recommend. They book directly and you earn on each booking.</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button size="sm" onClick={handleCopyGuideLink} className="gap-2">
+                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copied ? "Copied" : "Copy link"}
+                </Button>
+                <Button size="sm" variant="outline" onClick={handleShareSMS} className="gap-2">
+                  <MessageCircle className="h-4 w-4" />
+                  Text
+                </Button>
+                <Button size="sm" variant="outline" onClick={handleShareWhatsApp} className="gap-2">
+                  <FaWhatsapp className="h-4 w-4" />
+                  WhatsApp
+                </Button>
+              </div>
+            </AsideBlock>
+          </>
+        }
+      >
+        <nav className="grid border-t border-white/10 sm:grid-cols-2 sm:gap-x-10 mt-8">
+          {listItems.map((item, index) => (
             item.action === "share-guide" ? (
               <DropdownMenu key={item.label}>
                 <DropdownMenuTrigger asChild>
@@ -255,7 +258,7 @@ const HostProfile = () => {
                     className={`
  w-full flex items-center justify-between p-4 
  hover:bg-muted/30 active:bg-muted/50 transition-all
- ${index !== allMenuItems.length - 1 ? 'border-b' : ''}
+ ${'border-b border-white/10'}
  bg-brand/5 `}
                   >
                     <div className="flex items-center gap-3">
@@ -298,12 +301,12 @@ const HostProfile = () => {
                 className={`
  w-full flex items-center justify-between p-4 
  hover:bg-muted/30 active:bg-muted/50 transition-all
- ${index !== allMenuItems.length - 1 ? 'border-b' : ''}
- ${'isAdmin' in item && item.isAdmin ? 'bg-brand ' : ''}
+ ${'border-b border-white/10'}
+ 
  `}
               >
                 <div className="flex items-center gap-3">
-                  <item.icon className={`h-5 w-5 flex-shrink-0 ${'isAdmin' in item && item.isAdmin ? 'text-grape' : 'text-muted-foreground'}`} />
+                  <item.icon className={`h-5 w-5 flex-shrink-0 ${'isAdmin' in item && item.isAdmin ? 'text-secondary' : 'text-muted-foreground'}`} />
                   <div className="text-left">
                     <span className="font-medium text-sm block">
                       {item.label}
@@ -314,11 +317,10 @@ const HostProfile = () => {
               </button>
             )
           ))}
-        </Card>
-      </div>
-
+        </nav>
+      </SubpageShell>
       <HostBottomNav />
-    </div>
+    </>
   );
 };
 

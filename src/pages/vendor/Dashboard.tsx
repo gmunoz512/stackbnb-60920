@@ -12,7 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { VendorOnboardingWizard } from "@/components/onboarding";
 import HostVerificationCard from "@/components/onboarding/HostVerificationCard";
 import { VendorGoogleRating } from "@/components/VendorGoogleRating";
-import { formatDay, formatMoney, formatTime } from "@/lib/format";
+import { formatDay, formatMoney, formatTime, bookingPhase, localISODate } from "@/lib/format";
 import {
   DashboardFrame, DashboardHeader, DashboardSection, FigureList, FigureRow, Notice,
 } from "@/components/dashboard/DashboardParts";
@@ -45,12 +45,13 @@ const VendorDashboard = () => {
         .maybeSingle();
       if (!vendor) return null;
 
-      const today = new Date().toISOString().split("T")[0];
+      const today = localISODate();
       const [{ data: completed }, { data: upcoming }, { data: links }] = await Promise.all([
         supabase.from("bookings").select("total_amount, vendor_payout_amount, host_user_id")
           .eq("vendor_profile_id", vendor.id).eq("status", "completed"),
-        supabase.from("bookings").select("id, experience_name, booking_date, booking_time, guests, host_user_id")
+        supabase.from("bookings").select("id, experience_name, booking_date, booking_time, guests, host_user_id, status")
           .eq("vendor_profile_id", vendor.id).gte("booking_date", today)
+          .not("status", "in", "(completed,cancelled)")
           .order("booking_date", { ascending: true }).limit(8),
         supabase.from("host_vendor_links").select("host_user_id").eq("vendor_profile_id", vendor.id),
       ]);
@@ -69,7 +70,7 @@ const VendorDashboard = () => {
         (hosts ?? []).forEach((h) => h.full_name && names.set(h.user_id, h.full_name));
       }
 
-      const bookings: UpcomingBooking[] = (upcoming ?? []).map((b) => ({
+      const bookings: UpcomingBooking[] = (upcoming ?? []).filter((b) => bookingPhase(b, today) === "upcoming").map((b) => ({
         id: b.id,
         service: b.experience_name,
         date: b.booking_date,

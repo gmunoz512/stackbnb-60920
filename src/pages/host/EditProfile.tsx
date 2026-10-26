@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { SubpageShell, FormSection, AsideBlock } from "@/components/dashboard/Subpage";
 import HostBottomNav from "@/components/HostBottomNav";
 import { useSignup } from "@/contexts/SignupContext";
 import { useAuthContext } from "@/contexts/AuthContext";
@@ -149,34 +150,32 @@ const EditHostProfile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28">
-      <div className="horizon-line" />
-      <div className="mx-auto w-full max-w-[1240px] px-5 pt-8 sm:px-8 lg:pt-12 space-y-8 [&>*]:max-w-3xl">
-        <button 
-          onClick={goBack}
-          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors active:scale-95"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Profile
-        </button>
-
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h1 className="font-display text-3xl leading-tight text-foreground lg:text-5xl">Profile</h1>
-            <p className="text-sm text-muted-foreground">
-              {isEditing ? "Update your information" : "View your information"}
-            </p>
-          </div>
-          {!isEditing && (
-            <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">
-              Edit
-            </Button>
-          )}
-        </div>
-
-        <Card className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
+    <>
+      <SubpageShell
+        backLabel="Back to profile"
+        onBack={goBack}
+        eyebrow="Account"
+        title="Your details"
+        subtitle={isEditing ? "Update your information, then save." : "How vendors and guests can identify and reach you."}
+        actions={!isEditing ? (
+          <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">Edit</Button>
+        ) : undefined}
+        aside={
+          <>
+            <AsideBlock title="Who sees this">
+              <ul className="list-disc space-y-1.5 pl-4 text-muted-foreground">
+                <li>Your property name heads your guest guide.</li>
+                <li>Vendors you invite see your name and email.</li>
+                <li>Your phone is only used for booking problems.</li>
+              </ul>
+            </AsideBlock>
+          </>
+        }
+      >
+        <form onSubmit={handleSubmit}>
+          <FormSection title="Name" description="As it appears on vendor invites.">
+            <div className="grid gap-5 sm:grid-cols-2">
+<div className="space-y-2">
               <Label htmlFor="firstName">First Name</Label>
               <Input
                 id="firstName"
@@ -187,8 +186,7 @@ const EditHostProfile = () => {
                 required
               />
             </div>
-
-            <div className="space-y-2">
+<div className="space-y-2">
               <Label htmlFor="lastName">Last Name</Label>
               <Input
                 id="lastName"
@@ -199,8 +197,11 @@ const EditHostProfile = () => {
                 required
               />
             </div>
-
-            <div className="space-y-2">
+            </div>
+          </FormSection>
+          <FormSection title="Contact" description="Where we send booking notices.">
+            <div className="grid gap-5 sm:grid-cols-2">
+<div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -212,8 +213,7 @@ const EditHostProfile = () => {
                 required
               />
             </div>
-
-            <div className="space-y-2">
+<div className="space-y-2">
               <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
@@ -225,8 +225,10 @@ const EditHostProfile = () => {
                 required
               />
             </div>
-
-            <div className="space-y-2">
+            </div>
+          </FormSection>
+          <FormSection title="Property" description="Shown at the top of your guest guide.">
+<div className="space-y-2">
               <Label htmlFor="propertyName">Property Name</Label>
               <Input
                 id="propertyName"
@@ -237,36 +239,19 @@ const EditHostProfile = () => {
                 required
               />
             </div>
-
-            {isEditing && (
-              <div className="flex gap-3">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  className="flex-1" 
-                  size="lg"
-                  onClick={handleCancel}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" variant="gradient" className="flex-1" size="lg" disabled={isSaving}>
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    "Save Changes"
-                  )}
-                </Button>
-              </div>
-            )}
-          </form>
-        </Card>
-      </div>
-
+          </FormSection>
+          {isEditing && (
+            <div className="flex justify-end gap-3 py-8">
+              <Button type="button" variant="ghost" onClick={handleCancel}>Cancel</Button>
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</>) : "Save changes"}
+              </Button>
+            </div>
+          )}
+        </form>
+      </SubpageShell>
       <HostBottomNav />
-    </div>
+    </>
   );
 };
 
