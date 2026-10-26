@@ -72,7 +72,7 @@ const SplashPage = () => (
         <h2 className="font-['Archivo_Black'] text-2xl md:text-3xl">Start with a mood</h2>
         <Link to="/appview" className="text-sm text-muted-foreground hover:text-foreground">See everything</Link>
       </div>
-      <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-5 md:px-10 pb-2 max-w-7xl mx-auto [scrollbar-width:none]">
+      <div className="max-w-7xl mx-auto"><div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scroll-px-5 md:scroll-px-10 pb-2 [scrollbar-width:none] before:content-[''] before:shrink-0 before:w-2 md:before:w-7 after:content-[''] after:shrink-0 after:w-2 md:after:w-7">
         {tiles.map((t, i) => (
           <Link
             key={t.label}
@@ -84,7 +84,7 @@ const SplashPage = () => (
             <span className="absolute left-4 bottom-4 right-4 font-semibold text-white text-base leading-tight">{t.label}</span>
           </Link>
         ))}
-      </div>
+      </div></div>
     </section>
 
     <footer className="border-t border-border px-5 md:px-10 py-8 max-w-7xl mx-auto flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between text-sm text-muted-foreground">

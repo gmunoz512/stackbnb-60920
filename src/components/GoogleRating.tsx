@@ -15,7 +15,7 @@ interface GoogleRatingProps {
 export function GoogleRating({
   value,
   showCount = true,
-  emptyLabel = "No rating yet",
+  emptyLabel = "New",
   className,
   starClassName = "h-3.5 w-3.5",
 }: GoogleRatingProps) {

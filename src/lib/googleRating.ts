@@ -1,7 +1,7 @@
 // Single source of truth for Google ratings shown anywhere in the app.
 // Canonical fields:
 //  - Restaurants: live Google Places data (useGoogleReviews → rating / totalReviews).
-//    A place's own `rating` is only trusted when it came from the Google Places API.
+//    A place's own `rating` is its Google rating (live from the API, or copied from Google into the catalog).
 //  - Vendors/experiences: vendor_profiles.google_rating (imported from Google).
 // Never invent a number: return null when there is no real rating.
 
@@ -22,8 +22,8 @@ export function resolveGoogleRating(input: {
   if (valid(input.google?.rating)) {
     return { rating: input.google!.rating!, reviewCount: input.google?.totalReviews ?? undefined };
   }
-  if (input.place?.isFromApi && valid(input.place.rating)) {
-    return { rating: input.place.rating, reviewCount: input.place.reviewCount || undefined };
+  if (valid(input.place?.rating)) {
+    return { rating: input.place!.rating!, reviewCount: input.place!.reviewCount || undefined };
   }
   if (valid(input.googleRating)) {
     return { rating: input.googleRating, reviewCount: input.googleReviewCount ?? undefined };
