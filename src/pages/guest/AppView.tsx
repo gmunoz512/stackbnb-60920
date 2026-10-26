@@ -1,3 +1,4 @@
+import { DesktopExplore } from "./desktop/DesktopExplore";
 import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -274,7 +275,21 @@ const AppView = () => {
   });
 
   return (
-    <PageTransition className="min-h-screen h-screen w-screen bg-background flex justify-center overflow-hidden lg:h-auto lg:min-h-screen lg:overflow-visible">
+    <>
+    <div className="hidden lg:block">
+      <DesktopExplore
+        destination={destination}
+        isAuthenticated={isAuthenticated}
+        profileRoute={profileRoute}
+        restaurants={curatedRestaurants}
+        googlePhotos={googlePhotos}
+        experiences={vendorExperiences}
+        isLoading={isLoadingVendors}
+        vendorFavorites={vendorFavorites}
+        toggleVendorFavorite={toggleVendorFavorite}
+      />
+    </div>
+    <PageTransition className="lg:hidden min-h-screen h-screen w-screen bg-background flex justify-center overflow-hidden lg:h-auto lg:min-h-screen lg:overflow-visible">
       {/* Phone container on mobile; full-width website shell on md/lg+ */}
       <div className="w-full max-w-[430px] h-full flex flex-col bg-background overflow-hidden relative md:max-w-5xl lg:max-w-6xl lg:h-auto lg:min-h-screen lg:overflow-visible">
         <div className="hidden lg:block h-14 shrink-0" aria-hidden="true" />
@@ -342,6 +357,7 @@ const AppView = () => {
         />
       </div>
     </PageTransition>
+    </>
   );
 };
 

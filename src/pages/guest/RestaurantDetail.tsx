@@ -1,3 +1,4 @@
+import { DesktopTopNav } from "@/pages/guest/desktop/DesktopExplore";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { 
@@ -243,11 +244,12 @@ const RestaurantDetail = () => {
     : null;
 
   return (
-    <div className="min-h-screen bg-background pb-[100px]">
-      <div className="max-w-[375px] md:max-w-3xl lg:max-w-5xl mx-auto">
+    <div className="min-h-screen bg-background pb-[100px] lg:pb-16">
+      <div className="hidden lg:block"><DesktopTopNav isAuthenticated={false} profileRoute="/profile" /></div>
+      <div className="max-w-[375px] md:max-w-3xl lg:max-w-[1360px] lg:px-4 mx-auto">
 
         {/* Floating header bar */}
-        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm">
+        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-sm lg:static lg:bg-transparent lg:pt-4">
           <div className="px-4 py-3 flex items-center justify-between">
             <button aria-label="Go back"
               onClick={handleBack}
@@ -269,13 +271,13 @@ const RestaurantDetail = () => {
           </div>
         </header>
 
-        <div className="lg:grid lg:grid-cols-2 lg:gap-8 lg:items-start">
+        <div className="lg:grid lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:gap-12 lg:items-start">
         {photos.length > 0 ? (
-          <div className="px-4 lg:px-6 lg:pt-2">
+          <div className="px-4 lg:px-6 lg:pt-2 lg:sticky lg:top-24">
             <StackedPhotoGrid photos={photos} alt={restaurant.name} />
           </div>
         ) : isLoadingReviews ? (
-          <div className="px-4 lg:px-6 lg:pt-2">
+          <div className="px-4 lg:px-6 lg:pt-2 lg:sticky lg:top-24">
             <div className="aspect-[4/3] rounded-xl bg-muted animate-pulse flex items-center justify-center">
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
@@ -516,8 +518,8 @@ const RestaurantDetail = () => {
         </div>
 
         {/* Fixed bottom CTA */}
-        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.06)] z-40">
-          <div className="max-w-[375px] md:max-w-3xl lg:max-w-5xl mx-auto space-y-2">
+        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.06)] z-40 lg:left-10 lg:right-auto lg:bottom-6 lg:w-[420px] lg:rounded-2xl lg:border lg:border-white/10 lg:bg-card/95 lg:backdrop-blur-xl lg:shadow-[0_24px_60px_-20px_rgba(236,72,153,.35)] lg:p-5">
+          <div className="max-w-[375px] md:max-w-3xl lg:max-w-none mx-auto space-y-2">
             {!reservationLink && (
               <p role="status" className="text-center text-xs text-muted-foreground">
                 <span className="font-semibold text-foreground">Reservations unavailable online</span>

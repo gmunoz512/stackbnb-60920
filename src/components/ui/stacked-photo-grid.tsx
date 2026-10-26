@@ -31,7 +31,7 @@ const StackedPhotoGrid = ({ photos, alt = 'Photo', className }: StackedPhotoGrid
             <img
               src={photos[0]}
               alt={alt}
-              className="w-full h-[280px] object-cover rounded-xl"
+              className="w-full h-[280px] lg:h-[460px] object-cover rounded-xl"
             />
           </button>
         )}
@@ -43,7 +43,7 @@ const StackedPhotoGrid = ({ photos, alt = 'Photo', className }: StackedPhotoGrid
                 <img
                   src={photo}
                   alt={`${alt} ${i + 1}`}
-                  className="w-full h-[200px] object-cover"
+                  className="w-full h-[200px] lg:h-[230px] object-cover transition-opacity hover:opacity-90"
                 />
               </button>
             ))}
@@ -57,14 +57,14 @@ const StackedPhotoGrid = ({ photos, alt = 'Photo', className }: StackedPhotoGrid
               <img
                 src={photos[0]}
                 alt={`${alt} 1`}
-                className="w-full h-[160px] object-cover"
+                className="w-full h-[160px] lg:h-[230px] object-cover transition-opacity hover:opacity-90"
               />
             </button>
             <button onClick={() => openViewer(1)} className="block">
               <img
                 src={photos[1]}
                 alt={`${alt} 2`}
-                className="w-full h-[160px] object-cover"
+                className="w-full h-[160px] lg:h-[230px] object-cover transition-opacity hover:opacity-90"
               />
             </button>
             {/* Bottom row: one wide photo */}
@@ -72,7 +72,7 @@ const StackedPhotoGrid = ({ photos, alt = 'Photo', className }: StackedPhotoGrid
               <img
                 src={photos[2]}
                 alt={`${alt} 3`}
-                className="w-full h-[120px] object-cover"
+                className="w-full h-[120px] lg:h-[200px] object-cover transition-opacity hover:opacity-90"
               />
             </button>
           </div>
